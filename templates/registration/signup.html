@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<section class="auth-intro"><p class="eyebrow">BẮT ĐẦU MỘT THÓI QUEN MỚI</p><h1>Một nơi cho từng khoản thu chi.</h1><p>Tạo tài khoản riêng để lưu giao dịch và xem tổng thu, tổng chi theo tháng.</p><div class="auth-note"><span aria-hidden="true">₫</span><span>Chưa có dữ liệu cũng không sao.<br><strong>Bạn bắt đầu từ trang giấy trắng.</strong></span></div></section>
+<section class="card auth-card"><p class="eyebrow">BƯỚC ĐẦU TIÊN</p><h2>Tạo tài khoản</h2><p class="muted">Chọn tên đăng nhập và mật khẩu của riêng bạn.</p>
+<form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<button class="button full" type="submit">Tạo tài khoản <span aria-hidden="true">→</span></button></form>
+<p class="auth-switch">Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a></p></section>
+{% endblock %}

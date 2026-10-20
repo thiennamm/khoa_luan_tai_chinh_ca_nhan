@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
+<section class="card form-card">
+{% if not has_categories %}<div class="notice"><strong>Bạn chưa có danh mục.</strong><p>Tạo ít nhất một danh mục thu hoặc chi trước khi thêm giao dịch.</p><a class="button secondary" href="{% url 'finance:category_create' %}">Tạo danh mục</a></div>{% endif %}
+<form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<p class="help">Chỉ những danh mục thuộc tài khoản của bạn mới xuất hiện. <a href="{% url 'finance:category_create' %}">Thêm danh mục</a></p><div class="form-actions"><button class="button" type="submit" {% if not has_categories %}disabled{% endif %}>Lưu giao dịch</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Hủy</a></div></form></section>
+{% endblock %}
+{% block scripts %}{{ category_kinds|json_script:'category-kinds' }}<script src="{% static 'js/transaction-form.js' %}" defer></script>{% endblock %}

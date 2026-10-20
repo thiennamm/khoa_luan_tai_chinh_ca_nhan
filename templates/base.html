@@ -1,0 +1,33 @@
+{% load static %}<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174c40">
+  <title>{% block title %}Sổ Thu Chi{% endblock %} · Tài chính cá nhân</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+<a class="skip-link" href="#main">Đến nội dung chính</a>
+{% if user.is_authenticated %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'finance:dashboard' %}"><span class="brand-icon" aria-hidden="true">₫</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a>
+    <nav aria-label="Điều hướng chính">
+      <a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◫</span> Tổng quan</a>
+      <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↔</span> Giao dịch</a>
+      <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▦</span> Danh mục</a>
+    </nav>
+    <div class="sidebar-foot"><span class="local-dot"></span> Không gian thu chi của bạn<small>Đơn vị tiền: Việt Nam đồng (VND)</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span class="muted">Một chút ghi chép, rõ hơn mỗi ngày.</span><div class="account"><span class="username">{{ user.username }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit">Đăng xuất</button></form></div></header>
+{% else %}
+<div class="auth-shell"><header class="auth-header"><a class="brand" href="{% url 'login' %}"><span class="brand-icon" aria-hidden="true">₫</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a><span class="muted">Gọn gàng hơn. Chủ động hơn.</span></header>
+{% endif %}
+    <main id="main" {% if not user.is_authenticated %}class="auth-main"{% endif %}>
+      {% if messages %}<div class="messages" role="status">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+{% if user.is_authenticated %}<footer class="footer">Sổ Thu Chi <span>Ghi chép của bạn · Dữ liệu của bạn</span></footer></div></div>{% else %}</div>{% endif %}
+{% block scripts %}{% endblock %}
+</body></html>

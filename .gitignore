@@ -1,0 +1,82 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local configuration and secrets; only placeholder examples may be shared
+.env
+.env.*
+!.env.example
+!.env.sample
+local_settings.py
+settings_local.py
+secrets/
+credentials/
+*.pem
+*.key
+
+# Local SQLite databases, journals and backups
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-*
+*.sqlite3-*
+*.db-*
+backups/
+
+# Personal financial data, uploads and exports
+data/
+datasets/
+private_data/
+raw_data/
+downloaded_data/
+downloads/
+media/
+uploads/
+exports/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.parquet
+*.jsonl
+*.sql
+
+# Downloaded archives are not source backups
+*.zip
+*.tar
+*.tgz
+*.gz
+*.bz2
+*.xz
+*.7z
+*.rar
+
+# Trained models may contain information derived from personal data
+artifacts/
+models/
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.keras
+*.safetensors
+*.bin
+
+# Local logs and editor/OS files
+*.log
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

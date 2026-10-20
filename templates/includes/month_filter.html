@@ -1,0 +1,5 @@
+<form class="month-filter" method="get">
+  <label for="id_month">Xem theo tháng</label>
+  <div class="month-controls">{{ month_form.month }}<button class="button secondary" type="submit">Xem</button></div>
+  {% if month_form.month.errors %}<div class="field-errors" role="alert">{{ month_form.month.errors }}<span>Đang hiển thị tháng {{ month_label }}.</span></div>{% endif %}
+</form>

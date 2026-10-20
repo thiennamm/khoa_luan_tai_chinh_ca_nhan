@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block title %}Xóa {{ object_type }}{% endblock %}
+{% block content %}<div class="page-heading"><div><p class="eyebrow">XÁC NHẬN THAO TÁC</p><h1>Xóa {{ object_type }}</h1></div></div>
+<section class="card form-card"><h2>{{ object }}</h2>{% if protected %}<p class="notice">Danh mục này đang có giao dịch nên không thể xóa. Hãy chuyển hoặc xóa các giao dịch liên quan trước.</p><a class="button secondary" href="{% url cancel_url %}">Quay lại</a>{% else %}<p>Bạn có chắc muốn xóa {{ object_type }} này? Thao tác này không thể hoàn tác.</p><form method="post">{% csrf_token %}<div class="form-actions"><button class="button danger" type="submit">Xác nhận xóa</button><a class="button secondary" href="{% url cancel_url %}">Hủy</a></div></form>{% endif %}</section>{% endblock %}
