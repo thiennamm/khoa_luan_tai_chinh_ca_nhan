@@ -4,6 +4,20 @@
 <div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
 <section class="card form-card">
 {% if not has_categories %}<div class="notice"><strong>Bạn chưa có danh mục.</strong><p>Tạo ít nhất một danh mục thu hoặc chi trước khi thêm giao dịch.</p><a class="button secondary" href="{% url 'finance:category_create' %}">Tạo danh mục</a></div>{% endif %}
-<form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<p class="help">Chỉ những danh mục thuộc tài khoản của bạn mới xuất hiện. <a href="{% url 'finance:category_create' %}">Thêm danh mục</a></p><div class="form-actions"><button class="button" type="submit" {% if not has_categories %}disabled{% endif %}>Lưu giao dịch</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Hủy</a></div></form></section>
+<form method="post" id="transaction-form">{% csrf_token %}{% include 'includes/form_fields.html' %}
+<section class="suggestion-panel" id="classification-suggestion" data-url="{% url 'finance:category_suggestion' %}" aria-labelledby="suggestion-title">
+  <h2 id="suggestion-title">Gợi ý thử nghiệm</h2>
+  <p class="help">Mô hình hiện được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt. Bạn cần xem lại trước khi áp dụng.</p>
+  <button class="button secondary" type="button" id="suggest-category">Gợi ý danh mục</button>
+  <div role="status" aria-live="polite" aria-atomic="true"><p id="suggestion-result"></p></div>
+  <div id="suggestion-actions" hidden>
+    <label for="suggestion-category">Danh mục phù hợp của bạn</label>
+    <select id="suggestion-category"></select>
+    <button class="button secondary" type="button" id="apply-suggestion" disabled>Áp dụng danh mục đã chọn</button>
+  </div>
+  <p class="help">Gợi ý không thay đổi danh mục hiện tại cho đến khi bạn bấm Áp dụng. <a href="{% url 'finance:category_list' %}">Quản lý ánh xạ danh mục</a>.</p>
+  <noscript><p>Bật JavaScript để dùng gợi ý. Bạn vẫn có thể nhập giao dịch thủ công.</p></noscript>
+</section>
+<p class="help">Chỉ những danh mục thuộc tài khoản của bạn mới xuất hiện. <a href="{% url 'finance:category_create' %}">Thêm danh mục</a></p><div class="form-actions"><button class="button" type="submit" {% if not has_categories %}disabled{% endif %}>Lưu giao dịch</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Hủy</a></div></form></section>
 {% endblock %}
 {% block scripts %}{{ category_kinds|json_script:'category-kinds' }}<script src="{% static 'js/transaction-form.js' %}" defer></script>{% endblock %}

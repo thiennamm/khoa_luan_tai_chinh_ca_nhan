@@ -1,0 +1,785 @@
+{
+  "completed_at_utc": "2026-10-20T12:53:41.018021+00:00",
+  "coverage_fully_confirmed": false,
+  "currency": null,
+  "date_branch": "swap_numeric_month_day_hypothesis",
+  "date_hypothesis_author_confirmed": false,
+  "derived_sha256": "d60f5982a7a71ed2066d23ad1cb4df422cb5f53a49786ad18c14cae5ccd56b24",
+  "not_fully_blind_evaluation": true,
+  "protocol_sha256": "5e2428ff095a3fa35fb393fad979650ea1e4baf70d70bbb434eb15c0b911f7e4",
+  "runtime": {
+    "joblib": "1.6.0",
+    "numpy": "2.5.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.16",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "threadpoolctl": "3.7.0"
+  },
+  "selected_alpha": 0.1,
+  "selection_sha256": "ed1ee60312e10dfa3d3f55f47d44facd5366a40ba425a3c38aa4f4c122729aa3",
+  "target": "observed gross debit total in workbook, by assumed posting month",
+  "test": {
+    "mean_previous_3": {
+      "fits": [],
+      "predictions": [
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-06",
+          "history_months": 71,
+          "month": "2021-07",
+          "observed": 5728.23,
+          "predicted": 5925.2,
+          "raw_prediction": 5925.2
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-07",
+          "history_months": 72,
+          "month": "2021-08",
+          "observed": 5987.18,
+          "predicted": 5917.94,
+          "raw_prediction": 5917.94
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-08",
+          "history_months": 73,
+          "month": "2021-09",
+          "observed": 6515.87,
+          "predicted": 6146.723333333332,
+          "raw_prediction": 6146.723333333332
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-09",
+          "history_months": 74,
+          "month": "2021-10",
+          "observed": 6149.22,
+          "predicted": 6077.093333333333,
+          "raw_prediction": 6077.093333333333
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-10",
+          "history_months": 75,
+          "month": "2021-11",
+          "observed": 5606.01,
+          "predicted": 6217.423333333333,
+          "raw_prediction": 6217.423333333333
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-11",
+          "history_months": 76,
+          "month": "2021-12",
+          "observed": 5586.1,
+          "predicted": 6090.366666666666,
+          "raw_prediction": 6090.366666666666
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-12",
+          "history_months": 77,
+          "month": "2022-01",
+          "observed": 5686.67,
+          "predicted": 5780.443333333334,
+          "raw_prediction": 5780.443333333334
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-01",
+          "history_months": 78,
+          "month": "2022-02",
+          "observed": 4627.71,
+          "predicted": 5626.259999999999,
+          "raw_prediction": 5626.259999999999
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-02",
+          "history_months": 79,
+          "month": "2022-03",
+          "observed": 4943.52,
+          "predicted": 5300.16,
+          "raw_prediction": 5300.16
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-03",
+          "history_months": 80,
+          "month": "2022-04",
+          "observed": 4636.03,
+          "predicted": 5085.966666666667,
+          "raw_prediction": 5085.966666666667
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-04",
+          "history_months": 81,
+          "month": "2022-05",
+          "observed": 4981.55,
+          "predicted": 4735.753333333333,
+          "raw_prediction": 4735.753333333333
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-05",
+          "history_months": 82,
+          "month": "2022-06",
+          "observed": 4213.62,
+          "predicted": 4853.7,
+          "raw_prediction": 4853.7
+        }
+      ],
+      "scores": {
+        "mae": 383.99500000000006,
+        "median_absolute_error": 362.89333333333343,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": 257.943333333333
+      },
+      "total_fit_seconds": 0
+    },
+    "previous_month": {
+      "fits": [],
+      "predictions": [
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-06",
+          "history_months": 71,
+          "month": "2021-07",
+          "observed": 5728.23,
+          "predicted": 6724.76,
+          "raw_prediction": 6724.76
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-07",
+          "history_months": 72,
+          "month": "2021-08",
+          "observed": 5987.18,
+          "predicted": 5728.23,
+          "raw_prediction": 5728.23
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-08",
+          "history_months": 73,
+          "month": "2021-09",
+          "observed": 6515.87,
+          "predicted": 5987.18,
+          "raw_prediction": 5987.18
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-09",
+          "history_months": 74,
+          "month": "2021-10",
+          "observed": 6149.22,
+          "predicted": 6515.87,
+          "raw_prediction": 6515.87
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-10",
+          "history_months": 75,
+          "month": "2021-11",
+          "observed": 5606.01,
+          "predicted": 6149.22,
+          "raw_prediction": 6149.22
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-11",
+          "history_months": 76,
+          "month": "2021-12",
+          "observed": 5586.1,
+          "predicted": 5606.01,
+          "raw_prediction": 5606.01
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-12",
+          "history_months": 77,
+          "month": "2022-01",
+          "observed": 5686.67,
+          "predicted": 5586.1,
+          "raw_prediction": 5586.1
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-01",
+          "history_months": 78,
+          "month": "2022-02",
+          "observed": 4627.71,
+          "predicted": 5686.67,
+          "raw_prediction": 5686.67
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-02",
+          "history_months": 79,
+          "month": "2022-03",
+          "observed": 4943.52,
+          "predicted": 4627.71,
+          "raw_prediction": 4627.71
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-03",
+          "history_months": 80,
+          "month": "2022-04",
+          "observed": 4636.03,
+          "predicted": 4943.52,
+          "raw_prediction": 4943.52
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-04",
+          "history_months": 81,
+          "month": "2022-05",
+          "observed": 4981.55,
+          "predicted": 4636.03,
+          "raw_prediction": 4636.03
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-05",
+          "history_months": 82,
+          "month": "2022-06",
+          "observed": 4213.62,
+          "predicted": 4981.55,
+          "raw_prediction": 4981.55
+        }
+      ],
+      "scores": {
+        "mae": 467.5183333333335,
+        "median_absolute_error": 356.08500000000004,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": 209.26166666666668
+      },
+      "total_fit_seconds": 0
+    },
+    "ridge": {
+      "fits": [
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0038536000065505505,
+          "history_end": "2021-06",
+          "history_months": 71,
+          "history_start": "2015-08",
+          "last_training_target": "2021-06",
+          "latest_feature_month": "2021-06",
+          "model_path": "models/test_alpha_0.1_2021-07.joblib",
+          "model_sha256": "5e33e3c09b2e1cfc3b1edd11750592dedce626cbf72682024d32feaab543571b",
+          "partition": "test",
+          "scaler_samples": 59,
+          "target_index": 71,
+          "target_month": "2021-07",
+          "training_samples": 59,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.001395299972500652,
+          "history_end": "2021-07",
+          "history_months": 72,
+          "history_start": "2015-08",
+          "last_training_target": "2021-07",
+          "latest_feature_month": "2021-07",
+          "model_path": "models/test_alpha_0.1_2021-08.joblib",
+          "model_sha256": "bc74fb77687da04b95dbed1996f4f7e822f1647e91ce464a290d56bb8b7baf3c",
+          "partition": "test",
+          "scaler_samples": 60,
+          "target_index": 72,
+          "target_month": "2021-08",
+          "training_samples": 60,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0012571000261232257,
+          "history_end": "2021-08",
+          "history_months": 73,
+          "history_start": "2015-08",
+          "last_training_target": "2021-08",
+          "latest_feature_month": "2021-08",
+          "model_path": "models/test_alpha_0.1_2021-09.joblib",
+          "model_sha256": "b707a98b1df9d74f9dd198e125afe30c8a980fb5781cff001a6b8c39e55c7d44",
+          "partition": "test",
+          "scaler_samples": 61,
+          "target_index": 73,
+          "target_month": "2021-09",
+          "training_samples": 61,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0012561000185087323,
+          "history_end": "2021-09",
+          "history_months": 74,
+          "history_start": "2015-08",
+          "last_training_target": "2021-09",
+          "latest_feature_month": "2021-09",
+          "model_path": "models/test_alpha_0.1_2021-10.joblib",
+          "model_sha256": "460046bd124dbcf51895580568189624a8f3c42e16761de6d4f14b992e7857b5",
+          "partition": "test",
+          "scaler_samples": 62,
+          "target_index": 74,
+          "target_month": "2021-10",
+          "training_samples": 62,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0012996000004932284,
+          "history_end": "2021-10",
+          "history_months": 75,
+          "history_start": "2015-08",
+          "last_training_target": "2021-10",
+          "latest_feature_month": "2021-10",
+          "model_path": "models/test_alpha_0.1_2021-11.joblib",
+          "model_sha256": "1bdd25a13f2487c63eab4ced7a096037907f8ea3cae7f9d0259b75ab45615cac",
+          "partition": "test",
+          "scaler_samples": 63,
+          "target_index": 75,
+          "target_month": "2021-11",
+          "training_samples": 63,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0016895000007934868,
+          "history_end": "2021-11",
+          "history_months": 76,
+          "history_start": "2015-08",
+          "last_training_target": "2021-11",
+          "latest_feature_month": "2021-11",
+          "model_path": "models/test_alpha_0.1_2021-12.joblib",
+          "model_sha256": "554ccc14c9c197f8b7d5d18f8b864f98525e6a13c80a0ea47981ab923b79c89e",
+          "partition": "test",
+          "scaler_samples": 64,
+          "target_index": 76,
+          "target_month": "2021-12",
+          "training_samples": 64,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0014652000390924513,
+          "history_end": "2021-12",
+          "history_months": 77,
+          "history_start": "2015-08",
+          "last_training_target": "2021-12",
+          "latest_feature_month": "2021-12",
+          "model_path": "models/test_alpha_0.1_2022-01.joblib",
+          "model_sha256": "5f311fa36e29268b292c1249263a9afd8ea2f62ea878f71712d904ace91195c3",
+          "partition": "test",
+          "scaler_samples": 65,
+          "target_index": 77,
+          "target_month": "2022-01",
+          "training_samples": 65,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0012600999907590449,
+          "history_end": "2022-01",
+          "history_months": 78,
+          "history_start": "2015-08",
+          "last_training_target": "2022-01",
+          "latest_feature_month": "2022-01",
+          "model_path": "models/test_alpha_0.1_2022-02.joblib",
+          "model_sha256": "9c5f14c176358745f16551581d07b5f3acba2a2854cd02155d068942455e015a",
+          "partition": "test",
+          "scaler_samples": 66,
+          "target_index": 78,
+          "target_month": "2022-02",
+          "training_samples": 66,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0012102000182494521,
+          "history_end": "2022-02",
+          "history_months": 79,
+          "history_start": "2015-08",
+          "last_training_target": "2022-02",
+          "latest_feature_month": "2022-02",
+          "model_path": "models/test_alpha_0.1_2022-03.joblib",
+          "model_sha256": "a61716c345c22860e1abc8aae4f42fcf520f1c39478eeb6000c42b9b58b0918f",
+          "partition": "test",
+          "scaler_samples": 67,
+          "target_index": 79,
+          "target_month": "2022-03",
+          "training_samples": 67,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.001229100045748055,
+          "history_end": "2022-03",
+          "history_months": 80,
+          "history_start": "2015-08",
+          "last_training_target": "2022-03",
+          "latest_feature_month": "2022-03",
+          "model_path": "models/test_alpha_0.1_2022-04.joblib",
+          "model_sha256": "f76976ca5a59b20978b06c763879aac1d8601577591aab9946eb32df069a0628",
+          "partition": "test",
+          "scaler_samples": 68,
+          "target_index": 80,
+          "target_month": "2022-04",
+          "training_samples": 68,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0011707000085152686,
+          "history_end": "2022-04",
+          "history_months": 81,
+          "history_start": "2015-08",
+          "last_training_target": "2022-04",
+          "latest_feature_month": "2022-04",
+          "model_path": "models/test_alpha_0.1_2022-05.joblib",
+          "model_sha256": "9102ffb48a83f9349743536254720ce5fcc1d86882f63eed0e03a7f405e41409",
+          "partition": "test",
+          "scaler_samples": 69,
+          "target_index": 81,
+          "target_month": "2022-05",
+          "training_samples": 69,
+          "warnings": []
+        },
+        {
+          "alpha": 0.1,
+          "first_training_target": "2016-08",
+          "fit_seconds": 0.0010857000015676022,
+          "history_end": "2022-05",
+          "history_months": 82,
+          "history_start": "2015-08",
+          "last_training_target": "2022-05",
+          "latest_feature_month": "2022-05",
+          "model_path": "models/test_alpha_0.1_2022-06.joblib",
+          "model_sha256": "c67598f5cb82ef8bf5a673ecfef6c67c71633a017b2c161ab3fbe3c878cd94f7",
+          "partition": "test",
+          "scaler_samples": 70,
+          "target_index": 82,
+          "target_month": "2022-06",
+          "training_samples": 70,
+          "warnings": []
+        }
+      ],
+      "predictions": [
+        {
+          "fit_seconds": 0.0038536000065505505,
+          "history_end": "2021-06",
+          "history_months": 71,
+          "month": "2021-07",
+          "observed": 5728.23,
+          "predicted": 6722.415149668061,
+          "raw_prediction": 6722.415149668061
+        },
+        {
+          "fit_seconds": 0.001395299972500652,
+          "history_end": "2021-07",
+          "history_months": 72,
+          "month": "2021-08",
+          "observed": 5987.18,
+          "predicted": 6890.571690696553,
+          "raw_prediction": 6890.571690696553
+        },
+        {
+          "fit_seconds": 0.0012571000261232257,
+          "history_end": "2021-08",
+          "history_months": 73,
+          "month": "2021-09",
+          "observed": 6515.87,
+          "predicted": 6752.628726087031,
+          "raw_prediction": 6752.628726087031
+        },
+        {
+          "fit_seconds": 0.0012561000185087323,
+          "history_end": "2021-09",
+          "history_months": 74,
+          "month": "2021-10",
+          "observed": 6149.22,
+          "predicted": 6724.094210770687,
+          "raw_prediction": 6724.094210770687
+        },
+        {
+          "fit_seconds": 0.0012996000004932284,
+          "history_end": "2021-10",
+          "history_months": 75,
+          "month": "2021-11",
+          "observed": 5606.01,
+          "predicted": 6617.770718671059,
+          "raw_prediction": 6617.770718671059
+        },
+        {
+          "fit_seconds": 0.0016895000007934868,
+          "history_end": "2021-11",
+          "history_months": 76,
+          "month": "2021-12",
+          "observed": 5586.1,
+          "predicted": 6694.867760030773,
+          "raw_prediction": 6694.867760030773
+        },
+        {
+          "fit_seconds": 0.0014652000390924513,
+          "history_end": "2021-12",
+          "history_months": 77,
+          "month": "2022-01",
+          "observed": 5686.67,
+          "predicted": 6738.4879149429735,
+          "raw_prediction": 6738.4879149429735
+        },
+        {
+          "fit_seconds": 0.0012600999907590449,
+          "history_end": "2022-01",
+          "history_months": 78,
+          "month": "2022-02",
+          "observed": 4627.71,
+          "predicted": 6706.998590196243,
+          "raw_prediction": 6706.998590196243
+        },
+        {
+          "fit_seconds": 0.0012102000182494521,
+          "history_end": "2022-02",
+          "history_months": 79,
+          "month": "2022-03",
+          "observed": 4943.52,
+          "predicted": 6718.654392753561,
+          "raw_prediction": 6718.654392753561
+        },
+        {
+          "fit_seconds": 0.001229100045748055,
+          "history_end": "2022-03",
+          "history_months": 80,
+          "month": "2022-04",
+          "observed": 4636.03,
+          "predicted": 6657.927350918514,
+          "raw_prediction": 6657.927350918514
+        },
+        {
+          "fit_seconds": 0.0011707000085152686,
+          "history_end": "2022-04",
+          "history_months": 81,
+          "month": "2022-05",
+          "observed": 4981.55,
+          "predicted": 6679.962980112279,
+          "raw_prediction": 6679.962980112279
+        },
+        {
+          "fit_seconds": 0.0010857000015676022,
+          "history_end": "2022-05",
+          "history_months": 82,
+          "month": "2022-06",
+          "observed": 4213.62,
+          "predicted": 6605.375645200314,
+          "raw_prediction": 6605.375645200314
+        }
+      ],
+      "scores": {
+        "mae": 1320.670427504004,
+        "median_absolute_error": 1080.292837486873,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": 1320.670427504004
+      },
+      "total_fit_seconds": 0.01817220012890175
+    },
+    "same_month_previous_year": {
+      "fits": [],
+      "predictions": [
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-06",
+          "history_months": 71,
+          "month": "2021-07",
+          "observed": 5728.23,
+          "predicted": 9703.17,
+          "raw_prediction": 9703.17
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-07",
+          "history_months": 72,
+          "month": "2021-08",
+          "observed": 5987.18,
+          "predicted": 3233.46,
+          "raw_prediction": 3233.46
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-08",
+          "history_months": 73,
+          "month": "2021-09",
+          "observed": 6515.87,
+          "predicted": 5655.9,
+          "raw_prediction": 5655.9
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-09",
+          "history_months": 74,
+          "month": "2021-10",
+          "observed": 6149.22,
+          "predicted": 8342.68,
+          "raw_prediction": 8342.68
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-10",
+          "history_months": 75,
+          "month": "2021-11",
+          "observed": 5606.01,
+          "predicted": 11677.41,
+          "raw_prediction": 11677.41
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-11",
+          "history_months": 76,
+          "month": "2021-12",
+          "observed": 5586.1,
+          "predicted": 7050.11,
+          "raw_prediction": 7050.11
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2021-12",
+          "history_months": 77,
+          "month": "2022-01",
+          "observed": 5686.67,
+          "predicted": 5205.25,
+          "raw_prediction": 5205.25
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-01",
+          "history_months": 78,
+          "month": "2022-02",
+          "observed": 4627.71,
+          "predicted": 6620.44,
+          "raw_prediction": 6620.44
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-02",
+          "history_months": 79,
+          "month": "2022-03",
+          "observed": 4943.52,
+          "predicted": 4750.07,
+          "raw_prediction": 4750.07
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-03",
+          "history_months": 80,
+          "month": "2022-04",
+          "observed": 4636.03,
+          "predicted": 5750.01,
+          "raw_prediction": 5750.01
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-04",
+          "history_months": 81,
+          "month": "2022-05",
+          "observed": 4981.55,
+          "predicted": 5300.83,
+          "raw_prediction": 5300.83
+        },
+        {
+          "fit_seconds": 0.0,
+          "history_end": "2022-05",
+          "history_months": 82,
+          "month": "2022-06",
+          "observed": 4213.62,
+          "predicted": 6724.76,
+          "raw_prediction": 6724.76
+        }
+      ],
+      "scores": {
+        "mae": 1994.1249999999998,
+        "median_absolute_error": 1728.3699999999994,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": 1279.3649999999996
+      },
+      "total_fit_seconds": 0
+    }
+  },
+  "validation": {
+    "baselines": {
+      "mean_previous_3": {
+        "mae": 2153.7175,
+        "median_absolute_error": 1525.208333333333,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": -204.75416666666675
+      },
+      "previous_month": {
+        "mae": 2758.6633333333334,
+        "median_absolute_error": 2146.4049999999997,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": -215.09333333333333
+      },
+      "same_month_previous_year": {
+        "mae": 11234.086666666664,
+        "median_absolute_error": 2641.14,
+        "negative_predictions_clipped": 0,
+        "origins": 12,
+        "signed_bias": 6546.4800000000005
+      }
+    },
+    "candidates": [
+      {
+        "alpha": 0.1,
+        "scores": {
+          "mae": 1916.3583922274538,
+          "median_absolute_error": 1336.0519590122067,
+          "negative_predictions_clipped": 1,
+          "origins": 12,
+          "signed_bias": -439.4280587605762
+        },
+        "total_fit_seconds": 0.028043299913406372
+      },
+      {
+        "alpha": 1.0,
+        "scores": {
+          "mae": 1919.2694948721912,
+          "median_absolute_error": 1351.5206425854185,
+          "negative_predictions_clipped": 1,
+          "origins": 12,
+          "signed_bias": -435.3412408033642
+        },
+        "total_fit_seconds": 0.014802699908614159
+      },
+      {
+        "alpha": 10.0,
+        "scores": {
+          "mae": 1930.326842915165,
+          "median_absolute_error": 1434.2778391125398,
+          "negative_predictions_clipped": 1,
+          "origins": 12,
+          "signed_bias": -418.383699248802
+        },
+        "total_fit_seconds": 0.014677300059702247
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% load money %}
+{% block title %}Lịch sử ghi chép{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">LỊCH SỬ CỦA BẠN</p><h1>Lịch sử ghi chép</h1><p class="muted">Đánh dấu những tháng bạn đã ghi chép đầy đủ.</p></div></div>
+<form method="get" class="month-filter"><label for="id_year">Năm</label><div class="month-controls">{{ year_form.year }}<button class="button secondary" type="submit">Xem</button></div>{{ year_form.year.errors }}</form>
+<p class="help">Chỉ hiện các tháng đã kết thúc theo giờ Việt Nam. Đây là xác nhận của bạn, không phải hệ thống chứng minh dữ liệu đầy đủ. Thay đổi giao dịch sẽ đưa tháng liên quan về “Chưa xác nhận”.</p>
+{% if rows %}<section class="card activity"><div class="section-heading"><h2>Năm {{ year }}</h2></div><div class="coverage-table"><table>
+<thead><tr><th>Tháng</th><th>Tổng chi đã ghi</th><th>Số giao dịch</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+{% for row in rows %}<tr>
+  <td data-label="Tháng">{{ row.month|date:'m/Y' }}</td>
+  <td data-label="Chi đã ghi">{{ row.recorded_expense|vnd }}</td>
+  <td data-label="Giao dịch">{{ row.transaction_count }}</td>
+  <td data-label="Trạng thái"><span class="coverage-status {{ row.status }}">{{ row.status_display }}</span>{% if row.confirmed_at %}<small class="coverage-time">{{ row.confirmed_at|date:'H:i d/m/Y' }}</small>{% endif %}</td>
+  <td data-label="Thao tác"><div class="coverage-actions">
+    {% if row.status != 'complete' %}<a href="{% url 'finance:coverage_confirm' row.month.year row.month.month %}">Xác nhận đầy đủ</a>{% endif %}
+    {% if row.status != 'incomplete' %}<form method="post" action="{% url 'finance:coverage_status' row.month.year row.month.month %}">{% csrf_token %}<input type="hidden" name="status" value="incomplete"><button class="text-button" type="submit">Chưa đầy đủ</button></form>{% endif %}
+    {% if row.status != 'unknown' %}<form method="post" action="{% url 'finance:coverage_status' row.month.year row.month.month %}">{% csrf_token %}<input type="hidden" name="status" value="unknown"><button class="text-button" type="submit">Hủy xác nhận</button></form>{% endif %}
+  </div></td>
+</tr>{% endfor %}
+</tbody></table></div></section>{% else %}<section class="card empty-state"><h2>Năm này chưa có tháng đã kết thúc</h2><p>Hãy chọn một năm trước hoặc quay lại khi tháng kết thúc.</p></section>{% endif %}
+<details class="coverage-note"><summary>Về tổng chi và tháng chưa xác nhận</summary><p>Tổng chi chỉ là số tiền đã ghi trên website. Số giao dịch tính cả thu và chi. Tháng chưa xác nhận hoặc chưa đầy đủ chưa được coi là lịch sử đủ để chuẩn bị dự báo, kể cả khi tổng đang là 0 ₫. Tải CSV không tự xác nhận tháng nào.</p></details>
+{% endblock %}

@@ -15,3 +15,87 @@ if (kindInput && categoryInput && kindsNode) {
   kindInput.addEventListener('change', filterCategories);
   filterCategories();
 }
+
+// Chỉ nút Áp dụng mới thay đổi trường danh mục; không submit hoặc tự học.
+(() => {
+  const panel = document.getElementById('classification-suggestion');
+  const description = document.getElementById('id_description');
+  if (!panel || !description || !kindInput || !categoryInput) return;
+  const button = document.getElementById('suggest-category');
+  const result = document.getElementById('suggestion-result');
+  const actions = document.getElementById('suggestion-actions');
+  const choices = document.getElementById('suggestion-category');
+  const apply = document.getElementById('apply-suggestion');
+  const token = document.querySelector('#transaction-form [name=csrfmiddlewaretoken]');
+  let generation = 0;
+  let offered = new Set();
+  let snapshot = null;
+
+  function clear() {
+    generation += 1;
+    offered = new Set();
+    snapshot = null;
+    choices.replaceChildren();
+    actions.hidden = true;
+    apply.disabled = true;
+    button.disabled = false;
+    result.textContent = '';
+  }
+  description.addEventListener('input', clear);
+  kindInput.addEventListener('change', clear);
+  choices.addEventListener('change', () => { apply.disabled = !offered.has(choices.value); });
+
+  button.addEventListener('click', async () => {
+    clear();
+    if (description.value.length > 500) {
+      result.textContent = 'Mô tả tối đa 500 ký tự.';
+      return;
+    }
+    const current = generation;
+    snapshot = {description: description.value, kind: kindInput.value};
+    button.disabled = true;
+    result.textContent = 'Đang tìm gợi ý…';
+    try {
+      const response = await fetch(panel.dataset.url, {
+        method: 'POST', credentials: 'same-origin', mode: 'same-origin',
+        headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
+        body: new URLSearchParams(snapshot),
+      });
+      if (current !== generation) return;
+      if (response.redirected) throw new Error('Phiên đăng nhập đã hết hạn.');
+      const data = await response.json();
+      if (!response.ok && !['unavailable', 'invalid'].includes(data.status)) throw new Error('Gợi ý không sẵn sàng.');
+      result.textContent = (data.label ? `Nhãn dự đoán: ${data.label_display} (${data.label}). ` : '') + data.message;
+      if (data.status !== 'suggestion' || !data.categories?.length) return;
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '— Chọn danh mục để áp dụng —';
+      choices.append(placeholder);
+      for (const category of data.categories) {
+        const id = String(category.id);
+        // Chỉ hiển thị ID thực có trong biểu mẫu của người dùng và đúng loại.
+        if (![...categoryInput.options].some(option => option.value === id && !option.disabled)) continue;
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = category.name;
+        choices.append(option);
+        offered.add(id);
+      }
+      actions.hidden = offered.size === 0;
+    } catch (_) {
+      if (current === generation) result.textContent = 'Gợi ý tạm không sẵn sàng hoặc phiên đăng nhập hết hạn. Bạn vẫn có thể nhập thủ công; đăng nhập lại nếu cần.';
+    } finally {
+      if (current === generation) button.disabled = false;
+    }
+  });
+  apply.addEventListener('click', () => {
+    if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
+        || !offered.has(choices.value)) return;
+    const option = [...categoryInput.options].find(option => option.value === choices.value && !option.disabled);
+    if (!option) return;
+    categoryInput.value = option.value;
+    categoryInput.dispatchEvent(new Event('change', {bubbles: true}));
+    result.textContent = 'Đã áp dụng danh mục vào biểu mẫu. Kiểm tra các thông tin và bấm Lưu giao dịch khi bạn muốn lưu.';
+    apply.disabled = true;
+  });
+})();

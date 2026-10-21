@@ -1,4 +1,9 @@
 from datetime import date
+from django.http import JsonResponse
+from django.views.decorators.cache import never_cache
+from .classification import suggest_label, ModelUnavailable
+from .classification_labels import LABELS, compatible_kind
+from .forms import SuggestionForm
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -11,6 +16,33 @@ from django.views.decorators.http import require_http_methods
 from .forms import CategoryForm, MonthForm, SignUpForm, TransactionForm
 from .models import Category, Transaction
 from .services import monthly_totals
+
+
+@login_required
+@require_http_methods(['POST'])
+@never_cache
+def category_suggestion(request):
+    form = SuggestionForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({'status': 'invalid', 'message': 'Nhập mô tả tối đa 500 ký tự và chọn loại thu/chi hợp lệ.'}, status=400)
+    try:
+        label = suggest_label(form.cleaned_data['description'])
+    except ModelUnavailable:
+        return JsonResponse({'status': 'unavailable', 'message': 'Gợi ý tạm không sẵn sàng. Bạn vẫn có thể nhập và lưu giao dịch thủ công.'}, status=503)
+    if label is None:
+        return JsonResponse({'status': 'no_suggestion', 'message': 'Chưa có gợi ý: mô tả trống hoặc không có đặc trưng phù hợp. Hãy tự chọn danh mục.'})
+    payload = {'status': 'suggestion', 'label': label, 'label_display': LABELS[label], 'categories': []}
+    if label == 'Transfer':
+        payload.update(status='review', message='Có thể là chuyển khoản. Cần xem lại bản chất giao dịch; không tự coi là thu nhập hay chi tiêu. Không áp dụng gợi ý này vào danh mục thu/chi.')
+    elif compatible_kind(label) != form.cleaned_data['kind']:
+        payload.update(status='review', message='Nhãn dự đoán khác loại thu/chi bạn đang chọn. Hãy xem lại và tự chọn danh mục; loại giao dịch được giữ nguyên.')
+    else:
+        payload['categories'] = list(Category.objects.filter(
+            user=request.user, kind=form.cleaned_data['kind'], canonical_label=label,
+        ).values('id', 'name'))
+        payload['message'] = ('Chọn danh mục rồi bấm Áp dụng. Giao dịch chỉ được lưu khi bạn bấm Lưu giao dịch.'
+                              if payload['categories'] else 'Chưa có danh mục được ánh xạ với nhãn này. Bạn có thể sửa ánh xạ trong Danh mục hoặc tự chọn danh mục khi nhập.')
+    return JsonResponse(payload)
 
 
 def month_context(request):

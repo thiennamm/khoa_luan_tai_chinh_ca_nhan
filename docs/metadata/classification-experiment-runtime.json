@@ -1,0 +1,24 @@
+{
+  "adapter_sha256": "7bb342c46ced73b3c83de44de77b8add9954c53c79e72e4ef9a5f28826866b99",
+  "config_or_split_modified": false,
+  "description": "snapshot handles retained; paths resolved by existing Windows wide-character APIs",
+  "installed_packages_modified": false,
+  "recorded_before_first_fit_at_utc": "2026-10-20T09:35:02.396664+00:00",
+  "split_lock_sha256": "cba62d5e22f8fc08979f33dd4c2dd47e8b8812ae06c25705330ed9ff1a429b92",
+  "threadpoolctl_source_sha256": "e5f119e394193e206655bec4b993ef0bb40b0fbb2f22c92bd5b2d70a622bb518",
+  "threadpoolctl_version": "3.7.0",
+  "threadpools_during_limit": [
+    {
+      "internal_api": "openblas",
+      "num_threads": 1
+    },
+    {
+      "internal_api": "openmp",
+      "num_threads": 1
+    },
+    {
+      "internal_api": "openblas",
+      "num_threads": 1
+    }
+  ]
+}

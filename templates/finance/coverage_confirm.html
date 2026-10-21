@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% load money %}
+{% block title %}Xác nhận tháng {{ month|date:'m/Y' }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">LỊCH SỬ GHI CHÉP</p><h1>Xác nhận tháng {{ month|date:'m/Y' }}</h1></div></div>
+<section class="card form-card">
+  {% if notice %}<p role="alert">{{ notice }}</p>{% endif %}
+  {% if form %}
+  <p>Tổng chi đã ghi: <strong>{{ snapshot.recorded_expense|vnd }}</strong> · {{ snapshot.transaction_count }} giao dịch.</p>
+  <p>Bạn xác nhận đã ghi lại đầy đủ các khoản thu và chi của tháng này. Đây là xác nhận của bạn; hệ thống không thể kiểm chứng những khoản chưa ghi.</p>
+  <form method="post">{% csrf_token %}{{ form.review_token }}
+    {% if form.errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}{{ form.review_token.errors }}{{ form.confirm_no_expense.errors }}<a href="{% url 'finance:coverage_confirm' month.year month.month %}">Kiểm tra lại tháng này</a></div>{% endif %}
+    {% if snapshot.recorded_expense == 0 %}<div class="notice"><p><strong>Bạn xác nhận tháng này không có khoản chi?</strong></p><label class="coverage-checkbox">{{ form.confirm_no_expense }} <span>{{ form.confirm_no_expense.label }}</span></label></div>{% endif %}
+    <div class="form-actions"><button class="button" type="submit">Xác nhận đầy đủ</button><a class="button secondary" href="{% url 'finance:monthly_history' %}?year={{ month.year }}">Quay lại</a></div>
+  </form>
+  {% else %}<a href="{% url 'finance:monthly_history' %}">Về lịch sử ghi chép</a>{% endif %}
+</section>
+{% endblock %}

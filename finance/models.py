@@ -1,9 +1,15 @@
 from decimal import Decimal
+import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
-from django.db import models
+from django.core.validators import MinValueValidator, RegexValidator
+from django.db import models, router, transaction
 from django.utils import timezone
+from .classification_labels import MAPPING_CHOICES, compatible_kind
+from .coverage_calendar import current_month
+from .coverage_state import lock_coverage_writes, reset_months
+from .transaction_queries import TransactionQuerySet
+from .forecast_state import bump_forecast_version
 
 
 class Kind(models.TextChoices):
@@ -11,9 +17,105 @@ class Kind(models.TextChoices):
     EXPENSE = "expense", "Chi tiêu"
 
 
+class ForecastDataVersion(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
+    version = models.PositiveBigIntegerField(default=0)
+
+
+class ForecastResult(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    target_month = models.DateField()
+    fingerprint = models.CharField(max_length=64)
+    history_count = models.PositiveIntegerField()
+    history_start = models.DateField()
+    history_end = models.DateField()
+    method = models.CharField(max_length=32)
+    # SQLite NUMERIC/DecimalField có thể làm mất chữ số khi tổng >15 chữ số.
+    # Lưu chuỗi số nguyên chính xác, khôi phục Decimal để dùng/hiển thị.
+    estimate = models.CharField(max_length=30, validators=[RegexValidator(r'\A[0-9]{1,30}\Z')])
+    details = models.JSONField(default=dict)
+    configuration = models.JSONField(default=dict)
+    calculated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def estimate_decimal(self):
+        return Decimal(self.estimate)
+
+
+class MonthlyCoverage(models.Model):
+    class Status(models.TextChoices):
+        UNKNOWN = 'unknown', 'Chưa xác nhận'
+        INCOMPLETE = 'incomplete', 'Chưa đầy đủ'
+        COMPLETE = 'complete', 'Đã xác nhận đầy đủ'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    month = models.DateField('Tháng')
+    status = models.CharField('Trạng thái', max_length=12, choices=Status.choices, default=Status.UNKNOWN)
+    confirmed_at = models.DateTimeField('Thời điểm xác nhận', null=True, blank=True)
+
+    class Meta:
+        ordering = ['month']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'month'], name='coverage_unique_user_month'),
+            models.CheckConstraint(condition=models.Q(month__day=1), name='coverage_month_first_day'),
+            models.CheckConstraint(condition=models.Q(status__in=['unknown', 'incomplete', 'complete']), name='coverage_valid_status'),
+            models.CheckConstraint(condition=(
+                models.Q(status='complete', confirmed_at__isnull=False)
+                | models.Q(status__in=['unknown', 'incomplete'], confirmed_at__isnull=True)
+            ), name='coverage_confirmation_timestamp'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.month and self.month.day != 1:
+            raise ValidationError({'month': 'Tháng phải được lưu bằng ngày đầu tháng.'})
+        if self.month and self.status == self.Status.COMPLETE and self.month >= current_month():
+            raise ValidationError({'month': 'Chỉ xác nhận đầy đủ tháng đã kết thúc theo giờ Việt Nam.'})
+        if (self.status == self.Status.COMPLETE) != (self.confirmed_at is not None):
+            raise ValidationError({'confirmed_at': 'Thời điểm xác nhận chỉ có khi trạng thái đã xác nhận đầy đủ.'})
+
+    def save(self, *args, **kwargs):
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            self.full_clean()
+            result = super().save(*args, **kwargs)
+            bump_forecast_version([self.user_id], using)
+            return result
+
+
+class CsvImportBatch(models.Model):
+    """Payload tạm ở SQLite phía máy chủ, không đặt trong session/cookie."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sha256 = models.CharField(max_length=64)
+    raw = models.BinaryField()
+    category_bindings = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    status = models.CharField(max_length=12, default='pending', choices=[
+        ('pending', 'Chờ xác nhận'), ('processing', 'Đang xử lý'), ('completed', 'Đã nhập')])
+
+
+class CsvImportReceipt(models.Model):
+    """Dấu vết tối thiểu để chặn lại tệp thành công, không giữ mô tả."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sha256 = models.CharField(max_length=64)
+    batch = models.OneToOneField(CsvImportBatch, null=True, on_delete=models.SET_NULL)
+    imported_at = models.DateTimeField(auto_now_add=True)
+    transaction_count = models.PositiveIntegerField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'sha256'], name='csv_import_once_per_user_hash')]
+
+
 class Category(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField("Tên danh mục", max_length=80)
+    canonical_label = models.CharField(
+        "Nhãn gợi ý thử nghiệm", max_length=32, blank=True, default='',
+        choices=MAPPING_CHOICES,
+        help_text="Không bắt buộc. Bạn tự chọn ánh xạ; không suy từ tên. Income chỉ dùng cho thu, các nhãn còn lại cho chi. Transfer luôn cần xem lại và không ánh xạ.",
+    )
     kind = models.CharField("Loại", max_length=7, choices=Kind.choices)
 
     class Meta:
@@ -27,6 +129,8 @@ class Category(models.Model):
         return f"{self.name} · {self.get_kind_display()}"
 
     def clean(self):
+        if self.canonical_label and compatible_kind(self.canonical_label) != self.kind:
+            raise ValidationError({'canonical_label': 'Nhãn gợi ý không phù hợp với loại thu/chi.'})
         super().clean()
         self.name = self.name.strip()
         if self.user_id and self.name:
@@ -46,6 +150,7 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
+    objects = TransactionQuerySet.as_manager()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     kind = models.CharField("Loại giao dịch", max_length=7, choices=Kind.choices)
     amount = models.DecimalField(
@@ -81,5 +186,14 @@ class Transaction(models.Model):
                 raise ValidationError({"category": "Danh mục phải phù hợp với loại thu hoặc chi."})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        return super().save(*args, **kwargs)
+        if kwargs.get('update_fields') is not None and not kwargs['update_fields']:
+            return super().save(*args, **kwargs)
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            lock_coverage_writes([self.user_id], using)
+            previous = type(self).objects.using(using).filter(pk=self.pk).values_list('user_id', 'date').first() if self.pk else None
+            self.full_clean()
+            result = super().save(*args, **kwargs)
+            current = type(self).objects.using(using).filter(pk=self.pk).values_list('user_id', 'date').get()
+            reset_months(([previous] if previous else []) + [current], using)
+            return result

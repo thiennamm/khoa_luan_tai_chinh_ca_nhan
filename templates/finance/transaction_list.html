@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">SỔ GHI CHÉP</p><h1>Giao dịch</h1><p class="muted">Các khoản thu và chi của bạn trong tháng {{ month_label }}.</p></div><a class="button" href="{% url 'finance:transaction_create' %}">＋ Thêm giao dịch</a></div>
 {% include 'includes/month_filter.html' %}
+<p><a class="button secondary" href="{% url 'finance:csv_upload' %}">Nhập CSV có xem trước</a></p>
 <section class="card activity"><div class="section-heading"><h2>Tháng {{ month_label }}</h2><span class="muted">{{ page_obj.paginator.count }} giao dịch</span></div>
 {% if page_obj %}{% include 'includes/transaction_table.html' with transactions=page_obj %}{% else %}<div class="empty-state"><span class="empty-icon" aria-hidden="true">↔</span><h3>Chưa có giao dịch trong tháng này</h3><p>Chọn một tháng khác hoặc ghi lại giao dịch đầu tiên.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch</a></div>{% endif %}
 {% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Phân trang">{% if page_obj.has_previous %}<a href="?month={{ month }}&amp;page={{ page_obj.previous_page_number }}">← Trang trước</a>{% endif %}<span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?month={{ month }}&amp;page={{ page_obj.next_page_number }}">Trang sau →</a>{% endif %}</nav>{% endif %}

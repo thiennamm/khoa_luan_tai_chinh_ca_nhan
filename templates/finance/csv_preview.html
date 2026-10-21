@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Xem trước CSV{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">NHẬP GIAO DỊCH</p><h1>{% if receipt %}Đã nhập CSV{% else %}Xem trước CSV{% endif %}</h1><p class="muted">Xác nhận sẽ thêm toàn bộ lô hoặc không thêm giao dịch nào.</p></div></div>
+<section class="card csv-summary">
+  {% if notice %}<p role="status">{{ notice }}</p>{% endif %}
+  {% if receipt %}<p>Đã thêm <strong>{{ receipt.transaction_count }}</strong> giao dịch. Nội dung tạm đã được xóa.</p>{% else %}<p class="help">Bản xem trước hết hạn lúc {{ batch.expires_at|date:'H:i d/m/Y' }} (30 phút từ khi tải). Dữ liệu được giữ phía máy chủ, không đặt trong cookie. Danh mục và quyền sở hữu được kiểm tra lại khi xác nhận.</p>{% endif %}
+  <p class="help">Tệp có cùng hash đã nhập thành công trong tài khoản sẽ bị chặn. Đây không phải cách phát hiện mọi giao dịch trùng giữa các tệp khác nhau. Khoảng ngày trong tệp không được coi là lịch sử đầy đủ.</p>
+  <a href="{% url 'finance:csv_preview' batch.pk %}">Kiểm tra lại bản xem trước</a> · <a href="{% url 'finance:csv_upload' %}">Tải tệp khác / tải lại để kiểm tra</a> · <a href="{% url 'finance:transaction_list' %}">Về danh sách giao dịch</a>
+</section>
+{% if inspection %}{% include 'finance/includes/csv_inspection.html' %}{% endif %}
+{% if can_confirm %}<section class="card csv-summary"><form method="post" action="{% url 'finance:csv_confirm' batch.pk %}">{% csrf_token %}
+  <p>Hãy kiểm tra các cảnh báo và mẫu xem trước. Các dòng giống nhau vẫn được nhập đầy đủ nếu xác nhận.</p>
+  <button class="button" type="submit">Xác nhận nhập toàn bộ {{ inspection.rows|length }} giao dịch</button>
+</form></section>{% endif %}
+{% endblock %}

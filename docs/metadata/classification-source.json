@@ -1,0 +1,33 @@
+{
+  "dataset": "DoDataThings/us-bank-transaction-categories-v2",
+  "downloaded_at_utc": "2026-10-20T08:57:33.443995+00:00",
+  "files": {
+    "README.md": {
+      "bytes": 7359,
+      "git_blob_sha1": "a300b9760610327da6c6302980818dc30ce3fdad",
+      "sha256": "fa90b2937851fae225d0d8acb11b2787852285ebc5fdf24ff7fcb86b89e0a598",
+      "url": "https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2/resolve/3e8d052cb7b362fb1a04b6064d2331982553ea56/README.md"
+    },
+    "transactions-synthetic.csv": {
+      "bytes": 3461960,
+      "git_blob_sha1": "0099db263a31819509c27d24d605f2733608491c",
+      "sha256": "0424aed6e76f74a5b3b1ff61ccec43bc321622e6806da353b910b3b2c8108f6e",
+      "url": "https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2/resolve/3e8d052cb7b362fb1a04b6064d2331982553ea56/transactions-synthetic.csv"
+    }
+  },
+  "license": {
+    "declared": "MIT",
+    "evidence": "https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2/blob/3e8d052cb7b362fb1a04b6064d2331982553ea56/README.md",
+    "rights_independently_audited": false,
+    "standalone_license_in_tree": false,
+    "terms": "https://opensource.org/license/mit"
+  },
+  "local_raw_directory": "data/external/dodatathings-v2/3e8d052cb7b362fb1a04b6064d2331982553ea56",
+  "revision": "3e8d052cb7b362fb1a04b6064d2331982553ea56",
+  "tree_files": [
+    ".gitattributes",
+    "README.md",
+    "transactions-synthetic.csv"
+  ],
+  "tree_url": "https://huggingface.co/api/datasets/DoDataThings/us-bank-transaction-categories-v2/tree/3e8d052cb7b362fb1a04b6064d2331982553ea56"
+}

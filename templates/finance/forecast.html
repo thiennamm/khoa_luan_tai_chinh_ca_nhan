@@ -1,0 +1,37 @@
+{% extends 'base.html' %}{% load money %}
+{% block title %}Dự báo{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ƯỚC TÍNH CỦA BẠN</p><h1>Dự báo tổng chi{% if source %} tháng {{ source.target|date:'m/Y' }}{% endif %}</h1><p class="muted">Ước tính tổng các khoản chi được ghi trong website, không phải toàn bộ chi tiêu thực tế.</p></div></div>
+{% if error %}<div class="notice" role="alert"><strong>Chưa tạo được kết quả mới.</strong><p>{{ error }}</p></div>{% endif %}
+<p><a class="button secondary" href="{% url 'finance:forecast_demo' %}">Demo dự báo</a> <span class="help">Dữ liệu mô phỏng riêng, không cần xác nhận lịch sử cá nhân.</span></p>
+{% if source %}
+<section class="card forecast-card">
+  <h2>Tháng đích: {{ source.target|date:'m/Y' }}</h2>
+  <p>Có <strong>{{ source.history_count }} tháng liên tiếp</strong> được bạn xác nhận đầy đủ, kết thúc đúng tháng liền trước.</p>
+  <p class="help">Chỉ dùng tháng đã kết thúc theo giờ Việt Nam. Không dùng giao dịch tháng hiện tại hoặc tương lai để tính ước tính.</p>
+  {% if stale %}<p class="notice">Kết quả trước không còn hiệu lực do dữ liệu, xác nhận, cấu hình hoặc tháng đích đã thay đổi. Hãy kiểm tra lịch sử và tính lại.</p>{% endif %}
+  {% if source.history_count < 3 %}
+    <h3>Chưa đủ lịch sử</h3><p>Cần ít nhất 3 tháng liền trước đã được xác nhận đầy đủ. Những tháng cần kiểm tra và xác nhận:</p>
+    <ul>{% for row in source.required %}<li><a href="{% url 'finance:coverage_confirm' row.month.year row.month.month %}">{{ row.month|date:'m/Y' }}</a> — {{ row.status_display }}</li>{% endfor %}</ul>
+    <p class="help">Chỉ xác nhận khi bạn đã ghi đủ. Tháng không có chi cũng cần xác nhận rõ, không tự điền số 0.</p>
+  {% else %}
+    {% if source.history_count < 36 %}<p>Dùng <strong>Ước tính theo trung bình 3 tháng</strong>. Đây là phương pháp thống kê đơn giản, không phải Machine Learning.</p>{% else %}<p>Đủ điều kiện so sánh thử nghiệm ba phương pháp đối chứng và Ridge trên 6 tháng lịch sử cuối. Có thể chọn phương pháp đối chứng nếu phù hợp hơn.</p>{% endif %}
+    <form method="post">{% csrf_token %}<button class="button" type="submit">Tính dự báo</button></form>
+  {% endif %}
+  <p class="help"><a href="{% url 'finance:monthly_history' %}">Kiểm tra lịch sử ghi chép</a></p>
+</section>
+{% endif %}
+{% if result %}
+<section class="card forecast-card">
+  <p class="eyebrow">{% if selected_is_ml %}MACHINE LEARNING THỬ NGHIỆM{% else %}ƯỚC TÍNH THỐNG KÊ — KHÔNG PHẢI MACHINE LEARNING{% endif %}</p>
+  <h2>{{ method_label }}</h2><p class="metric">{{ result.estimate_decimal|vnd }}</p>
+  <p>Ước tính tổng khoản chi ghi trong website của tháng {{ result.target_month|date:'m/Y' }}.</p>
+  <p class="help">Lịch sử hợp lệ: {{ result.history_start|date:'m/Y' }}–{{ result.history_end|date:'m/Y' }} ({{ result.history_count }} tháng). Tính lúc {{ result.calculated_at|date:'H:i d/m/Y' }}.</p>
+</section>
+{% if comparisons %}<section class="card activity"><div class="section-heading"><div><h2>So sánh trên 6 tháng validation</h2><p class="help">{{ validation_start|date:'m/Y' }}–{{ validation_end|date:'m/Y' }}. MAE là lỗi tuyệt đối trung bình trên lịch sử dùng để chọn phương pháp. Không phải sai số test độc lập hay cam kết sai số tháng này.</p></div></div>
+<div class="coverage-table"><table><thead><tr><th>Phương pháp</th><th>MAE validation</th><th>Lựa chọn</th></tr></thead><tbody>
+{% for row in comparisons %}<tr><td data-label="Phương pháp">{{ row.label }}</td><td data-label="MAE validation">{{ row.mae|vnd }}</td><td data-label="Lựa chọn">{% if row.selected %}Được chọn{% else %}—{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section>{% endif %}
+{% endif %}
+<details class="coverage-note"><summary>Cách tính và giới hạn</summary><p>Từ 3 đến 35 tháng hợp lệ: trung bình 3 tháng cuối. Từ 36 tháng: validation cuốn chiếu một bước trên 6 tháng cuối, chỉ học từ quá khứ tại mỗi mốc; chọn MAE thấp nhất, hòa điểm ưu tiên phương pháp đối chứng. Sau đó dùng toàn bộ lịch sử hợp lệ để tính tháng hiện tại. Dự báo âm được chặn về 0 trước đánh giá; số hiển thị làm tròn VND, lựa chọn dùng số chưa làm tròn.</p><p>Chỉ sử dụng đoạn tháng liên tiếp đã xác nhận đầy đủ kết thúc tháng liền trước. Không nối qua tháng chưa biết. Xác nhận đầy đủ là nhận định của bạn, không phải hệ thống kiểm chứng. Không có khoảng tin cậy hoặc phần trăm chính xác được kiểm định cho chức năng này.</p><p>Kết quả chỉ được tính khi bấm nút. Mở trang không huấn luyện lại. Dữ liệu hoặc xác nhận thay đổi hay sang tháng mới thì phải tính lại. Mô hình từng lần tính chỉ ở bộ nhớ; kết quả giữ riêng theo tài khoản trên máy.</p></details>
+{% endblock %}

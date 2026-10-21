@@ -1,0 +1,34 @@
+{
+  "experiment_id": "task06b-v1-final",
+  "seed": 20261020,
+  "revision": "3e8d052cb7b362fb1a04b6064d2331982553ea56",
+  "csv_sha256": "0424aed6e76f74a5b3b1ff61ccec43bc321622e6806da353b910b3b2c8108f6e",
+  "split": {
+    "names": ["train", "validation", "test"],
+    "ratios": [0.7, 0.15, 0.15],
+    "algorithm": "greedy-group-label-squared-deficit-v2-local-moves",
+    "local_move_passes": 3,
+    "global_size_weight": 1.0
+  },
+  "representative": "lowest original CSV record ID for each unconflicted normalized body",
+  "input": "audit.body: leading direction removed, NFC, casefold, collapse whitespace; punctuation retained",
+  "C_values": [0.1, 1.0, 10.0],
+  "selection": "maximum validation macro-F1; exact ties choose lower C, then family_order",
+  "family_order": ["word_logreg", "char_linearsvc"],
+  "refit_train_validation": false,
+  "thread_limit": 1,
+  "dummy": {"strategy": "most_frequent"},
+  "word_tfidf": {
+    "analyzer": "word", "ngram_range": [1, 2], "min_df": 2,
+    "max_features": 60000, "sublinear_tf": true, "lowercase": false,
+    "norm": "l2", "smooth_idf": true
+  },
+  "logreg": {"solver": "lbfgs", "max_iter": 500, "tol": 0.0001},
+  "char_tfidf": {
+    "analyzer": "char_wb", "ngram_range": [3, 5], "min_df": 2,
+    "max_features": 80000, "sublinear_tf": true, "lowercase": false,
+    "norm": "l2", "smooth_idf": true
+  },
+  "linearsvc": {"dual": "auto", "max_iter": 5000, "tol": 0.0001},
+  "error_sample": {"seed": "task06b-errors-v1", "count": 12}
+}

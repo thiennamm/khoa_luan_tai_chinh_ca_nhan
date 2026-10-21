@@ -65,3 +65,17 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
+
+# Artifact cục bộ đáng tin cậy; không nhận tệp/đường dẫn từ trình duyệt.
+CLASSIFICATION_MODEL_PATH = os.environ.get(
+    "DJANGO_CLASSIFICATION_MODEL_PATH",
+    str(BASE_DIR / "data/experiments/classification/task06b-v1-final/models/char_linearsvc_C_10p0.joblib"),
+)
+CLASSIFICATION_METADATA_PATH = BASE_DIR / "docs/metadata/classification-experiment-results.json"
+
+# Website hiện chỉ có luồng upload CSV; chặn sớm tệp vượt 2 MiB.
+FILE_UPLOAD_HANDLERS = [
+    'finance.upload_handlers.CsvSizeLimitHandler',
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]

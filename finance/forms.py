@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
-from .models import Category, Transaction
+from .models import Category, Transaction, Kind
 
 
 class VietnameseAuthenticationForm(AuthenticationForm):
@@ -24,10 +24,41 @@ class MonthForm(forms.Form):
     )
 
 
+class CoverageYearForm(forms.Form):
+    year = forms.IntegerField(label='Năm', min_value=1, max_value=9999,
+        widget=forms.NumberInput(attrs={'min': 1, 'max': 9999}))
+
+
+class CoverageConfirmationForm(forms.Form):
+    review_token = forms.CharField(widget=forms.HiddenInput, max_length=1000)
+    confirm_no_expense = forms.BooleanField(required=False,
+        label='Tôi xác nhận tháng này không có khoản chi.')
+
+
+class CoverageStatusForm(forms.Form):
+    status = forms.ChoiceField(choices=[('unknown', 'Chưa xác nhận'), ('incomplete', 'Chưa đầy đủ')])
+
+
+class SuggestionForm(forms.Form):
+    description = forms.CharField(max_length=500, required=False, strip=False)
+    kind = forms.ChoiceField(choices=Kind.choices)
+
+
+class CsvUploadForm(forms.Form):
+    file = forms.FileField(label='Tệp CSV UTF-8', allow_empty_file=False,
+        error_messages={'required': 'Vui lòng chọn một tệp CSV.', 'empty': 'Tệp trống, chưa có header hoặc giao dịch.'})
+
+    def clean_file(self):
+        upload = self.cleaned_data['file']
+        if upload.size > 2 * 1024 * 1024:
+            raise forms.ValidationError('Tệp vượt giới hạn 2 MiB (2.097.152 byte).')
+        return upload
+
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ["name", "kind"]
+        fields = ["name", "kind", "canonical_label"]
         widgets = {"name": forms.TextInput(attrs={"placeholder": "Ví dụ: Ăn uống, Lương…"})}
 
     def __init__(self, *args, user, **kwargs):

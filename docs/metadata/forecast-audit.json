@@ -1,0 +1,2502 @@
+{
+  "audit_version": 1,
+  "balance_reconciliation": {
+    "adjacent_pairs_in_sheet": 6566,
+    "max_absolute_residual": "0.00",
+    "mismatches_at_two_decimals": 0
+  },
+  "blank_counts": {
+    "Balance": 0,
+    "Category": 24,
+    "Credit Amount": 6122,
+    "Debit Amount": 445,
+    "Location City": 672,
+    "Location Country": 686,
+    "Transaction Date": 0,
+    "Transaction Description": 0,
+    "Transaction Number": 0,
+    "Transaction Type": 61
+  },
+  "category_quality": {
+    "raw_distinct_nonblank_labels": 30,
+    "rows_with_outer_whitespace": 5,
+    "trimmed_distinct_nonblank_labels": 29
+  },
+  "currency": {
+    "amount_number_formats": [
+      "builtin:0"
+    ],
+    "code": null,
+    "currency_column_present": false,
+    "verified": false
+  },
+  "date_branches": {
+    "stored_calendar": {
+      "calendar_months": 96,
+      "date_semantics_confirmed": false,
+      "descending_order_violations_in_sheet": 149,
+      "duplicate_business_key_candidates": {
+        "duplicate_groups": 35,
+        "excess_rows": 48,
+        "rows_in_groups": 83
+      },
+      "first_date": "2015-01-09",
+      "gaps_with_at_least_7_calendar_days_without_rows": [
+        {
+          "calendar_days_without_rows": 27,
+          "next_observed_day": "2015-02-09",
+          "previous_observed_day": "2015-01-12"
+        },
+        {
+          "calendar_days_without_rows": 23,
+          "next_observed_day": "2015-03-08",
+          "previous_observed_day": "2015-02-12"
+        },
+        {
+          "calendar_days_without_rows": 26,
+          "next_observed_day": "2015-04-08",
+          "previous_observed_day": "2015-03-12"
+        },
+        {
+          "calendar_days_without_rows": 25,
+          "next_observed_day": "2015-05-08",
+          "previous_observed_day": "2015-04-12"
+        },
+        {
+          "calendar_days_without_rows": 27,
+          "next_observed_day": "2015-06-08",
+          "previous_observed_day": "2015-05-11"
+        },
+        {
+          "calendar_days_without_rows": 26,
+          "next_observed_day": "2015-07-08",
+          "previous_observed_day": "2015-06-11"
+        },
+        {
+          "calendar_days_without_rows": 14,
+          "next_observed_day": "2015-07-27",
+          "previous_observed_day": "2015-07-12"
+        },
+        {
+          "calendar_days_without_rows": 9,
+          "next_observed_day": "2015-08-10",
+          "previous_observed_day": "2015-07-31"
+        },
+        {
+          "calendar_days_without_rows": 11,
+          "next_observed_day": "2015-09-09",
+          "previous_observed_day": "2015-08-28"
+        },
+        {
+          "calendar_days_without_rows": 7,
+          "next_observed_day": "2015-10-08",
+          "previous_observed_day": "2015-09-30"
+        },
+        {
+          "calendar_days_without_rows": 8,
+          "next_observed_day": "2015-11-08",
+          "previous_observed_day": "2015-10-30"
+        },
+        {
+          "calendar_days_without_rows": 7,
+          "next_observed_day": "2015-12-08",
+          "previous_observed_day": "2015-11-30"
+        },
+        {
+          "calendar_days_without_rows": 10,
+          "next_observed_day": "2022-02-14",
+          "previous_observed_day": "2022-02-03"
+        },
+        {
+          "calendar_days_without_rows": 8,
+          "next_observed_day": "2022-03-14",
+          "previous_observed_day": "2022-03-05"
+        },
+        {
+          "calendar_days_without_rows": 7,
+          "next_observed_day": "2022-08-02",
+          "previous_observed_day": "2022-07-25"
+        },
+        {
+          "calendar_days_without_rows": 25,
+          "next_observed_day": "2022-09-02",
+          "previous_observed_day": "2022-08-07"
+        },
+        {
+          "calendar_days_without_rows": 24,
+          "next_observed_day": "2022-10-01",
+          "previous_observed_day": "2022-09-06"
+        },
+        {
+          "calendar_days_without_rows": 25,
+          "next_observed_day": "2022-11-01",
+          "previous_observed_day": "2022-10-06"
+        },
+        {
+          "calendar_days_without_rows": 23,
+          "next_observed_day": "2022-12-01",
+          "previous_observed_day": "2022-11-07"
+        }
+      ],
+      "invalid_dates": 0,
+      "last_date": "2022-12-07",
+      "longest_gap_without_rows_days": 27,
+      "monthly": [
+        {
+          "boundary_month": true,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 3,
+          "debit_transactions": 33,
+          "month": "2015-01",
+          "observed_credit_total": "14.38",
+          "observed_debit_total": "4417.28",
+          "transactions": 36
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 4,
+          "debit_transactions": 25,
+          "month": "2015-02",
+          "observed_credit_total": "5.23",
+          "observed_debit_total": "2402.46",
+          "transactions": 26
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 4,
+          "debit_transactions": 27,
+          "month": "2015-03",
+          "observed_credit_total": "590.69",
+          "observed_debit_total": "3283.41",
+          "transactions": 29
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 0,
+          "days_with_rows": 4,
+          "debit_transactions": 13,
+          "month": "2015-04",
+          "observed_credit_total": "0.00",
+          "observed_debit_total": "288.13",
+          "transactions": 13
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 0,
+          "days_with_rows": 3,
+          "debit_transactions": 18,
+          "month": "2015-05",
+          "observed_credit_total": "0.00",
+          "observed_debit_total": "155.74",
+          "transactions": 18
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 0,
+          "days_with_rows": 3,
+          "debit_transactions": 9,
+          "month": "2015-06",
+          "observed_credit_total": "0.00",
+          "observed_debit_total": "68.36",
+          "transactions": 9
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 9,
+          "debit_transactions": 30,
+          "month": "2015-07",
+          "observed_credit_total": "3608.82",
+          "observed_debit_total": "2263.65",
+          "transactions": 33
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 14,
+          "debit_transactions": 47,
+          "month": "2015-08",
+          "observed_credit_total": "3043.03",
+          "observed_debit_total": "723.43",
+          "transactions": 48
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 14,
+          "debit_transactions": 39,
+          "month": "2015-09",
+          "observed_credit_total": "3472.32",
+          "observed_debit_total": "738.78",
+          "transactions": 41
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 17,
+          "debit_transactions": 57,
+          "month": "2015-10",
+          "observed_credit_total": "3068.67",
+          "observed_debit_total": "1696.08",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 15,
+          "debit_transactions": 50,
+          "month": "2015-11",
+          "observed_credit_total": "3239.16",
+          "observed_debit_total": "1022.08",
+          "transactions": 52
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 15,
+          "debit_transactions": 59,
+          "month": "2015-12",
+          "observed_credit_total": "4739.91",
+          "observed_debit_total": "989.33",
+          "transactions": 61
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 18,
+          "debit_transactions": 115,
+          "month": "2016-01",
+          "observed_credit_total": "3391.26",
+          "observed_debit_total": "14506.93",
+          "transactions": 120
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 18,
+          "debit_transactions": 40,
+          "month": "2016-02",
+          "observed_credit_total": "6670.64",
+          "observed_debit_total": "1023.21",
+          "transactions": 45
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 19,
+          "debit_transactions": 90,
+          "month": "2016-03",
+          "observed_credit_total": "3234.66",
+          "observed_debit_total": "4491.49",
+          "transactions": 93
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 22,
+          "debit_transactions": 79,
+          "month": "2016-04",
+          "observed_credit_total": "3582.43",
+          "observed_debit_total": "3868.83",
+          "transactions": 82
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 51,
+          "month": "2016-05",
+          "observed_credit_total": "4445.37",
+          "observed_debit_total": "2292.96",
+          "transactions": 54
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 21,
+          "debit_transactions": 53,
+          "month": "2016-06",
+          "observed_credit_total": "3635.63",
+          "observed_debit_total": "2736.04",
+          "transactions": 56
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 21,
+          "debit_transactions": 56,
+          "month": "2016-07",
+          "observed_credit_total": "4111.49",
+          "observed_debit_total": "2528.43",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 69,
+          "month": "2016-08",
+          "observed_credit_total": "3285.62",
+          "observed_debit_total": "2472.79",
+          "transactions": 73
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 19,
+          "debit_transactions": 53,
+          "month": "2016-09",
+          "observed_credit_total": "3202.43",
+          "observed_debit_total": "1883.24",
+          "transactions": 56
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 15,
+          "debit_transactions": 41,
+          "month": "2016-10",
+          "observed_credit_total": "4287.79",
+          "observed_debit_total": "2581.60",
+          "transactions": 46
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 59,
+          "month": "2016-11",
+          "observed_credit_total": "3267.59",
+          "observed_debit_total": "2251.22",
+          "transactions": 62
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 42,
+          "month": "2016-12",
+          "observed_credit_total": "4861.01",
+          "observed_debit_total": "863.00",
+          "transactions": 47
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 17,
+          "debit_transactions": 83,
+          "month": "2017-01",
+          "observed_credit_total": "3281.35",
+          "observed_debit_total": "11792.21",
+          "transactions": 85
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 17,
+          "debit_transactions": 50,
+          "month": "2017-02",
+          "observed_credit_total": "3805.26",
+          "observed_debit_total": "4631.05",
+          "transactions": 52
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 23,
+          "debit_transactions": 93,
+          "month": "2017-03",
+          "observed_credit_total": "5238.89",
+          "observed_debit_total": "6737.40",
+          "transactions": 99
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 15,
+          "debit_transactions": 54,
+          "month": "2017-04",
+          "observed_credit_total": "3289.94",
+          "observed_debit_total": "1898.93",
+          "transactions": 56
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 19,
+          "debit_transactions": 60,
+          "month": "2017-05",
+          "observed_credit_total": "3138.65",
+          "observed_debit_total": "1669.46",
+          "transactions": 61
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 20,
+          "debit_transactions": 67,
+          "month": "2017-06",
+          "observed_credit_total": "4689.80",
+          "observed_debit_total": "8026.38",
+          "transactions": 72
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 18,
+          "debit_transactions": 39,
+          "month": "2017-07",
+          "observed_credit_total": "5146.88",
+          "observed_debit_total": "1616.99",
+          "transactions": 42
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 55,
+          "month": "2017-08",
+          "observed_credit_total": "3436.08",
+          "observed_debit_total": "2470.78",
+          "transactions": 60
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 20,
+          "debit_transactions": 52,
+          "month": "2017-09",
+          "observed_credit_total": "3360.97",
+          "observed_debit_total": "1840.32",
+          "transactions": 54
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 64,
+          "month": "2017-10",
+          "observed_credit_total": "4566.32",
+          "observed_debit_total": "3044.59",
+          "transactions": 67
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 46,
+          "month": "2017-11",
+          "observed_credit_total": "4431.74",
+          "observed_debit_total": "899.27",
+          "transactions": 51
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 19,
+          "debit_transactions": 53,
+          "month": "2017-12",
+          "observed_credit_total": "3180.97",
+          "observed_debit_total": "1320.57",
+          "transactions": 54
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 18,
+          "debit_transactions": 101,
+          "month": "2018-01",
+          "observed_credit_total": "3238.07",
+          "observed_debit_total": "13789.57",
+          "transactions": 110
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 20,
+          "debit_transactions": 63,
+          "month": "2018-02",
+          "observed_credit_total": "4404.83",
+          "observed_debit_total": "6018.69",
+          "transactions": 72
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 18,
+          "debit_transactions": 71,
+          "month": "2018-03",
+          "observed_credit_total": "3449.00",
+          "observed_debit_total": "7327.03",
+          "transactions": 77
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 19,
+          "debit_transactions": 66,
+          "month": "2018-04",
+          "observed_credit_total": "3675.18",
+          "observed_debit_total": "1631.35",
+          "transactions": 73
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 22,
+          "debit_transactions": 46,
+          "month": "2018-05",
+          "observed_credit_total": "3234.03",
+          "observed_debit_total": "2070.10",
+          "transactions": 48
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 16,
+          "debit_transactions": 40,
+          "month": "2018-06",
+          "observed_credit_total": "3804.79",
+          "observed_debit_total": "1443.53",
+          "transactions": 42
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 15,
+          "debit_transactions": 38,
+          "month": "2018-07",
+          "observed_credit_total": "4278.91",
+          "observed_debit_total": "1205.18",
+          "transactions": 42
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 18,
+          "debit_transactions": 51,
+          "month": "2018-08",
+          "observed_credit_total": "3527.68",
+          "observed_debit_total": "4719.09",
+          "transactions": 53
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 19,
+          "debit_transactions": 42,
+          "month": "2018-09",
+          "observed_credit_total": "3601.70",
+          "observed_debit_total": "1178.07",
+          "transactions": 45
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 18,
+          "debit_transactions": 54,
+          "month": "2018-10",
+          "observed_credit_total": "5355.61",
+          "observed_debit_total": "5068.53",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 21,
+          "debit_transactions": 64,
+          "month": "2018-11",
+          "observed_credit_total": "3251.36",
+          "observed_debit_total": "1780.82",
+          "transactions": 65
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 18,
+          "debit_transactions": 51,
+          "month": "2018-12",
+          "observed_credit_total": "4707.43",
+          "observed_debit_total": "1693.37",
+          "transactions": 54
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 10,
+          "days_with_rows": 22,
+          "debit_transactions": 122,
+          "month": "2019-01",
+          "observed_credit_total": "3420.47",
+          "observed_debit_total": "13348.73",
+          "transactions": 132
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 11,
+          "days_with_rows": 18,
+          "debit_transactions": 72,
+          "month": "2019-02",
+          "observed_credit_total": "3703.06",
+          "observed_debit_total": "10769.52",
+          "transactions": 83
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 21,
+          "debit_transactions": 72,
+          "month": "2019-03",
+          "observed_credit_total": "3613.83",
+          "observed_debit_total": "5078.91",
+          "transactions": 79
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 19,
+          "debit_transactions": 68,
+          "month": "2019-04",
+          "observed_credit_total": "4323.60",
+          "observed_debit_total": "9819.33",
+          "transactions": 75
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 22,
+          "debit_transactions": 78,
+          "month": "2019-05",
+          "observed_credit_total": "9265.85",
+          "observed_debit_total": "7816.56",
+          "transactions": 81
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 65,
+          "month": "2019-06",
+          "observed_credit_total": "9268.79",
+          "observed_debit_total": "12220.20",
+          "transactions": 70
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 84,
+          "month": "2019-07",
+          "observed_credit_total": "6242.82",
+          "observed_debit_total": "2431.48",
+          "transactions": 88
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 94,
+          "month": "2019-08",
+          "observed_credit_total": "5507.31",
+          "observed_debit_total": "4915.32",
+          "transactions": 97
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 18,
+          "debit_transactions": 75,
+          "month": "2019-09",
+          "observed_credit_total": "3748.36",
+          "observed_debit_total": "2012.54",
+          "transactions": 78
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 81,
+          "month": "2019-10",
+          "observed_credit_total": "6429.10",
+          "observed_debit_total": "3996.60",
+          "transactions": 85
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 54,
+          "month": "2019-11",
+          "observed_credit_total": "3981.51",
+          "observed_debit_total": "3191.13",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 18,
+          "debit_transactions": 66,
+          "month": "2019-12",
+          "observed_credit_total": "9880.96",
+          "observed_debit_total": "1513.89",
+          "transactions": 71
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 11,
+          "days_with_rows": 22,
+          "debit_transactions": 70,
+          "month": "2020-01",
+          "observed_credit_total": "7774.75",
+          "observed_debit_total": "14471.67",
+          "transactions": 81
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 13,
+          "days_with_rows": 21,
+          "debit_transactions": 78,
+          "month": "2020-02",
+          "observed_credit_total": "13690.30",
+          "observed_debit_total": "17614.64",
+          "transactions": 91
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 14,
+          "days_with_rows": 23,
+          "debit_transactions": 88,
+          "month": "2020-03",
+          "observed_credit_total": "93996.75",
+          "observed_debit_total": "18153.25",
+          "transactions": 102
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 55,
+          "month": "2020-04",
+          "observed_credit_total": "3587.85",
+          "observed_debit_total": "3341.99",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 18,
+          "debit_transactions": 48,
+          "month": "2020-05",
+          "observed_credit_total": "3680.22",
+          "observed_debit_total": "4995.75",
+          "transactions": 52
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 63,
+          "month": "2020-06",
+          "observed_credit_total": "12255.86",
+          "observed_debit_total": "85466.43",
+          "transactions": 67
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 23,
+          "debit_transactions": 65,
+          "month": "2020-07",
+          "observed_credit_total": "3924.85",
+          "observed_debit_total": "2683.15",
+          "transactions": 66
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 19,
+          "debit_transactions": 62,
+          "month": "2020-08",
+          "observed_credit_total": "3665.25",
+          "observed_debit_total": "3264.83",
+          "transactions": 63
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 20,
+          "debit_transactions": 72,
+          "month": "2020-09",
+          "observed_credit_total": "4655.42",
+          "observed_debit_total": "7068.51",
+          "transactions": 77
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 78,
+          "month": "2020-10",
+          "observed_credit_total": "7672.85",
+          "observed_debit_total": "7471.85",
+          "transactions": 82
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 13,
+          "days_with_rows": 20,
+          "debit_transactions": 68,
+          "month": "2020-11",
+          "observed_credit_total": "9783.31",
+          "observed_debit_total": "8148.39",
+          "transactions": 81
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 16,
+          "debit_transactions": 72,
+          "month": "2020-12",
+          "observed_credit_total": "4665.29",
+          "observed_debit_total": "5296.53",
+          "transactions": 76
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 25,
+          "days_with_rows": 22,
+          "debit_transactions": 132,
+          "month": "2021-01",
+          "observed_credit_total": "13955.82",
+          "observed_debit_total": "19540.95",
+          "transactions": 157
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 13,
+          "days_with_rows": 18,
+          "debit_transactions": 75,
+          "month": "2021-02",
+          "observed_credit_total": "5257.52",
+          "observed_debit_total": "6057.94",
+          "transactions": 88
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 20,
+          "debit_transactions": 72,
+          "month": "2021-03",
+          "observed_credit_total": "4285.24",
+          "observed_debit_total": "2352.63",
+          "transactions": 78
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 12,
+          "days_with_rows": 22,
+          "debit_transactions": 83,
+          "month": "2021-04",
+          "observed_credit_total": "6822.98",
+          "observed_debit_total": "7326.01",
+          "transactions": 95
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 20,
+          "debit_transactions": 73,
+          "month": "2021-05",
+          "observed_credit_total": "4163.18",
+          "observed_debit_total": "3765.21",
+          "transactions": 78
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 116,
+          "month": "2021-06",
+          "observed_credit_total": "4637.68",
+          "observed_debit_total": "5056.53",
+          "transactions": 121
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 22,
+          "debit_transactions": 86,
+          "month": "2021-07",
+          "observed_credit_total": "4908.51",
+          "observed_debit_total": "3733.23",
+          "transactions": 90
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 79,
+          "month": "2021-08",
+          "observed_credit_total": "5081.43",
+          "observed_debit_total": "4716.81",
+          "transactions": 83
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 22,
+          "debit_transactions": 88,
+          "month": "2021-09",
+          "observed_credit_total": "5111.83",
+          "observed_debit_total": "3761.36",
+          "transactions": 92
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 21,
+          "debit_transactions": 90,
+          "month": "2021-10",
+          "observed_credit_total": "5404.44",
+          "observed_debit_total": "3688.31",
+          "transactions": 96
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 20,
+          "debit_transactions": 83,
+          "month": "2021-11",
+          "observed_credit_total": "5205.53",
+          "observed_debit_total": "4835.67",
+          "transactions": 89
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 108,
+          "month": "2021-12",
+          "observed_credit_total": "5801.43",
+          "observed_debit_total": "5089.32",
+          "transactions": 113
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 10,
+          "days_with_rows": 18,
+          "debit_transactions": 104,
+          "month": "2022-01",
+          "observed_credit_total": "4698.72",
+          "observed_debit_total": "10479.27",
+          "transactions": 114
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 13,
+          "debit_transactions": 81,
+          "month": "2022-02",
+          "observed_credit_total": "4541.57",
+          "observed_debit_total": "2366.98",
+          "transactions": 88
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 17,
+          "debit_transactions": 89,
+          "month": "2022-03",
+          "observed_credit_total": "5095.93",
+          "observed_debit_total": "4535.72",
+          "transactions": 96
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 12,
+          "days_with_rows": 17,
+          "debit_transactions": 101,
+          "month": "2022-04",
+          "observed_credit_total": "5412.12",
+          "observed_debit_total": "6024.21",
+          "transactions": 113
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 17,
+          "debit_transactions": 84,
+          "month": "2022-05",
+          "observed_credit_total": "4756.92",
+          "observed_debit_total": "3333.75",
+          "transactions": 89
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 19,
+          "debit_transactions": 106,
+          "month": "2022-06",
+          "observed_credit_total": "4162.93",
+          "observed_debit_total": "3111.63",
+          "transactions": 112
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 15,
+          "debit_transactions": 82,
+          "month": "2022-07",
+          "observed_credit_total": "417.00",
+          "observed_debit_total": "1847.18",
+          "transactions": 84
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 5,
+          "debit_transactions": 12,
+          "month": "2022-08",
+          "observed_credit_total": "676.08",
+          "observed_debit_total": "177.85",
+          "transactions": 14
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 4,
+          "debit_transactions": 13,
+          "month": "2022-09",
+          "observed_credit_total": "50.00",
+          "observed_debit_total": "256.18",
+          "transactions": 14
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 5,
+          "debit_transactions": 19,
+          "month": "2022-10",
+          "observed_credit_total": "14.50",
+          "observed_debit_total": "198.77",
+          "transactions": 20
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 0,
+          "days_with_rows": 6,
+          "debit_transactions": 27,
+          "month": "2022-11",
+          "observed_credit_total": "0.00",
+          "observed_debit_total": "324.62",
+          "transactions": 27
+        },
+        {
+          "boundary_month": true,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 4,
+          "debit_transactions": 11,
+          "month": "2022-12",
+          "observed_credit_total": "150.00",
+          "observed_debit_total": "85.84",
+          "transactions": 12
+        }
+      ],
+      "months_without_rows": [],
+      "temporal_plan": {
+        "approved_forecast_origins": 0,
+        "boundary_months_excluded": [
+          "2015-01",
+          "2022-12"
+        ],
+        "conditional_only": true,
+        "conditional_split": {
+          "maximum_origins_end": "2022-11",
+          "maximum_origins_start": "2018-02",
+          "test": {
+            "end": "2022-11",
+            "months": 12,
+            "start": "2021-12"
+          },
+          "test_origins": 12,
+          "train": {
+            "end": "2020-11",
+            "months": 70,
+            "start": "2015-02"
+          },
+          "validation": {
+            "end": "2021-11",
+            "months": 12,
+            "start": "2020-12"
+          },
+          "validation_origins": 12
+        },
+        "confirmed_coverage_months": 0,
+        "interior_months_with_rows": 94,
+        "longest_interior_calendar_run_with_rows": 94,
+        "maximum_conditional_one_step_origins": 58,
+        "minimum_training_months_for_origin_count": 36
+      },
+      "unique_days_with_rows": 1660,
+      "weekend_rows": 817
+    },
+    "swap_numeric_month_day_hypothesis": {
+      "calendar_months": 85,
+      "date_semantics_confirmed": false,
+      "descending_order_violations_in_sheet": 0,
+      "duplicate_business_key_candidates": {
+        "duplicate_groups": 35,
+        "excess_rows": 48,
+        "rows_in_groups": 83
+      },
+      "first_date": "2015-07-27",
+      "gaps_with_at_least_7_calendar_days_without_rows": [],
+      "invalid_dates": 0,
+      "last_date": "2022-07-25",
+      "longest_gap_without_rows_days": 6,
+      "monthly": [
+        {
+          "boundary_month": true,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 5,
+          "debit_transactions": 14,
+          "month": "2015-07",
+          "observed_credit_total": "3545.99",
+          "observed_debit_total": "1485.87",
+          "transactions": 16
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 81,
+          "month": "2015-08",
+          "observed_credit_total": "3633.72",
+          "observed_debit_total": "2803.04",
+          "transactions": 84
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 16,
+          "debit_transactions": 54,
+          "month": "2015-09",
+          "observed_credit_total": "3539.89",
+          "observed_debit_total": "3145.10",
+          "transactions": 58
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 22,
+          "debit_transactions": 88,
+          "month": "2015-10",
+          "observed_credit_total": "3073.57",
+          "observed_debit_total": "4328.20",
+          "transactions": 91
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 21,
+          "debit_transactions": 77,
+          "month": "2015-11",
+          "observed_credit_total": "3244.39",
+          "observed_debit_total": "2920.55",
+          "transactions": 80
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 21,
+          "debit_transactions": 93,
+          "month": "2015-12",
+          "observed_credit_total": "4744.65",
+          "observed_debit_total": "3365.97",
+          "transactions": 96
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 16,
+          "debit_transactions": 63,
+          "month": "2016-01",
+          "observed_credit_total": "3132.44",
+          "observed_debit_total": "3239.97",
+          "transactions": 65
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 53,
+          "month": "2016-02",
+          "observed_credit_total": "4114.45",
+          "observed_debit_total": "2586.87",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 71,
+          "month": "2016-03",
+          "observed_credit_total": "4140.99",
+          "observed_debit_total": "3594.80",
+          "transactions": 75
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 21,
+          "debit_transactions": 73,
+          "month": "2016-04",
+          "observed_credit_total": "3581.94",
+          "observed_debit_total": "3305.73",
+          "transactions": 76
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 19,
+          "debit_transactions": 70,
+          "month": "2016-05",
+          "observed_credit_total": "4451.70",
+          "observed_debit_total": "3424.77",
+          "transactions": 74
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 19,
+          "debit_transactions": 56,
+          "month": "2016-06",
+          "observed_credit_total": "3085.63",
+          "observed_debit_total": "2883.82",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 21,
+          "debit_transactions": 64,
+          "month": "2016-07",
+          "observed_credit_total": "4411.49",
+          "observed_debit_total": "5569.78",
+          "transactions": 68
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 19,
+          "debit_transactions": 63,
+          "month": "2016-08",
+          "observed_credit_total": "4931.46",
+          "observed_debit_total": "3082.20",
+          "transactions": 67
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 19,
+          "debit_transactions": 60,
+          "month": "2016-09",
+          "observed_credit_total": "3352.43",
+          "observed_debit_total": "3181.02",
+          "transactions": 64
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 18,
+          "debit_transactions": 57,
+          "month": "2016-10",
+          "observed_credit_total": "4537.79",
+          "observed_debit_total": "3326.34",
+          "transactions": 63
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 65,
+          "month": "2016-11",
+          "observed_credit_total": "3517.59",
+          "observed_debit_total": "4651.77",
+          "transactions": 69
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 53,
+          "month": "2016-12",
+          "observed_credit_total": "4718.01",
+          "observed_debit_total": "2652.67",
+          "transactions": 58
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 18,
+          "debit_transactions": 55,
+          "month": "2017-01",
+          "observed_credit_total": "3281.35",
+          "observed_debit_total": "3002.41",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 1,
+          "days_with_rows": 19,
+          "debit_transactions": 48,
+          "month": "2017-02",
+          "observed_credit_total": "3112.59",
+          "observed_debit_total": "2350.44",
+          "transactions": 49
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 22,
+          "debit_transactions": 75,
+          "month": "2017-03",
+          "observed_credit_total": "3148.58",
+          "observed_debit_total": "3313.47",
+          "transactions": 77
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 17,
+          "debit_transactions": 54,
+          "month": "2017-04",
+          "observed_credit_total": "3289.94",
+          "observed_debit_total": "3270.22",
+          "transactions": 56
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 18,
+          "debit_transactions": 57,
+          "month": "2017-05",
+          "observed_credit_total": "3831.32",
+          "observed_debit_total": "3628.66",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 71,
+          "month": "2017-06",
+          "observed_credit_total": "3861.31",
+          "observed_debit_total": "9407.02",
+          "transactions": 75
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 17,
+          "debit_transactions": 49,
+          "month": "2017-07",
+          "observed_credit_total": "6294.82",
+          "observed_debit_total": "3061.88",
+          "transactions": 54
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 22,
+          "debit_transactions": 66,
+          "month": "2017-08",
+          "observed_credit_total": "3270.60",
+          "observed_debit_total": "4251.88",
+          "transactions": 72
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 20,
+          "debit_transactions": 69,
+          "month": "2017-09",
+          "observed_credit_total": "3360.97",
+          "observed_debit_total": "4297.84",
+          "transactions": 71
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 18,
+          "debit_transactions": 56,
+          "month": "2017-10",
+          "observed_credit_total": "5149.79",
+          "observed_debit_total": "3770.28",
+          "transactions": 61
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 19,
+          "debit_transactions": 55,
+          "month": "2017-11",
+          "observed_credit_total": "5592.56",
+          "observed_debit_total": "2233.59",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 18,
+          "debit_transactions": 61,
+          "month": "2017-12",
+          "observed_credit_total": "3373.02",
+          "observed_debit_total": "3360.26",
+          "transactions": 63
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 72,
+          "month": "2018-01",
+          "observed_credit_total": "3211.22",
+          "observed_debit_total": "3198.49",
+          "transactions": 76
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 52,
+          "month": "2018-02",
+          "observed_credit_total": "4284.67",
+          "observed_debit_total": "2899.13",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 2,
+          "days_with_rows": 18,
+          "debit_transactions": 51,
+          "month": "2018-03",
+          "observed_credit_total": "3260.02",
+          "observed_debit_total": "3177.39",
+          "transactions": 53
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 79,
+          "month": "2018-04",
+          "observed_credit_total": "3376.69",
+          "observed_debit_total": "3517.87",
+          "transactions": 82
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 19,
+          "debit_transactions": 43,
+          "month": "2018-05",
+          "observed_credit_total": "3234.30",
+          "observed_debit_total": "7217.74",
+          "transactions": 46
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 15,
+          "debit_transactions": 48,
+          "month": "2018-06",
+          "observed_credit_total": "3816.21",
+          "observed_debit_total": "3423.85",
+          "transactions": 52
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 19,
+          "debit_transactions": 60,
+          "month": "2018-07",
+          "observed_credit_total": "4287.47",
+          "observed_debit_total": "3435.63",
+          "transactions": 65
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 17,
+          "debit_transactions": 53,
+          "month": "2018-08",
+          "observed_credit_total": "3536.80",
+          "observed_debit_total": "6114.53",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 19,
+          "debit_transactions": 46,
+          "month": "2018-09",
+          "observed_credit_total": "3893.64",
+          "observed_debit_total": "4148.22",
+          "transactions": 52
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 20,
+          "debit_transactions": 63,
+          "month": "2018-10",
+          "observed_credit_total": "5544.32",
+          "observed_debit_total": "3852.37",
+          "transactions": 69
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 19,
+          "debit_transactions": 55,
+          "month": "2018-11",
+          "observed_credit_total": "3366.29",
+          "observed_debit_total": "2980.13",
+          "transactions": 59
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 17,
+          "debit_transactions": 65,
+          "month": "2018-12",
+          "observed_credit_total": "4716.96",
+          "observed_debit_total": "3959.98",
+          "transactions": 70
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 19,
+          "debit_transactions": 60,
+          "month": "2019-01",
+          "observed_credit_total": "3260.48",
+          "observed_debit_total": "2929.62",
+          "transactions": 63
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 18,
+          "debit_transactions": 63,
+          "month": "2019-02",
+          "observed_credit_total": "3665.03",
+          "observed_debit_total": "7716.77",
+          "transactions": 67
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 68,
+          "month": "2019-03",
+          "observed_credit_total": "3648.22",
+          "observed_debit_total": "3176.28",
+          "transactions": 73
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 20,
+          "debit_transactions": 74,
+          "month": "2019-04",
+          "observed_credit_total": "4275.18",
+          "observed_debit_total": "11590.36",
+          "transactions": 78
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 21,
+          "debit_transactions": 94,
+          "month": "2019-05",
+          "observed_credit_total": "9274.97",
+          "observed_debit_total": "9580.03",
+          "transactions": 99
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 20,
+          "debit_transactions": 86,
+          "month": "2019-06",
+          "observed_credit_total": "14075.78",
+          "observed_debit_total": "15863.56",
+          "transactions": 94
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 23,
+          "debit_transactions": 84,
+          "month": "2019-07",
+          "observed_credit_total": "6333.40",
+          "observed_debit_total": "4136.30",
+          "transactions": 91
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 20,
+          "debit_transactions": 122,
+          "month": "2019-08",
+          "observed_credit_total": "6615.84",
+          "observed_debit_total": "6735.82",
+          "transactions": 128
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 20,
+          "debit_transactions": 78,
+          "month": "2019-09",
+          "observed_credit_total": "3772.89",
+          "observed_debit_total": "4330.18",
+          "transactions": 84
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 22,
+          "debit_transactions": 87,
+          "month": "2019-10",
+          "observed_credit_total": "4437.88",
+          "observed_debit_total": "5641.52",
+          "transactions": 92
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 17,
+          "debit_transactions": 55,
+          "month": "2019-11",
+          "observed_credit_total": "4035.04",
+          "observed_debit_total": "2717.36",
+          "transactions": 63
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 18,
+          "debit_transactions": 60,
+          "month": "2019-12",
+          "observed_credit_total": "5990.95",
+          "observed_debit_total": "2696.41",
+          "transactions": 66
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 22,
+          "debit_transactions": 60,
+          "month": "2020-01",
+          "observed_credit_total": "6766.86",
+          "observed_debit_total": "5675.78",
+          "transactions": 66
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 4,
+          "days_with_rows": 18,
+          "debit_transactions": 57,
+          "month": "2020-02",
+          "observed_credit_total": "3669.19",
+          "observed_debit_total": "4357.09",
+          "transactions": 61
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 12,
+          "days_with_rows": 21,
+          "debit_transactions": 63,
+          "month": "2020-03",
+          "observed_credit_total": "104269.45",
+          "observed_debit_total": "106341.03",
+          "transactions": 75
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 20,
+          "debit_transactions": 54,
+          "month": "2020-04",
+          "observed_credit_total": "3586.56",
+          "observed_debit_total": "6869.56",
+          "transactions": 57
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 17,
+          "debit_transactions": 54,
+          "month": "2020-05",
+          "observed_credit_total": "3644.87",
+          "observed_debit_total": "4927.16",
+          "transactions": 60
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 22,
+          "debit_transactions": 61,
+          "month": "2020-06",
+          "observed_credit_total": "10143.03",
+          "observed_debit_total": "4143.64",
+          "transactions": 66
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 3,
+          "days_with_rows": 22,
+          "debit_transactions": 70,
+          "month": "2020-07",
+          "observed_credit_total": "3929.43",
+          "observed_debit_total": "9703.17",
+          "transactions": 73
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 5,
+          "days_with_rows": 18,
+          "debit_transactions": 66,
+          "month": "2020-08",
+          "observed_credit_total": "3688.60",
+          "observed_debit_total": "3233.46",
+          "transactions": 71
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 19,
+          "debit_transactions": 72,
+          "month": "2020-09",
+          "observed_credit_total": "4416.78",
+          "observed_debit_total": "5655.90",
+          "transactions": 78
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 22,
+          "debit_transactions": 85,
+          "month": "2020-10",
+          "observed_credit_total": "8544.24",
+          "observed_debit_total": "8342.68",
+          "transactions": 92
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 12,
+          "days_with_rows": 21,
+          "debit_transactions": 93,
+          "month": "2020-11",
+          "observed_credit_total": "10501.92",
+          "observed_debit_total": "11677.41",
+          "transactions": 105
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 21,
+          "debit_transactions": 84,
+          "month": "2020-12",
+          "observed_credit_total": "6191.77",
+          "observed_debit_total": "7050.11",
+          "transactions": 93
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 20,
+          "debit_transactions": 67,
+          "month": "2021-01",
+          "observed_credit_total": "5534.72",
+          "observed_debit_total": "5205.25",
+          "transactions": 74
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 12,
+          "days_with_rows": 20,
+          "debit_transactions": 73,
+          "month": "2021-02",
+          "observed_credit_total": "6082.32",
+          "observed_debit_total": "6620.44",
+          "transactions": 85
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 23,
+          "debit_transactions": 86,
+          "month": "2021-03",
+          "observed_credit_total": "5168.77",
+          "observed_debit_total": "4750.07",
+          "transactions": 95
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 20,
+          "debit_transactions": 87,
+          "month": "2021-04",
+          "observed_credit_total": "5715.35",
+          "observed_debit_total": "5750.01",
+          "transactions": 95
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 6,
+          "days_with_rows": 19,
+          "debit_transactions": 91,
+          "month": "2021-05",
+          "observed_credit_total": "5359.92",
+          "observed_debit_total": "5300.83",
+          "transactions": 97
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 22,
+          "debit_transactions": 110,
+          "month": "2021-06",
+          "observed_credit_total": "6839.80",
+          "observed_debit_total": "6724.76",
+          "transactions": 118
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 22,
+          "debit_transactions": 96,
+          "month": "2021-07",
+          "observed_credit_total": "5912.14",
+          "observed_debit_total": "5728.23",
+          "transactions": 103
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 19,
+          "debit_transactions": 61,
+          "month": "2021-08",
+          "observed_credit_total": "5735.23",
+          "observed_debit_total": "5987.18",
+          "transactions": 68
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 21,
+          "debit_transactions": 105,
+          "month": "2021-09",
+          "observed_credit_total": "6815.70",
+          "observed_debit_total": "6515.87",
+          "transactions": 114
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 21,
+          "debit_transactions": 105,
+          "month": "2021-10",
+          "observed_credit_total": "5905.23",
+          "observed_debit_total": "6149.22",
+          "transactions": 112
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 22,
+          "debit_transactions": 96,
+          "month": "2021-11",
+          "observed_credit_total": "5569.31",
+          "observed_debit_total": "5606.01",
+          "transactions": 103
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 21,
+          "debit_transactions": 108,
+          "month": "2021-12",
+          "observed_credit_total": "5997.10",
+          "observed_debit_total": "5586.10",
+          "transactions": 116
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 20,
+          "debit_transactions": 117,
+          "month": "2022-01",
+          "observed_credit_total": "5302.43",
+          "observed_debit_total": "5686.67",
+          "transactions": 124
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 20,
+          "debit_transactions": 118,
+          "month": "2022-02",
+          "observed_credit_total": "4691.96",
+          "observed_debit_total": "4627.71",
+          "transactions": 126
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 23,
+          "debit_transactions": 113,
+          "month": "2022-03",
+          "observed_credit_total": "4895.86",
+          "observed_debit_total": "4943.52",
+          "transactions": 121
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 19,
+          "debit_transactions": 107,
+          "month": "2022-04",
+          "observed_credit_total": "4582.92",
+          "observed_debit_total": "4636.03",
+          "transactions": 114
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 9,
+          "days_with_rows": 21,
+          "debit_transactions": 107,
+          "month": "2022-05",
+          "observed_credit_total": "5188.15",
+          "observed_debit_total": "4981.55",
+          "transactions": 116
+        },
+        {
+          "boundary_month": false,
+          "coverage": "unknown",
+          "credit_transactions": 7,
+          "days_with_rows": 20,
+          "debit_transactions": 96,
+          "month": "2022-06",
+          "observed_credit_total": "4163.49",
+          "observed_debit_total": "4213.62",
+          "transactions": 103
+        },
+        {
+          "boundary_month": true,
+          "coverage": "unknown",
+          "credit_transactions": 8,
+          "days_with_rows": 17,
+          "debit_transactions": 71,
+          "month": "2022-07",
+          "observed_credit_total": "1150.96",
+          "observed_debit_total": "3652.90",
+          "transactions": 79
+        }
+      ],
+      "months_without_rows": [],
+      "temporal_plan": {
+        "approved_forecast_origins": 0,
+        "boundary_months_excluded": [
+          "2015-07",
+          "2022-07"
+        ],
+        "conditional_only": true,
+        "conditional_split": {
+          "maximum_origins_end": "2022-06",
+          "maximum_origins_start": "2018-08",
+          "test": {
+            "end": "2022-06",
+            "months": 12,
+            "start": "2021-07"
+          },
+          "test_origins": 12,
+          "train": {
+            "end": "2020-06",
+            "months": 59,
+            "start": "2015-08"
+          },
+          "validation": {
+            "end": "2021-06",
+            "months": 12,
+            "start": "2020-07"
+          },
+          "validation_origins": 12
+        },
+        "confirmed_coverage_months": 0,
+        "interior_months_with_rows": 83,
+        "longest_interior_calendar_run_with_rows": 83,
+        "maximum_conditional_one_step_origins": 47,
+        "minimum_training_months_for_origin_count": 36
+      },
+      "unique_days_with_rows": 1660,
+      "weekend_rows": 0
+    }
+  },
+  "date_storage": {
+    "date1904": false,
+    "numeric_serial_day_at_most_12": 2816,
+    "numeric_serial_month_day_equal": 195,
+    "text_dmy_mdy_ambiguous_rows": 0,
+    "text_only_first_date": "2015-07-27",
+    "text_only_last_date": "2022-07-25",
+    "type_counts": {
+      "n": 2816,
+      "s": 3751
+    }
+  },
+  "direction": {
+    "both_absent": 0,
+    "both_present": 0,
+    "credit_only": 445,
+    "debit_only": 6122
+  },
+  "doi": "10.17632/dnxtg6n4rv.1",
+  "duplicates": {
+    "all_fields": {
+      "duplicate_groups": 0,
+      "excess_rows": 0,
+      "rows_in_groups": 0
+    },
+    "excluding_transaction_number": {
+      "duplicate_groups": 0,
+      "excess_rows": 0,
+      "rows_in_groups": 0
+    }
+  },
+  "excel_error_cells": 0,
+  "flow_evidence_flags": {
+    "category_account_transfer": {
+      "credit_rows": 0,
+      "credit_total": null,
+      "debit_rows": 1,
+      "debit_total": null,
+      "rows": 1,
+      "small_group_amounts_suppressed": true
+    },
+    "category_cash": {
+      "credit_rows": 0,
+      "credit_total": "0.00",
+      "debit_rows": 453,
+      "debit_total": "27661.98",
+      "rows": 453,
+      "small_group_amounts_suppressed": false
+    },
+    "category_investment": {
+      "credit_rows": 0,
+      "credit_total": "0.00",
+      "debit_rows": 151,
+      "debit_total": "128614.88",
+      "rows": 151,
+      "small_group_amounts_suppressed": false
+    },
+    "category_named_return_or_reimbursement": {
+      "credit_rows": 1,
+      "credit_total": null,
+      "debit_rows": 2,
+      "debit_total": null,
+      "rows": 3,
+      "small_group_amounts_suppressed": true
+    },
+    "category_savings": {
+      "credit_rows": 0,
+      "credit_total": "0.00",
+      "debit_rows": 1249,
+      "debit_total": "26682.96",
+      "rows": 1249,
+      "small_group_amounts_suppressed": false
+    },
+    "category_supplementary_income_includes_refunds_per_dictionary": {
+      "credit_rows": 290,
+      "credit_total": "236695.86",
+      "debit_rows": 15,
+      "debit_total": "394.88",
+      "rows": 305,
+      "small_group_amounts_suppressed": false
+    },
+    "description_card_keywords": {
+      "credit_rows": 0,
+      "credit_total": null,
+      "debit_rows": 1,
+      "debit_total": null,
+      "rows": 1,
+      "small_group_amounts_suppressed": true
+    },
+    "description_refund_keywords": {
+      "credit_rows": 0,
+      "credit_total": "0.00",
+      "debit_rows": 0,
+      "debit_total": "0.00",
+      "rows": 0,
+      "small_group_amounts_suppressed": false
+    },
+    "type_CPT": {
+      "credit_rows": 0,
+      "credit_total": "0.00",
+      "debit_rows": 448,
+      "debit_total": "24765.77",
+      "rows": 448,
+      "small_group_amounts_suppressed": false
+    },
+    "type_DEB": {
+      "credit_rows": 36,
+      "credit_total": "1054.23",
+      "debit_rows": 3232,
+      "debit_total": "192219.93",
+      "rows": 3268,
+      "small_group_amounts_suppressed": false
+    },
+    "type_TFR": {
+      "credit_rows": 37,
+      "credit_total": "126340.03",
+      "debit_rows": 7,
+      "debit_total": "89217.00",
+      "rows": 44,
+      "small_group_amounts_suppressed": false
+    }
+  },
+  "formula_cells": 0,
+  "identity": {
+    "account_id_column": false,
+    "accounts_verified_from_file": null,
+    "customers_as_described_by_paper": 1,
+    "user_id_column": false
+  },
+  "methods": {
+    "coverage_verified": false,
+    "date_numeric": "Excel 1900/1904 serial with separate month/day swap sensitivity branch",
+    "date_text": "strict DD/MM/YYYY",
+    "missing_months": "None, never zero",
+    "money": "Decimal from XML numeric text; quantize .01 ROUND_HALF_UP for diagnostics; blank side is None, not an imputed transaction"
+  },
+  "money": {
+    "balance": {
+      "blank": 0,
+      "maximum_rounding_adjustment": "2E-12",
+      "negative": 0,
+      "present": 6567,
+      "values_adjusted_at_two_decimals": 787,
+      "zero": 0
+    },
+    "credit": {
+      "blank": 6122,
+      "maximum_rounding_adjustment": "6E-12",
+      "negative": 0,
+      "present": 445,
+      "raw_xml_sum": "503203.28999999999459915",
+      "rounded_sum": "503203.29",
+      "values_adjusted_at_two_decimals": 22,
+      "zero": 0
+    },
+    "debit": {
+      "blank": 445,
+      "maximum_rounding_adjustment": "4E-14",
+      "negative": 0,
+      "present": 6122,
+      "raw_xml_sum": "511178.919999999999661254",
+      "rounded_sum": "511178.92",
+      "values_adjusted_at_two_decimals": 527,
+      "zero": 0
+    }
+  },
+  "rows": 6567,
+  "schema": {
+    "A": "Transaction Number",
+    "B": "Transaction Date",
+    "C": "Transaction Type",
+    "D": "Transaction Description",
+    "E": "Debit Amount",
+    "F": "Credit Amount",
+    "G": "Balance",
+    "H": "Category",
+    "I": "Location City",
+    "J": "Location Country"
+  },
+  "script_sha256": "d9c8e43b8baf1e4363beae70cf00d641a3142c3ec22f221e8f034e3c01551268",
+  "sheets": [
+    {
+      "name": "Anonymized Original with Catego",
+      "nonempty_rows": 6568,
+      "xml_rows": 8315
+    },
+    {
+      "name": "Description of Categories",
+      "nonempty_rows": 42,
+      "xml_rows": 6549
+    }
+  ],
+  "source_sha256": "716eaf9ad4a3cf60dc9c9c8a20ed9a917c545a1b5f139f40ed91d2104faa3ff7",
+  "transaction_numbers": {
+    "max": 6567,
+    "min": 1,
+    "missing_integer_ids": 0,
+    "strictly_increasing_in_sheet": true,
+    "unique": 6567
+  },
+  "transaction_types": {
+    "<blank>": {
+      "credit_rows": 61,
+      "debit_rows": 0,
+      "rows": 61
+    },
+    "BGC": {
+      "credit_rows": 158,
+      "debit_rows": 0,
+      "rows": 158
+    },
+    "BP": {
+      "credit_rows": 1,
+      "debit_rows": 1166,
+      "rows": 1167
+    },
+    "CHQ": {
+      "credit_rows": 5,
+      "debit_rows": 11,
+      "rows": 16
+    },
+    "CPT": {
+      "credit_rows": 0,
+      "debit_rows": 448,
+      "rows": 448
+    },
+    "DD": {
+      "credit_rows": 0,
+      "debit_rows": 775,
+      "rows": 775
+    },
+    "DEB": {
+      "credit_rows": 36,
+      "debit_rows": 3232,
+      "rows": 3268
+    },
+    "DEP": {
+      "credit_rows": 55,
+      "debit_rows": 0,
+      "rows": 55
+    },
+    "FEE": {
+      "credit_rows": 0,
+      "debit_rows": 34,
+      "rows": 34
+    },
+    "FPI": {
+      "credit_rows": 82,
+      "debit_rows": 0,
+      "rows": 82
+    },
+    "FPO": {
+      "credit_rows": 0,
+      "debit_rows": 307,
+      "rows": 307
+    },
+    "PAY": {
+      "credit_rows": 0,
+      "debit_rows": 50,
+      "rows": 50
+    },
+    "SO": {
+      "credit_rows": 10,
+      "debit_rows": 92,
+      "rows": 102
+    },
+    "TFR": {
+      "credit_rows": 37,
+      "debit_rows": 7,
+      "rows": 44
+    }
+  }
+}

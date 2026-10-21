@@ -1,11 +1,25 @@
 from django.urls import path
 from . import views
+from . import csv_views
+from . import coverage_views
+from . import forecast_views
+from . import forecast_demo_views
 
 app_name = "finance"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path('du-bao/', forecast_views.forecast, name='forecast'),
+    path('du-bao/demo/', forecast_demo_views.demo, name='forecast_demo'),
+    path('lich-su-ghi-chep/', coverage_views.history, name='monthly_history'),
+    path('lich-su-ghi-chep/<int:year>/<int:month>/xac-nhan/', coverage_views.confirm, name='coverage_confirm'),
+    path('lich-su-ghi-chep/<int:year>/<int:month>/trang-thai/', coverage_views.change_status, name='coverage_status'),
     path("giao-dich/", views.transaction_list, name="transaction_list"),
+    path('giao-dich/nhap-csv/', csv_views.csv_upload, name='csv_upload'),
+    path('giao-dich/nhap-csv/mau/', csv_views.csv_template, name='csv_template'),
+    path('giao-dich/nhap-csv/<uuid:pk>/', csv_views.csv_preview, name='csv_preview'),
+    path('giao-dich/nhap-csv/<uuid:pk>/xac-nhan/', csv_views.csv_confirm, name='csv_confirm'),
     path("giao-dich/them/", views.transaction_edit, name="transaction_create"),
+    path("giao-dich/goi-y-danh-muc/", views.category_suggestion, name="category_suggestion"),
     path("giao-dich/<int:pk>/", views.transaction_detail, name="transaction_detail"),
     path("giao-dich/<int:pk>/sua/", views.transaction_edit, name="transaction_edit"),
     path("giao-dich/<int:pk>/xoa/", views.transaction_delete, name="transaction_delete"),

@@ -1,0 +1,84 @@
+{
+  "coverage_fully_confirmed": false,
+  "currency_verified": false,
+  "date_hypothesis_author_confirmed": false,
+  "experiment_id": "task07b-v1",
+  "full_series_previously_seen_in_audit": true,
+  "input_hashes": {
+    ".venv/Lib/site-packages/threadpoolctl.py": "e5f119e394193e206655bec4b993ef0bb40b0fbb2f22c92bd5b2d70a622bb518",
+    "data/external/moneydata/v1/laramee26openBankTransactionData.xlsx": "716eaf9ad4a3cf60dc9c9c8a20ed9a917c545a1b5f139f40ed91d2104faa3ff7",
+    "docs/forecast-data-audit.md": "47b4fc431c4036a77af1dd18174cc3574e11a9ca73a291745b7402c8c749d536",
+    "docs/metadata/forecast-audit.json": "ecaebbf7db13f1772f5b60fbb992bba0d21839966096c81a861a15d2e7860414",
+    "docs/metadata/forecast-monthly-summary.md": "5d02c1784ca9ec2674d80b7afa3007735b744fe4e291834d0c4eaf9ceaed9d4e",
+    "docs/metadata/forecast-source.json": "a729cf4e7af92e55a1829da56d6708c150f2bfc0e7725456391a38ae67acb484",
+    "experiments/forecast-v1.json": "15ce55050ac5b85b7189fc8bd976675ad2388f0e40deeca59a869926bbe04a27",
+    "requirements.txt": "467c587b5c488e5a89350100b5ea0387c8234bbf0af3521ab15461badcd00686",
+    "scripts/audit_forecast_data.py": "d9c8e43b8baf1e4363beae70cf00d641a3142c3ec22f221e8f034e3c01551268",
+    "scripts/run_classification_windows.py": "7bb342c46ced73b3c83de44de77b8add9954c53c79e72e4ef9a5f28826866b99",
+    "scripts/run_forecast_experiment.py": "8911e5cf1eaef47d8bdf4124bb7750e8dd8d8ab0ca71e40b393ee2d41f2a4638"
+  },
+  "local_hashes": {
+    "all-observed-months-v1.json": "1161f12a5669ba6188dce360d71a6c2924fc250df50d9c779a4a06d466a65ff8",
+    "config.json": "39229cf980183b12e0152fab56ec0281d0fd242649c49492b04924d569a55ce8",
+    "data-summary.json": "5a2498f78409a6fa9996c3327070b0df7561d7c0f39c22d56616c8a50163314a",
+    "debit-lineage.json": "275ca5b93acc4aab600bd12086268f2ff5b076285d93a0a21f26ebc4302487d9",
+    "monthly-v1.json": "d60f5982a7a71ed2066d23ad1cb4df422cb5f53a49786ad18c14cae5ccd56b24",
+    "schedule.json": "25630a47be026468420e2b28b47fc91ef37b0aaba324ebe1d836452b3e6909c0"
+  },
+  "local_run_directory": "data/experiments/forecast/task07b-v1",
+  "locked_at_utc": "2026-10-20T12:53:20.404140+00:00",
+  "not_fully_blind_evaluation": true,
+  "protocol_sha256": "5e2428ff095a3fa35fb393fad979650ea1e4baf70d70bbb434eb15c0b911f7e4",
+  "runtime": {
+    "joblib": "1.6.0",
+    "numpy": "2.5.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.16",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "threadpoolctl": "3.7.0"
+  },
+  "summary": {
+    "all_debit_rows": 6122,
+    "all_debit_total": "511178.92",
+    "all_observed_months": 85,
+    "deduplication_applied": false,
+    "excluded_boundaries": [
+      {
+        "coverage": "unknown",
+        "debit_transactions": 14,
+        "month": "2015-07",
+        "observed_debit_total": "1485.87",
+        "transactions": 16
+      },
+      {
+        "coverage": "unknown",
+        "debit_transactions": 71,
+        "month": "2022-07",
+        "observed_debit_total": "3652.90",
+        "transactions": 79
+      }
+    ],
+    "kept_debit_rows": 6037,
+    "kept_debit_total": "506040.15",
+    "kept_months": 83,
+    "kept_transactions": 6472,
+    "missing_months": [],
+    "outlier_removal_applied": false,
+    "raw_transactions": 6567
+  },
+  "threadpools_during_limit": [
+    {
+      "internal_api": "openblas",
+      "num_threads": 1
+    },
+    {
+      "internal_api": "openmp",
+      "num_threads": 1
+    },
+    {
+      "internal_api": "openblas",
+      "num_threads": 1
+    }
+  ]
+}
