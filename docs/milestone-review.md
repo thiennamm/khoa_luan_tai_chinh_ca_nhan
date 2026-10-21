@@ -81,7 +81,9 @@ GitHub API dùng credential hiện có của Git Credential Manager (không in t
 
 Rà cả tệp đã theo dõi và tệp mới: không có tệp dữ liệu riêng, DB, `.venv`, `.env`, mô hình, khóa thật hoặc chuỗi credential trong danh sách dự định commit. Năm vị trí gán mật khẩu literal được kiểm tra thủ công đều là fixture của `finance/tests.py` trong DB test, không phải tài khoản website. Metadata nghiên cứu đưa lên là nguồn/hash/thống kê/đánh giá tổng hợp; không có workbook/CSV, mô hình hoặc mô tả giao dịch cá nhân. Các mã dòng lỗi phân loại tham chiếu dữ liệu tổng hợp tiếng Anh.
 
-Commit mốc gồm mã nguồn website các TASK 08A–09A, migrations, kiểm thử, script nghiên cứu và tài liệu/kết quả tổng hợp trước đó chưa được commit. TASK 09B chỉ thêm báo cáo; không sửa thiết kế thí nghiệm. Nội dung thực tế push và xác minh SHA được cập nhật dưới đây sau thao tác Git.
+Commit mốc **`5acc75a15a39cd0815dfeadafcd1e7694f0ac2a6`** đã push thành công lên `origin/main`; ngay sau push, `git rev-parse HEAD` và `git ls-remote --heads origin main` trả cùng SHA này. Commit gồm mã nguồn website các TASK 08A–09A, migrations, kiểm thử, script nghiên cứu và tài liệu/kết quả tổng hợp trước đó chưa được commit (88 tệp thay đổi so với mốc cũ). TASK 09B chỉ thêm báo cáo; không sửa thiết kế thí nghiệm.
+
+Commit tiếp theo chỉ chốt kết quả xác minh trong báo cáo này. SHA cuối nhánh và SHA remote sau lần push cuối được giữ trong `git-verification.json` ở bản sao lưu; không tự ghi SHA của chính commit vào nội dung commit. `source.bundle` được tạo sau lần push cuối và kiểm tra bằng `git bundle verify`.
 
 ## 6. Hướng dẫn phục hồi sang thư mục mới
 
@@ -98,7 +100,6 @@ foreach ($entry in $manifest.files) {
     $path = Join-Path $backup $entry.path
     if ((Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant() -ne $entry.sha256) { throw "Sai hash: $($entry.path)" }
 }
-git bundle verify "$backup\source.bundle"
 ```
 
 2. Clone mã nguồn từ bundle, chỉ vào thư mục mới:
@@ -107,6 +108,7 @@ git bundle verify "$backup\source.bundle"
 $restore = 'D:\KHOI_PHUC_KHOA_LUAN_09B'
 if (Test-Path -LiteralPath $restore) { throw 'Chọn thư mục mới, không ghi đè' }
 git clone --branch main "$backup\source.bundle" "$restore"
+git -C "$restore" bundle verify "$backup\source.bundle"
 Copy-Item -LiteralPath "$backup\database.sqlite3" -Destination "$restore\db.sqlite3"
 Copy-Item -LiteralPath "$backup\project-private\data" -Destination "$restore\data" -Recurse
 Copy-Item -LiteralPath "$backup\project-private\secrets" -Destination "$restore\secrets" -Recurse
