@@ -1,0 +1,40 @@
+{
+  "experiment_id": "task10b-vi-v1",
+  "dataset_version": "vi-authored-v1",
+  "dataset_sha256": "6b7071f9ad2ae25baccb82920c6f7d7956cb29ac25b34b102f846d551156598a",
+  "split_sha256": "e8bad655404124cff2a801ec2fa4bc79fdceaf21ecfcc632da982579c4e0c04b",
+  "dataset_manifest_sha256": "64988f9e7893a968374b0c2563e5440f1bdef6fa9c6ed6b7985c81bcbfa6a485",
+  "dataset_lock_sha256": "9ec1961b0e81109e1cb2e9fdafc87928adc12cba8ecc7d63c6ef3c4a7cb2083d",
+  "samples": {"train": 464, "validation": 99, "test": 99},
+  "groups": {"train": 406, "validation": 87, "test": 90},
+  "ambiguous_excluded": 48,
+  "weak_cross_split_warnings": 24,
+  "input_fields": ["description"],
+  "target": "label",
+  "normalization": "Existing normalize_description: one leading debit/credit marker removed, NFC, casefold, collapse whitespace; keep Vietnamese accents; no diagnostic keys. Dataset contains no direction prefixes.",
+  "seed": 20261021,
+  "C_values": [0.1, 1, 10],
+  "family_order": ["word_logreg", "char_linearsvc"],
+  "selection": "Highest validation macro-F1 over 17 labels; exact tie: smaller C, then word_logreg. Dummy is a baseline, not a selection candidate.",
+  "refit_train_validation": false,
+  "test_models": ["dummy", "selected"],
+  "dummy": {"strategy": "most_frequent"},
+  "word_tfidf": {
+    "analyzer": "word", "ngram_range": [1, 2], "min_df": 1,
+    "max_df": 1.0, "max_features": null, "sublinear_tf": true,
+    "lowercase": false, "strip_accents": null, "norm": "l2",
+    "use_idf": true, "smooth_idf": true, "token_pattern": "(?u)\\b\\w\\w+\\b"
+  },
+  "char_tfidf": {
+    "analyzer": "char_wb", "ngram_range": [3, 5], "min_df": 1,
+    "max_df": 1.0, "max_features": null, "sublinear_tf": true,
+    "lowercase": false, "strip_accents": null, "norm": "l2",
+    "use_idf": true, "smooth_idf": true
+  },
+  "logreg": {"solver": "lbfgs", "max_iter": 1000, "tol": 0.0001, "class_weight": null},
+  "linearsvc": {"dual": "auto", "max_iter": 5000, "tol": 0.0001, "class_weight": null},
+  "thread_limit": 1,
+  "runtime_adapter": "Reuse existing Windows process-local Unicode path adapter from scripts/run_classification_windows.py; no package edits or web-server import.",
+  "zero_vectors": "Count rows with nnz=0 after the candidate's train-fitted TF-IDF; not applicable for Dummy without a vectorizer.",
+  "ambiguous_policy": "Only after selection and final test: record closed-set predictions for 48 excluded rows, no accuracy/F1, no rejection threshold or probability claim."
+}

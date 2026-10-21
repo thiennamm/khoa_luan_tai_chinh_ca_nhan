@@ -27,7 +27,8 @@ class Element {
 function setup(fetchImpl) {
   const nodes = Object.fromEntries(['id_kind', 'id_category', 'category-kinds', 'classification-suggestion',
     'id_description', 'suggest-category', 'suggestion-result', 'suggestion-actions',
-    'suggestion-category', 'apply-suggestion'].map(id => [id, new Element()]));
+    'suggestion-category', 'apply-suggestion', 'suggestion-mode'].map(id => [id, new Element()]));
+  nodes['suggestion-mode'].value = 'en';
   nodes.id_kind.value = 'expense';
   nodes.id_description.value = 'purchase';
   nodes.id_category.options = [new Element(''), new Element('1'), new Element('2'), new Element('3')];
@@ -67,6 +68,7 @@ test('gợi ý/việc chọn không ghi đè; chỉ Áp dụng đổi danh mục
   assert.equal(requests[0].options.method, 'POST');
   assert.equal(requests[0].options.headers['X-CSRFToken'], 'test-csrf');
   assert.equal(requests[0].options.body.get('description'), 'purchase');
+  assert.equal(requests[0].options.body.get('mode'), 'en');
 });
 
 test('Transfer/không ánh xạ/không có gợi ý không có hành động áp dụng', async () => {
@@ -124,4 +126,61 @@ test('đầu vào quá dài bị chặn ngay trên UI', async () => {
   await n['suggest-category'].fire('click');
   assert.equal(requests.length, 0);
   assert.equal(n.id_category.value, '1');
+});
+
+test('đổi chế độ hủy gợi ý; đổi lại vẫn phải yêu cầu mới', async () => {
+  const {nodes:n, requests} = setup(async () => response(suggestion));
+  await n['suggest-category'].fire('click');
+  n['suggestion-category'].value = '2';
+  await n['suggestion-category'].fire('change');
+  n['suggestion-mode'].value = 'vi';
+  await n['suggestion-mode'].fire('change');
+  n['suggestion-mode'].value = 'en';
+  await n['suggestion-mode'].fire('change');
+  await n['apply-suggestion'].fire('click');
+  assert.equal(n.id_category.value, '1');
+  assert.equal(n['suggestion-actions'].hidden, true);
+  n['suggestion-mode'].value = 'vi';
+  await n['suggest-category'].fire('click');
+  assert.equal(requests[1].options.body.get('mode'), 'vi');
+});
+
+test('đổi chế độ khi đang fetch hoặc đọc JSON bỏ phản hồi cũ', async () => {
+  for (const delayJSON of [false, true]) {
+    let resolve;
+    let started;
+    const ready = new Promise(done => {started = done;});
+    const {nodes:n} = setup(() => delayJSON
+      ? {ok:true, json:() => new Promise(done => {resolve = done; started();})}
+      : new Promise(done => {resolve = done; started();}));
+    const pending = n['suggest-category'].fire('click');
+    await ready;
+    n['suggestion-mode'].value = 'vi';
+    await n['suggestion-mode'].fire('change');
+    resolve(delayJSON ? suggestion : response(suggestion));
+    await pending;
+    assert.equal(n['suggestion-result'].textContent, '');
+    assert.equal(n['suggestion-actions'].hidden, true);
+    assert.equal(n.id_category.value, '1');
+  }
+});
+
+test('không áp dụng khi mode đổi bằng mã mà chưa phát sự kiện', async () => {
+  const {nodes:n} = setup(async () => response(suggestion));
+  await n['suggest-category'].fire('click');
+  n['suggestion-category'].value = '2';
+  n['suggestion-mode'].value = 'vi';
+  await n['apply-suggestion'].fire('click');
+  assert.equal(n.id_category.value, '1');
+});
+
+test('lỗi ở mỗi chế độ không gửi yêu cầu đổi mô hình', async () => {
+  for (const mode of ['vi', 'en']) {
+    const {nodes:n, requests} = setup(async () => {throw Error('unavailable');});
+    n['suggestion-mode'].value = mode;
+    await n['suggest-category'].fire('click');
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].options.body.get('mode'), mode);
+    assert.equal(n.id_category.value, '1');
+  }
 });

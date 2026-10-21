@@ -1,7 +1,7 @@
 from datetime import date
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
-from .classification import suggest_label, ModelUnavailable
+from .classification_modes import suggest_label, ModelUnavailable
 from .classification_labels import LABELS, compatible_kind
 from .forms import SuggestionForm
 from django.contrib import messages
@@ -24,11 +24,11 @@ from .services import monthly_totals
 def category_suggestion(request):
     form = SuggestionForm(request.POST)
     if not form.is_valid():
-        return JsonResponse({'status': 'invalid', 'message': 'Nhập mô tả tối đa 500 ký tự và chọn loại thu/chi hợp lệ.'}, status=400)
+        return JsonResponse({'status': 'invalid', 'message': 'Nhập mô tả tối đa 500 ký tự, chọn chế độ và loại thu/chi hợp lệ.'}, status=400)
     try:
-        label = suggest_label(form.cleaned_data['description'])
+        label = suggest_label(form.cleaned_data['description'], mode=form.cleaned_data['mode'])
     except ModelUnavailable:
-        return JsonResponse({'status': 'unavailable', 'message': 'Gợi ý tạm không sẵn sàng. Bạn vẫn có thể nhập và lưu giao dịch thủ công.'}, status=503)
+        return JsonResponse({'status': 'unavailable', 'message': 'Không có gợi ý: mô hình đã chọn tạm không sẵn sàng. Bạn vẫn có thể nhập và lưu giao dịch thủ công.'}, status=503)
     if label is None:
         return JsonResponse({'status': 'no_suggestion', 'message': 'Chưa có gợi ý: mô tả trống hoặc không có đặc trưng phù hợp. Hãy tự chọn danh mục.'})
     payload = {'status': 'suggestion', 'label': label, 'label_display': LABELS[label], 'categories': []}

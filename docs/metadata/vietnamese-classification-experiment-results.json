@@ -1,0 +1,1222 @@
+{
+  "ambiguous": {
+    "metrics": null,
+    "predicted_counts": {
+      "Entertainment": 3,
+      "Fees": 4,
+      "Healthcare": 2,
+      "Income": 6,
+      "Insurance": 1,
+      "Mortgage": 2,
+      "Personal Care": 2,
+      "Rent": 7,
+      "Restaurants": 3,
+      "Shopping": 6,
+      "Subscription": 2,
+      "Transfer": 5,
+      "Transportation": 2,
+      "Travel": 1,
+      "Utilities": 2
+    },
+    "samples": 48,
+    "threshold_selected": false,
+    "zero_vectors": 0
+  },
+  "dataset_sha256": "6b7071f9ad2ae25baccb82920c6f7d7956cb29ac25b34b102f846d551156598a",
+  "error_analysis_aggregate": {
+    "confusion_pairs": [
+      {
+        "count": 2,
+        "predicted": "Travel",
+        "true": "Insurance"
+      },
+      {
+        "count": 2,
+        "predicted": "Subscription",
+        "true": "Insurance"
+      },
+      {
+        "count": 1,
+        "predicted": "Subscription",
+        "true": "Entertainment"
+      },
+      {
+        "count": 1,
+        "predicted": "Shopping",
+        "true": "Entertainment"
+      },
+      {
+        "count": 1,
+        "predicted": "Utilities",
+        "true": "Fees"
+      },
+      {
+        "count": 1,
+        "predicted": "Restaurants",
+        "true": "Fees"
+      },
+      {
+        "count": 1,
+        "predicted": "Education",
+        "true": "Fees"
+      },
+      {
+        "count": 1,
+        "predicted": "Restaurants",
+        "true": "Groceries"
+      },
+      {
+        "count": 1,
+        "predicted": "Rent",
+        "true": "Income"
+      },
+      {
+        "count": 1,
+        "predicted": "Healthcare",
+        "true": "Income"
+      },
+      {
+        "count": 1,
+        "predicted": "Education",
+        "true": "Insurance"
+      },
+      {
+        "count": 1,
+        "predicted": "Transfer",
+        "true": "Personal Care"
+      },
+      {
+        "count": 1,
+        "predicted": "Groceries",
+        "true": "Personal Care"
+      },
+      {
+        "count": 1,
+        "predicted": "Shopping",
+        "true": "Personal Care"
+      },
+      {
+        "count": 1,
+        "predicted": "Restaurants",
+        "true": "Shopping"
+      },
+      {
+        "count": 1,
+        "predicted": "Groceries",
+        "true": "Shopping"
+      },
+      {
+        "count": 1,
+        "predicted": "Utilities",
+        "true": "Shopping"
+      },
+      {
+        "count": 1,
+        "predicted": "Transportation",
+        "true": "Shopping"
+      },
+      {
+        "count": 1,
+        "predicted": "Utilities",
+        "true": "Transfer"
+      },
+      {
+        "count": 1,
+        "predicted": "Restaurants",
+        "true": "Transportation"
+      },
+      {
+        "count": 1,
+        "predicted": "Education",
+        "true": "Transportation"
+      },
+      {
+        "count": 1,
+        "predicted": "Rent",
+        "true": "Utilities"
+      },
+      {
+        "count": 1,
+        "predicted": "Shopping",
+        "true": "Utilities"
+      },
+      {
+        "count": 1,
+        "predicted": "Subscription",
+        "true": "Utilities"
+      },
+      {
+        "count": 1,
+        "predicted": "Groceries",
+        "true": "Utilities"
+      }
+    ],
+    "error_count": 27,
+    "errors_by_operation": {
+      "manual_rephrase": 1,
+      "manual_rephrase_identified_in_editorial_review": 2,
+      "original_composition": 23,
+      "orthographic_remove_diacritics": 1
+    },
+    "fit_seconds_total": 1.4062092000385746,
+    "test_source_warning": "Synthetic authored corpus, 24 weak similarities, no independent human validation; do not modify test based on errors."
+  },
+  "evaluated_at_utc": "2026-10-21T03:26:50.770095+00:00",
+  "independent_human_review": false,
+  "known_weak_warnings": 24,
+  "labels": [
+    "Education",
+    "Entertainment",
+    "Fees",
+    "Groceries",
+    "Healthcare",
+    "Income",
+    "Insurance",
+    "Mortgage",
+    "Personal Care",
+    "Rent",
+    "Restaurants",
+    "Shopping",
+    "Subscription",
+    "Transfer",
+    "Transportation",
+    "Travel",
+    "Utilities"
+  ],
+  "model_path": "Models remain under ignored data/experiments/classification-vietnamese/task10b-vi-v1/models/",
+  "models": {
+    "char_linearsvc_C_10": {
+      "accuracy": 0.7272727272727273,
+      "classification_report": {
+        "Education": {
+          "f1-score": 0.8,
+          "precision": 0.6666666666666666,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Entertainment": {
+          "f1-score": 0.8,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "support": 6.0
+        },
+        "Fees": {
+          "f1-score": 0.6666666666666666,
+          "precision": 1.0,
+          "recall": 0.5,
+          "support": 6.0
+        },
+        "Groceries": {
+          "f1-score": 0.7142857142857143,
+          "precision": 0.625,
+          "recall": 0.8333333333333334,
+          "support": 6.0
+        },
+        "Healthcare": {
+          "f1-score": 0.9230769230769231,
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Income": {
+          "f1-score": 0.8,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "support": 6.0
+        },
+        "Insurance": {
+          "f1-score": 0.4444444444444444,
+          "precision": 1.0,
+          "recall": 0.2857142857142857,
+          "support": 7.0
+        },
+        "Mortgage": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 4.0
+        },
+        "Personal Care": {
+          "f1-score": 0.6666666666666666,
+          "precision": 1.0,
+          "recall": 0.5,
+          "support": 6.0
+        },
+        "Rent": {
+          "f1-score": 0.8,
+          "precision": 0.6666666666666666,
+          "recall": 1.0,
+          "support": 4.0
+        },
+        "Restaurants": {
+          "f1-score": 0.75,
+          "precision": 0.6,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Shopping": {
+          "f1-score": 0.36363636363636365,
+          "precision": 0.4,
+          "recall": 0.3333333333333333,
+          "support": 6.0
+        },
+        "Subscription": {
+          "f1-score": 0.75,
+          "precision": 0.6,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Transfer": {
+          "f1-score": 0.8333333333333334,
+          "precision": 0.8333333333333334,
+          "recall": 0.8333333333333334,
+          "support": 6.0
+        },
+        "Transportation": {
+          "f1-score": 0.7272727272727273,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "support": 6.0
+        },
+        "Travel": {
+          "f1-score": 0.8571428571428571,
+          "precision": 0.75,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Utilities": {
+          "f1-score": 0.36363636363636365,
+          "precision": 0.4,
+          "recall": 0.3333333333333333,
+          "support": 6.0
+        },
+        "accuracy": 0.7272727272727273,
+        "macro avg": {
+          "f1-score": 0.7211860035389447,
+          "precision": 0.7764005602240897,
+          "recall": 0.742296918767507,
+          "support": 99.0
+        },
+        "weighted avg": {
+          "f1-score": 0.7111658263173416,
+          "precision": 0.7763588263588264,
+          "recall": 0.7272727272727273,
+          "support": 99.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          4,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          2,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          4,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          2
+        ]
+      ],
+      "errors": 27,
+      "fit_seconds": 0.16272049996769056,
+      "macro_f1": 0.7211860035389447,
+      "model_sha256": "19709b38d0dfc0ffc4ced3ae94c7e27e3a7ec77bac8a781dd497a70e34a26f55",
+      "test_samples": 99,
+      "test_zero_vectors": 0,
+      "validation_zero_vectors": 0
+    },
+    "dummy": {
+      "accuracy": 0.06060606060606061,
+      "classification_report": {
+        "Education": {
+          "f1-score": 0.11428571428571428,
+          "precision": 0.06060606060606061,
+          "recall": 1.0,
+          "support": 6.0
+        },
+        "Entertainment": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Fees": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Groceries": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Healthcare": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Income": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Insurance": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 7.0
+        },
+        "Mortgage": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 4.0
+        },
+        "Personal Care": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Rent": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 4.0
+        },
+        "Restaurants": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Shopping": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Subscription": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Transfer": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Transportation": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Travel": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "Utilities": {
+          "f1-score": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 6.0
+        },
+        "accuracy": 0.06060606060606061,
+        "macro avg": {
+          "f1-score": 0.006722689075630252,
+          "precision": 0.0035650623885918006,
+          "recall": 0.058823529411764705,
+          "support": 99.0
+        },
+        "weighted avg": {
+          "f1-score": 0.006926406926406926,
+          "precision": 0.0036730945821854912,
+          "recall": 0.06060606060606061,
+          "support": 99.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "errors": 93,
+      "fit_seconds": 0.08419830002821982,
+      "macro_f1": 0.006722689075630252,
+      "model_sha256": "42c1f47780acf6454b1791fcf4faf177d7362de15f4682144ec1067370a1920c",
+      "test_samples": 99,
+      "test_zero_vectors": null,
+      "validation_zero_vectors": null
+    }
+  },
+  "no_raw_records_in_this_summary": true,
+  "protocol_sha256": "63a08133a4c2cc11d813321185b2956a2177ecfa3df5a8992e736a7ee6db27b7",
+  "real_user_generalization_claimed": false,
+  "refit_train_validation": false,
+  "runtime": {
+    "joblib": "1.6.0",
+    "numpy": "2.5.4",
+    "python": "3.13.16",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "threadpoolctl": "3.7.0"
+  },
+  "selected_id": "char_linearsvc_C_10",
+  "selection_sha256": "dfe6ce0cc0d33b5cb01fbc7b25b975b423f1222d4814d7b46c14643aef283f30",
+  "split_sha256": "e8bad655404124cff2a801ec2fa4bc79fdceaf21ecfcc632da982579c4e0c04b",
+  "validation": {
+    "candidates": [
+      {
+        "C": null,
+        "accuracy": 0.06060606060606061,
+        "family": "dummy",
+        "fit_rows": 464,
+        "fit_seconds": 0.08419830002821982,
+        "id": "dummy",
+        "macro_f1": 0.006722689075630252,
+        "model_sha256": "42c1f47780acf6454b1791fcf4faf177d7362de15f4682144ec1067370a1920c",
+        "validation_zero_vectors": null,
+        "vocabulary_size": null,
+        "warnings": []
+      },
+      {
+        "C": 0.1,
+        "accuracy": 0.6464646464646465,
+        "family": "word_logreg",
+        "fit_rows": 464,
+        "fit_seconds": 0.11534760001813993,
+        "id": "word_logreg_C_0p1",
+        "macro_f1": 0.5968245462827506,
+        "model_sha256": "c8d3f3b486d9303a23c7b76324a635f9f7c7754fdc6486c5df3419711c3acb76",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 3285,
+        "warnings": []
+      },
+      {
+        "C": 1,
+        "accuracy": 0.8484848484848485,
+        "family": "word_logreg",
+        "fit_rows": 464,
+        "fit_seconds": 0.27499960002023727,
+        "id": "word_logreg_C_1",
+        "macro_f1": 0.8494801622829304,
+        "model_sha256": "acae20e1b9cdeeae00572060db5b0bf44003f3ec19033b10e34d8132f55519da",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 3285,
+        "warnings": []
+      },
+      {
+        "C": 10,
+        "accuracy": 0.8282828282828283,
+        "family": "word_logreg",
+        "fit_rows": 464,
+        "fit_seconds": 0.5335118999937549,
+        "id": "word_logreg_C_10",
+        "macro_f1": 0.8322775263951734,
+        "model_sha256": "31773ba11a8791bbdddd115a4943673ce2543f3db9778fdf06a749f6cf23a199",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 3285,
+        "warnings": []
+      },
+      {
+        "C": 0.1,
+        "accuracy": 0.8282828282828283,
+        "family": "char_linearsvc",
+        "fit_rows": 464,
+        "fit_seconds": 0.10781829996267334,
+        "id": "char_linearsvc_C_0p1",
+        "macro_f1": 0.8298673548673549,
+        "model_sha256": "4fec90d4f83686b95cbf111ea3a22526602d2a5ce222098bc5126ae372b4d510",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 4917,
+        "warnings": []
+      },
+      {
+        "C": 1,
+        "accuracy": 0.8585858585858586,
+        "family": "char_linearsvc",
+        "fit_rows": 464,
+        "fit_seconds": 0.1276130000478588,
+        "id": "char_linearsvc_C_1",
+        "macro_f1": 0.8611070878371917,
+        "model_sha256": "9f440e503edb43468a15c1f70ab44bf35d37c7fcbfe2ee79ad1d92e10486f4c1",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 4917,
+        "warnings": []
+      },
+      {
+        "C": 10,
+        "accuracy": 0.8585858585858586,
+        "family": "char_linearsvc",
+        "fit_rows": 464,
+        "fit_seconds": 0.16272049996769056,
+        "id": "char_linearsvc_C_10",
+        "macro_f1": 0.8611248228895287,
+        "model_sha256": "19709b38d0dfc0ffc4ced3ae94c7e27e3a7ec77bac8a781dd497a70e34a26f55",
+        "validation_zero_vectors": 0,
+        "vocabulary_size": 4917,
+        "warnings": []
+      }
+    ],
+    "labels": [
+      "Education",
+      "Entertainment",
+      "Fees",
+      "Groceries",
+      "Healthcare",
+      "Income",
+      "Insurance",
+      "Mortgage",
+      "Personal Care",
+      "Rent",
+      "Restaurants",
+      "Shopping",
+      "Subscription",
+      "Transfer",
+      "Transportation",
+      "Travel",
+      "Utilities"
+    ]
+  }
+}

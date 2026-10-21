@@ -27,7 +27,7 @@ class SuggestionEndpointTests(FinanceCase):
         self.bob_category.save()
 
     def post(self, **changes):
-        return self.client.post(self.url, {'description': 'purchase', 'kind': 'expense', **changes})
+        return self.client.post(self.url, {'description': 'purchase', 'kind': 'expense', 'mode': 'en', **changes})
 
     @patch('finance.views.suggest_label', return_value='Groceries')
     def test_only_explicit_own_mapping_and_no_write(self, predict):
@@ -104,7 +104,7 @@ class SuggestionEndpointTests(FinanceCase):
         page = secure.get(reverse('finance:transaction_create'))
         csrf = page.cookies['csrftoken'].value
         with patch('finance.views.suggest_label', return_value=None):
-            response = secure.post(self.url, {'description': '', 'kind': 'expense'}, HTTP_X_CSRFTOKEN=csrf)
+            response = secure.post(self.url, {'description': '', 'kind': 'expense', 'mode': 'en'}, HTTP_X_CSRFTOKEN=csrf)
         self.assertEqual(response.status_code, 200)
         self.assertIn('no-store', response.headers['Cache-Control'])
         self.client.logout()

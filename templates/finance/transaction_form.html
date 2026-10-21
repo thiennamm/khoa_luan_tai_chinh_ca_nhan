@@ -7,7 +7,16 @@
 <form method="post" id="transaction-form">{% csrf_token %}{% include 'includes/form_fields.html' %}
 <section class="suggestion-panel" id="classification-suggestion" data-url="{% url 'finance:category_suggestion' %}" aria-labelledby="suggestion-title">
   <h2 id="suggestion-title">Gợi ý thử nghiệm</h2>
-  <p class="help">Mô hình hiện được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt. Bạn cần xem lại trước khi áp dụng.</p>
+  <p>Gợi ý có thể sai. Hãy kiểm tra trước khi áp dụng.</p>
+  <label for="suggestion-mode">Ngôn ngữ mô hình</label>
+  <select id="suggestion-mode">
+    <option value="vi">Tiếng Việt — thử nghiệm</option>
+    <option value="en">Tiếng Anh — thử nghiệm</option>
+  </select>
+  <details><summary>Thông tin mô hình thử nghiệm</summary>
+    <p class="help">Mô hình tiếng Việt học từ dữ liệu mô phỏng nhỏ do AI biên soạn trong dự án, chưa được kiểm chứng trên giao dịch thật đại diện người dùng Việt Nam.</p>
+    <p class="help">Mô hình tiếng Anh được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt. Hệ thống không tự nhận diện ngôn ngữ hoặc đổi mô hình khi lỗi. Đổi chế độ, mô tả hoặc loại thu/chi cần yêu cầu gợi ý lại.</p>
+  </details>
   <button class="button secondary" type="button" id="suggest-category">Gợi ý danh mục</button>
   <div role="status" aria-live="polite" aria-atomic="true"><p id="suggestion-result"></p></div>
   <div id="suggestion-actions" hidden>

@@ -36,7 +36,25 @@ Chênh lệch là **tổng thu trừ tổng chi trong tháng được chọn**, 
 
 Danh mục phải cùng tài khoản và cùng loại thu/chi với giao dịch. Danh mục đã có giao dịch được đổi tên và nhãn gợi ý; không thể đổi loại hay xóa cho đến khi các giao dịch liên quan được chuyển hoặc xóa. Đổi nhãn gợi ý không sửa giao dịch cũ. Danh mục trùng tên và loại trong cùng tài khoản bị từ chối.
 
-## Gợi ý phân loại thử nghiệm — TASK 08A
+## Gợi ý phân loại thử nghiệm — TASK 08A / 10C
+
+Biểu mẫu hiện có hai chế độ **Tiếng Việt — thử nghiệm** (mặc định) và **Tiếng Anh — thử nghiệm**. Người dùng tự chọn; không nhận diện ngôn ngữ hoặc tự chuyển mô hình khi lỗi. Gợi ý có thể sai: phải kiểm tra, chọn danh mục rồi bấm **Áp dụng**; sau đó tự bấm **Lưu giao dịch**. Đổi chế độ, mô tả hoặc loại thu/chi hủy gợi ý cũ, kể cả phản hồi đang chờ.
+
+Mô hình tiếng Việt là Pipeline TF-IDF `char_wb` (3,5) + LinearSVC C=10 của TASK 10B, giữ bản fit trên train, không refit. Dữ liệu mô phỏng nhỏ do dự án biên soạn với AI; chưa được kiểm chứng trên giao dịch thật đại diện người Việt. Giữ dấu khi chuẩn hóa NFC/casefold/khoảng trắng, bỏ đúng một tiền tố đầu `[debit]`/`[credit]`. Không hiển thị điểm kiểm thử hay decision score như độ chắc chắn của giao dịch; không có blacklist câu mơ hồ.
+
+Artifact tiếng Việt riêng: `data/experiments/classification-vietnamese/task10b-vi-v1/models/char_linearsvc_C_10.joblib`, SHA-256 **`19709b38d0dfc0ffc4ced3ae94c7e27e3a7ec77bac8a781dd497a70e34a26f55`**. Xác minh với metadata `docs/metadata/vietnamese-classification-experiment-results.json` và `artifact-manifest.json` trong thư mục run trước khi giải tuần tự. Nếu chuyển máy, sao chép riêng artifact cùng manifest từ bản thí nghiệm đáng tin cậy. Không tải artifact do người dùng gửi.
+
+Có thể đặt đường dẫn tiếng Việt trong PowerShell trước khi khởi động máy chủ:
+
+```powershell
+$env:DJANGO_VI_CLASSIFICATION_MODEL_PATH = 'D:\KHÓA LUẬN TỐT NGHIỆP\data\experiments\classification-vietnamese\task10b-vi-v1\models\char_linearsvc_C_10.joblib'
+$env:DJANGO_VI_CLASSIFICATION_ARTIFACT_MANIFEST_PATH = 'D:\KHÓA LUẬN TỐT NGHIỆP\data\experiments\classification-vietnamese\task10b-vi-v1\artifact-manifest.json'
+& '.\.venv\Scripts\python.exe' -X utf8 manage.py runserver 127.0.0.1:8001
+```
+
+Metadata tiếng Việt dùng `VI_CLASSIFICATION_METADATA_PATH` trong cấu hình máy chủ. Không có mô hình/manifest, sai hash hoặc lỗi runtime thì báo không có gợi ý; vẫn nhập thủ công được. Không cài adapter DLL vào máy chủ. Chi tiết cấu hình, kiểm thử và kiểm tra giao diện: [docs/vietnamese-classification-integration.md](docs/vietnamese-classification-integration.md).
+
+**Cấu hình tiếng Anh được giữ nguyên:**
 
 Mô hình là Pipeline TF-IDF ký tự (`char_wb`, n-gram 3–5) + LinearSVC `C=10` đã chọn ở TASK 06B, không huấn luyện lại. Mô hình được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt. Kết quả là nhãn dự đoán, không phải xác suất hay độ chắc chắn cho giao dịch.
 

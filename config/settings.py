@@ -73,6 +73,17 @@ CLASSIFICATION_MODEL_PATH = os.environ.get(
 )
 CLASSIFICATION_METADATA_PATH = BASE_DIR / "docs/metadata/classification-experiment-results.json"
 
+# Cấu hình độc lập: không tự chuyển sang mô hình tiếng Anh khi tiếng Việt lỗi.
+VI_CLASSIFICATION_MODEL_PATH = os.environ.get(
+    'DJANGO_VI_CLASSIFICATION_MODEL_PATH',
+    str(BASE_DIR / 'data/experiments/classification-vietnamese/task10b-vi-v1/models/char_linearsvc_C_10.joblib'),
+)
+VI_CLASSIFICATION_METADATA_PATH = BASE_DIR / 'docs/metadata/vietnamese-classification-experiment-results.json'
+VI_CLASSIFICATION_ARTIFACT_MANIFEST_PATH = os.environ.get(
+    'DJANGO_VI_CLASSIFICATION_ARTIFACT_MANIFEST_PATH',
+    str(BASE_DIR / 'data/experiments/classification-vietnamese/task10b-vi-v1/artifact-manifest.json'),
+)
+
 # Website hiện chỉ có luồng upload CSV; chặn sớm tệp vượt 2 MiB.
 FILE_UPLOAD_HANDLERS = [
     'finance.upload_handlers.CsvSizeLimitHandler',

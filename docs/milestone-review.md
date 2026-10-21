@@ -138,3 +138,72 @@ print('integrity_check: ok')
 Không cần migrate lại nếu DB/bundle đúng mốc đã có đủ migrations. Nếu về sau dùng mã mới hơn, sao lưu DB phục hồi trước rồi mới xem xét migrate. Git bundle clone có origin là đường dẫn bundle; nếu muốn liên kết GitHub sau phục hồi, kiểm remote và tự cấu hình rõ ràng, không vô tình push vào sai nơi.
 
 Chỉ sau khi kiểm tra bản phục hồi và người dùng chủ động quyết định mới chuyển sang sử dụng. Không xóa hoặc chép đè website gốc trong hướng dẫn này.
+
+## 7. TASK 09C — Kiểm tra UI dự báo cá nhân đủ 36 tháng
+
+Thực hiện **21/10/2026**, theo Asia/Ho_Chi_Minh. Phần này bổ sung giới hạn “chưa thử 36 tháng qua UI” của TASK 09B; giữ nguyên kết quả và bản sao lưu 09B như một mốc lịch sử.
+
+### Môi trường và kịch bản cố định
+
+- DB mới hoàn toàn tại `D:\SAO LUU KHOA LUAN\qa-09c-20261021-091445\qa.sqlite3`, máy chủ kiểm thử cổng **8002**. Dùng settings, SECRET_KEY, session cookie và CSRF cookie riêng; không dùng DB/tài khoản thật ở cổng 8001.
+- Hai tài khoản kiểm thử riêng **forecast_qa_a**, **forecast_qa_b**, mật khẩu ngẫu nhiên giữ riêng. Không thêm các tài khoản này vào DB thật hoặc Git.
+- Tài khoản A có **36 tháng mô phỏng liên tiếp, 10/2023–09/2026**, một khoản expense tự sinh mỗi tháng, Decimal VND nguyên dương. Tài khoản B không có lịch sử/kết quả. Không có khoản tháng hiện tại hoặc tương lai trong fixture.
+- Seed **9093** được cố định trước khi tính, chỉ dùng một seed; công thức xu hướng + mùa vụ + nhiễu nguyên, đủ tham số và 36 tổng tháng được lưu riêng trong `scenario.json` ngoài Git. Không lấy chuỗi MoneyData hoặc dữ liệu thật, không thử seed để Ridge thắng.
+- SHA-256 chuỗi gốc (JSON danh sách `month` ISO/`expense` chuỗi Decimal, sort_keys=True): `e679eff03f411b7939742b21298ef4a4eaa3f19cc6427acb8fc6077bdec2260b`.
+- Fixture khởi tạo **35 tháng đầu đã complete, tháng 09/2026 chưa xác nhận**, chưa có ForecastResult. Đây là trạng thái tự đặt của môi trường thử, không phải người dùng thật xác nhận. Tháng cuối được xác nhận và xác nhận lại qua UI thật. Không giả định đã bấm xác nhận cả 36 tháng bằng trình duyệt.
+- Tháng đích được lấy từ dịch vụ `current_month()` theo giờ Việt Nam lúc chạy: **10/2026**, không phải 11/2026. Sáu tháng validation: **04/2026–09/2026**.
+
+### Luồng trực tiếp và đối chiếu dịch vụ
+
+Thao tác trình duyệt gồm đăng nhập, bấm xác nhận tháng, POST **Tính dự báo**, sửa giao dịch, chuyển trang và đăng xuất/đăng nhập tài khoản thứ hai. Không dùng status HTTP thay cho kiểm tra UI.
+
+| Mục kiểm tra | Kết quả thực tế |
+|---|---|
+| Chưa đủ xác nhận | Dù fixture có 36 khoản, tháng cuối chưa xác nhận khiến đoạn hợp lệ kết thúc đúng tháng trước là 0; UI báo thiếu 09/2026, không có nút Tính dự báo và không có bảng/kết quả |
+| Xác nhận tháng còn thiếu | Bấm xác nhận 09/2026 rồi vào Dự báo: UI nhận đúng **36 tháng liên tiếp** |
+| POST tính dự báo cá nhân | Tính được tổng tháng **10/2026**; lần đầu chọn **Ước tính theo tháng trước**, kết quả **6.564.426 VND**. UI ghi đây là thống kê, không phải Machine Learning |
+| So sánh baseline/Ridge | Đủ **6 hàng**: ba baseline và Ridge alpha 0.1, 1, 10; đúng giai đoạn validation. Đọc các ô DOM và đối chiếu toàn bộ với kết quả dịch vụ, đúng phương pháp được chọn và cách làm tròn VND |
+| Sửa giao dịch lịch sử | Sửa khoản thuộc 09/2026 bằng UI: coverage trở về **Chưa xác nhận**; trang dự báo báo kết quả trước hết hiệu lực, ẩn hoàn toàn ước tính và bảng cũ, không có nút tính khi thiếu lịch sử |
+| Xác nhận lại | Khi vừa xác nhận lại đủ 36 tháng, kết quả cũ vẫn bị ẩn; chỉ sau khi bấm **Tính dự báo** mới có kết quả mới hợp lệ |
+| Tính lại qua các lượt sửa | Các kết quả sau ba lần thay đổi cố định lần lượt **6.664.426**, **6.764.426**, **6.864.426 VND**; phương pháp vẫn là baseline tháng trước. Không sửa mô hình để đổi kết quả |
+| Tách tài khoản | Đăng xuất A, đăng nhập B và vào cùng `/du-bao/`: chỉ có trạng thái thiếu lịch sử của B, không có bảng hoặc ước tính của A. Đối chiếu DB thử: B không có transaction, coverage hoặc ForecastResult; kết quả A vẫn tồn tại riêng |
+
+Đối chiếu tính toán: gọi lại trực tiếp **`calculate(snapshot(A)['history'])`**, không gọi view HTTP thay cho UI. So sánh với ForecastResult do POST trình duyệt tạo: tháng đích, fingerprint, phương pháp, ước tính nguyên đồng khớp; MAE thô của từng ứng viên khớp trong dung sai **0.001 VND**. Bảng DOM khớp từng ô với `METHOD_LABELS` và bộ định dạng `vnd` của dịch vụ. Đã đối chiếu chuỗi ban đầu, kết quả sau lượt sửa mobile và kết quả desktop cuối; trên cùng dữ liệu cuối, đổi viewport không đổi bảng/kết quả và không bấm tính lại.
+
+MAE validation dưới đây là **kết quả tổng hợp của dữ liệu kiểm thử**, không phải điểm MoneyData hoặc đánh giá chất lượng thực tế:
+
+| Phương pháp | Chuỗi gốc, MAE VND hiển thị | Sau lượt sửa desktop cuối, MAE VND hiển thị |
+|---|---:|---:|
+| Trung bình 3 tháng | 317.427 | 367.427 |
+| Tháng trước — được chọn | **298.778** | **348.778** |
+| Cùng tháng năm trước | 487.785 | 537.785 |
+| Ridge alpha 0.1 | 394.609 | 444.609 |
+| Ridge alpha 1 | 394.928 | 444.928 |
+| Ridge alpha 10 | 397.266 | 447.266 |
+
+Ridge chạy thật trong dịch vụ nhưng không được chọn vì MAE lớn hơn baseline. Không dùng decision score, % chính xác, khoảng tin cậy hoặc cam kết sai số tương lai.
+
+### Kích thước và bằng chứng
+
+Đã kiểm cả **desktop đặt rõ 1280×900** và **khung điện thoại 390×844**. Ở mỗi kích thước, đã thử trạng thái chưa xác nhận sau sửa, ẩn cache cũ, xác nhận lại, tính mới, bảng kết quả và tài khoản B. Các lượt ban đầu ở kích thước mặc định khoảng 638 px là kiểm bổ sung; không dùng chúng thay cho lượt desktop 1280 px.
+
+UI desktop có sidebar và bảng sáu hàng. UI điện thoại xếp bảng thành từng khối có nhãn; đọc được phương pháp, MAE và lựa chọn. Đo từ DOM: mobile viewport/document đều **390 px**, desktop viewport **1280 px**, document **1265 px** (phần còn lại là scrollbar); không phát hiện tràn ngang toàn trang ở trang dự báo. Đã trả viewport về mặc định và dừng máy chủ kiểm thử sau khi xong.
+
+Toàn bộ ảnh/fixture/DB/metadata nằm riêng trong thư mục `qa-09c-20261021-091445` nêu trên, không thêm vào Git. Các bằng chứng chính:
+
+- `11-stale-desktop-1280.png`: tháng mất xác nhận, kết quả cũ bị ẩn.
+- `12-result-desktop-1280.png`: dự báo cá nhân đủ lịch sử, kết quả cuối và sáu MAE.
+- `08-stale-mobile.png`, `09-recomputed-mobile.png`: vô hiệu và tính lại trên mobile.
+- `13-same-result-mobile.png`: cùng kết quả/dữ liệu với desktop cuối, chỉ đổi viewport.
+- `06-account-b-mobile.png`, `14-account-b-desktop-1280.png`: tài khoản B không thấy kết quả A.
+- `verified-original.json`, `verified-final.json`, `verified-desktop-1280.json`: đối chiếu dịch vụ/cache trên các phiên bản chuỗi thử.
+- `original-ui-check.json`, `final-ui-check.json`, `desktop-mobile-comparison.json`: đối chiếu bảng DOM/ước tính với dịch vụ.
+- `evidence-manifest.json`: hash các bằng chứng và xác nhận bảo toàn dữ liệu thật; không chứa mật khẩu hoặc khóa dưới dạng văn bản báo cáo.
+
+### Kết luận và giới hạn của lượt 09C
+
+Không phát hiện lỗi cần sửa, **không thay mã ứng dụng/mô hình/thí nghiệm/migrations/requirements**. Chỉ bổ sung phần báo cáo này; không commit/push trong TASK 09C. Không chạy lại toàn bộ hồi quy vì mã không đổi; kết quả 137 Django + 6 JavaScript trước đó vẫn được tham chiếu theo đúng lượt chạy ở 09A, không tính thành kiểm thử mới.
+
+Đã đối chiếu **8 bảng tài khoản/finance trong DB thật** trước/sau bằng số lượng và hash toàn bộ nội dung dòng: không đổi. Hash tất cả tệp đã theo dõi trước khi ghi báo cáo cũng không đổi. DB mới/khóa/cấu hình tài khoản QA chỉ nằm ngoài dự án.
+
+Đây là kiểm UI và tính nhất quán trên **chuỗi tự sinh** của tài khoản thử, không chứng minh dự báo tốt cho người dùng thật. Vẫn chưa kiểm thiết bị điện thoại vật lý hoặc Safari, tình huống tải đồng thời qua UI và mọi cấu hình người dùng; không tuyên bố thêm phạm vi đó.

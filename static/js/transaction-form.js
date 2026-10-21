@@ -20,7 +20,8 @@ if (kindInput && categoryInput && kindsNode) {
 (() => {
   const panel = document.getElementById('classification-suggestion');
   const description = document.getElementById('id_description');
-  if (!panel || !description || !kindInput || !categoryInput) return;
+  const modeInput = document.getElementById('suggestion-mode');
+  if (!panel || !description || !kindInput || !categoryInput || !modeInput) return;
   const button = document.getElementById('suggest-category');
   const result = document.getElementById('suggestion-result');
   const actions = document.getElementById('suggestion-actions');
@@ -43,6 +44,7 @@ if (kindInput && categoryInput && kindsNode) {
   }
   description.addEventListener('input', clear);
   kindInput.addEventListener('change', clear);
+  modeInput.addEventListener('change', clear);
   choices.addEventListener('change', () => { apply.disabled = !offered.has(choices.value); });
 
   button.addEventListener('click', async () => {
@@ -52,7 +54,7 @@ if (kindInput && categoryInput && kindsNode) {
       return;
     }
     const current = generation;
-    snapshot = {description: description.value, kind: kindInput.value};
+    snapshot = {description: description.value, kind: kindInput.value, mode: modeInput.value};
     button.disabled = true;
     result.textContent = 'Đang tìm gợi ý…';
     try {
@@ -64,6 +66,9 @@ if (kindInput && categoryInput && kindsNode) {
       if (current !== generation) return;
       if (response.redirected) throw new Error('Phiên đăng nhập đã hết hạn.');
       const data = await response.json();
+      if (current !== generation) return;
+      if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
+          || snapshot.mode !== modeInput.value) { clear(); return; }
       if (!response.ok && !['unavailable', 'invalid'].includes(data.status)) throw new Error('Gợi ý không sẵn sàng.');
       result.textContent = (data.label ? `Nhãn dự đoán: ${data.label_display} (${data.label}). ` : '') + data.message;
       if (data.status !== 'suggestion' || !data.categories?.length) return;
@@ -90,6 +95,7 @@ if (kindInput && categoryInput && kindsNode) {
   });
   apply.addEventListener('click', () => {
     if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
+        || snapshot.mode !== modeInput.value
         || !offered.has(choices.value)) return;
     const option = [...categoryInput.options].find(option => option.value === choices.value && !option.disabled);
     if (!option) return;

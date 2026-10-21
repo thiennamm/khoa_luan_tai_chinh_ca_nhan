@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import Category, Transaction, Kind
+from .classification_modes import MODES
 
 
 class VietnameseAuthenticationForm(AuthenticationForm):
@@ -40,6 +41,7 @@ class CoverageStatusForm(forms.Form):
 
 
 class SuggestionForm(forms.Form):
+    mode = forms.ChoiceField(choices=MODES)
     description = forms.CharField(max_length=500, required=False, strip=False)
     kind = forms.ChoiceField(choices=Kind.choices)
 
