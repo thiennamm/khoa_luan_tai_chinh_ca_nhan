@@ -10,7 +10,7 @@ Số tiền từ 1 đến 999.999.999.999.999 VND như giao dịch hiện có; k
 
 1. Tạo quy tắc (POST); **chưa có giao dịch hoặc kỳ xử lý nào được ghi**.
 2. Xem các kỳ dự kiến theo tháng, lọc trạng thái. GET chỉ tính dữ liệu hiển thị, không tạo bản ghi kỳ/revision/event/giao dịch.
-3. **Ghi nhận** mở biểu mẫu GET: ngày thực tế mặc định ngày đến hạn, tiền mặc định dự kiến, danh mục/mô tả có thể sửa. Kind cố định theo snapshot kỳ; field disabled phía server bỏ qua kind giả mạo từ browser. Xác nhận POST hợp lệ mới tạo giao dịch.
+3. **Ghi nhận** mở biểu mẫu GET: ngày giao dịch thực tế mặc định **hôm nay theo giờ Việt Nam**, tiền mặc định dự kiến; ngày đến hạn hiển thị riêng để tham khảo. Cho chọn ngày quá khứ hợp lệ, chặn ngày tương lai phía server trong form ghi nhận định kỳ. Khi form lỗi giữ dữ liệu đã nhập. Kind cố định theo snapshot kỳ; field disabled phía server bỏ qua kind giả mạo từ browser. Chỉ xác nhận khoản thu/chi đã thực sự phát sinh; POST hợp lệ mới tạo giao dịch. Không đổi chính sách ngày của CRUD/CSV.
 4. **Bỏ qua kỳ này** cần checkbox và POST, không tạo giao dịch. Có thể mở lại bằng một bước xác nhận riêng.
 
 Không nhận user đích từ POST. Không tự suy luận ML, tạo phản hồi phân loại, tìm giao dịch nhập tay/CSV để ghép kỳ, hoặc tự tạo danh mục. Luồng sửa giao dịch thông thường về sau vẫn có gợi ý ML tùy chọn như trước; chỉ khi người dùng chủ động yêu cầu gợi ý hợp lệ thì luồng TASK 15A mới có thể ghi phản hồi.
@@ -175,3 +175,47 @@ Các tệp của TASK 15B (mới hoặc sửa):
 - Nếu cần phục hồi local: dừng các tiến trình ghi, xác minh hash/integrity bản sao, giữ riêng database hiện tại trước khi phục hồi. Backup này ở schema 0010; dùng mã tương ứng hoặc chạy lại migration 0011 có kiểm tra trước khi khởi động mã mới. Không ghi đè database đang phục vụ và không dùng backup local để thay database production.
 
 Mã/migration/kiểm thử/tài liệu bàn giao được commit trên `main` và push bình thường tới remote hiện có; SHA commit và đối chiếu remote được báo trong kết quả bàn giao, không tự ghi SHA vào chính commit chứa tài liệu này.
+
+## 11. TASK 15B.1 — Trạng thái quy tắc và ngày ghi nhận (22/10/2026)
+
+### Nguyên nhân xác định từ mã
+
+- Template cũ chỉ kiểm `rule.is_active` và in cố định “Đã bật / chờ tháng hiệu lực”. Cờ này biểu diễn ý định bật/tạm dừng mới nhất, không chứng minh revision đã có hiệu lực hôm nay. Ghi nhận xong một kỳ không có nghĩa quy tắc hàng tháng đã kết thúc.
+- View cũ truyền `row['due_date']` làm initial của trường ngày. Do đó ngày 31/10 có thể đã được lưu nếu người dùng giữ mặc định; form/model lưu ngày hợp lệ được gửi, không có mã tự đổi ngày người dùng nhập sang ngày đến hạn. Không có payload/audit nhập liệu online để xác định người dùng đã giữ mặc định hay chủ động chọn 31/10. Không truy cập production hoặc sửa giao dịch đó trong task này.
+
+### Trạng thái hiện tại
+
+`recurring.rule_status()` dùng ngày Việt Nam UTC+7 và revision gần nhất có effective_month không sau tháng hiện tại, độc lập bộ lọc tháng và lịch sử kỳ. Thứ tự xét:
+
+1. **Đã kết thúc:** tháng hiện tại sau end_month của revision đang hiệu lực (end_month được bao gồm trọn tháng). Trạng thái này ưu tiên hơn tạm dừng để không ngụ ý quy tắc còn trong hạn.
+2. **Đã tạm dừng:** revision đang hiệu lực inactive, kể cả đã bấm kích hoạt lại nhưng lịch active mới từ tháng sau. Nếu có lịch kích hoạt lại, hiển thị thêm tháng hiệu lực rõ ràng.
+3. **Chưa đến tháng bắt đầu:** revision active nhưng chưa tới start_month; trường hợp chưa có revision hiệu lực cũng chưa hoạt động.
+4. **Đang hoạt động:** revision active và hiện tại trong khoảng tháng. Ghi nhận/bỏ qua một kỳ không thay trạng thái quy tắc này.
+
+Sửa quy tắc vẫn hiệu lực từ tháng sau; trạng thái hiện tại theo revision cũ cho đến lúc đó. Bảng giữ thông số mới nhất người dùng đã lưu và nhắc riêng thay đổi đã lên lịch, không âm thầm áp thông số tương lai vào trạng thái hôm nay. Pause/resume, kỳ đã mở lại và snapshot lịch sử giữ nguyên chính sách mục 3–5. Không tạo revision/occurrence qua GET.
+
+### Ngày giao dịch thực tế
+
+- Ngày đến hạn chỉ hiển thị tham khảo cạnh số tiền dự kiến; trường nhập ghi “Ngày giao dịch thực tế”, mặc định hôm nay theo Việt Nam, không theo ngày đến hạn hoặc timezone của runtime.
+- Form ghi nhận định kỳ có `clean_date()` chặn ngày tương lai phía server; thuộc tính HTML `max` hỗ trợ nhập liệu nhưng không phải lớp bảo vệ duy nhất. Cho phép ngày quá khứ hợp lệ, kể cả khác tháng định danh kỳ. Có lời nhắc chỉ xác nhận khoản đã thực sự phát sinh.
+- POST lỗi vẫn là bound form, giữ ngày/tiền/danh mục/mô tả đã gửi. Không tự thay ngày lỗi bằng hôm nay hoặc tự sửa giao dịch.
+- Không đổi TransactionForm chung, model giao dịch, CRUD/CSV hay chính sách sửa giao dịch liên kết; quy tắc chặn ngày tương lai mới chỉ ở form ghi nhận định kỳ. Atomic/unique, quyền sở hữu/CSRF, signals, coverage/forecast và ngân sách giữ nguyên.
+
+### Kiểm chứng và giới hạn
+
+- Thêm 10 ca kiểm thử: trạng thái/start/end bao gồm, end ưu tiên pause, pending resume, sửa chờ hiệu lực, trạng thái độc lập bộ lọc/đã ghi nhận, ngày mặc định, giữ dữ liệu khi lỗi, từ chối tương lai không ghi dữ liệu, ngày khác tháng, ranh giới 17:00 UTC (00:00 Việt Nam) và đổi năm; có ca xác nhận TransactionForm thường vẫn giữ chính sách ngày cũ.
+- Nhóm định kỳ/migration: **37/37 đạt** ở lần chạy cuối (1,731 giây). Hồi quy giao dịch, coverage, forecast, budget và CSV import: **118/118 đạt** (26,197 giây). Chạy trong SQLite RAM với guard cấm mở SQLite thật; không chạy thí nghiệm ML.
+- Django system check không lỗi; `makemigrations --check --dry-run`: No changes detected. **Không cần migration mới**; migration 0011 không sửa, không migrate lại SQLite thật.
+- Browser thực tế tại `127.0.0.1:8017`, SQLite QA mới `D:\SAO LUU KHOA LUAN\task15b1-qa-20261022-224355\qa.sqlite3`, runner chỉ cho mở QA. Đã đăng nhập tài khoản QA; xem đủ bốn trạng thái; biểu mẫu hiện đến hạn 31/10 và mặc định ngày thực tế 22/10; ghi nhận kỳ tháng 10 với ngày 30/09 và 900.000 VND thành công; trang chi tiết và danh sách thể hiện đúng ngày thực tế, kỳ tháng 10 và quy tắc vẫn đang hoạt động. Kích hoạt lại quy tắc paused vẫn hiện “Đã tạm dừng”, kèm lịch 11/2026.
+- Ảnh QA ngoài Git, cùng thư mục trên: `actual-date-desktop.png`, `actual-date-saved.png`, `rule-statuses-desktop.png`. Lượt triển khai đầu đã thử desktop; lượt hoàn tất dưới đây đã bổ sung khung 390×844. Chưa thử thiết bị vật lý. Ca lỗi form, timezone, CSRF, phân quyền và concurrent được kiểm tự động, không gộp thành tuyên bố đã thử mọi ca qua browser.
+- Không truy cập PostgreSQL/production; chưa xác minh behavior runtime online sau sửa. Không đổi model ML, dependency, dữ liệu/thí nghiệm hoặc dữ liệu tài khoản thật. Lượt triển khai đầu chưa commit/push; lượt hoàn tất được người dùng cho phép commit/push 7 tệp liên quan.
+
+### Hoàn tất kiểm tra mobile và bàn giao TASK 15B.1
+
+- Dùng lại SQLite QA ngoài Git tại thư mục TASK15B.1 ở trên, server `127.0.0.1:8017`. Khởi động lại riêng server QA để tải đúng template cuối; không khởi động hoặc truy cập production.
+- Đặt viewport và đo trực tiếp DOM: `innerWidth=390`, `innerHeight=844`, `clientWidth=scrollWidth=367` (phần còn lại là thanh cuộn). Công cụ có DPI/zoom nên cấu hình override 261×565 mới cho đúng **390×844 CSS**; không dùng kích thước bitmap ảnh để suy ra kích thước CSS. Đã reset override sau kiểm tra.
+- Trang định kỳ: bộ lọc/nút hiển thị vừa khung, bảng chuyển thành thẻ có nhãn; đọc được các trạng thái và lịch kích hoạt lại khi cuộn, không tràn ngang toàn trang. Form Ghi nhận: ngày đến hạn tách riêng, ngày thực tế mặc định 22/10/2026, HTML max cùng ngày; tiền/ngày/danh mục/mô tả và các nút xác nhận/hủy thao tác được ở khung hẹp.
+- Tạo thêm một quy tắc mô phỏng bằng UI, chỉ trong QA; ghi nhận kỳ tháng 10, ngày thực tế 30/09/2026, số tiền thực tế 495.000 VND (dự kiến 500.000). Nút xác nhận hoạt động; trang chi tiết hiện đúng ngày/tháng định danh và số tiền. Không ghi dữ liệu mô phỏng vào SQLite thật.
+- Ảnh ngoài Git: `recurring-mobile-390x844.png`, `rule-statuses-mobile-390x844.png`, `actual-date-mobile-390x844.png`, `actual-date-mobile-actions.png`, `actual-date-mobile-saved.png`, cùng thư mục QA đã nêu. Đây là kiểm bằng trình duyệt trong khung CSS, chưa phải thiết bị điện thoại vật lý.
+- Không phát hiện lỗi cần sửa thêm mã trong lượt hoàn tất; chỉ cập nhật tài liệu. Tận dụng kết quả **37/37** định kỳ/migration và **118/118** hồi quy đã chạy trên mã thực thi hiện tại, không chạy lại suite khi mã không đổi. Django system check trên QA vẫn đạt. Không cần migration mới, không đổi migration 0011.
+- Rà đúng 7 tệp mã/template/kiểm thử/tài liệu của TASK15B.1, kiểm bí mật và `git diff --check` trước commit. Push `main` bình thường, không force-push/đổi remote. Commit và xác nhận SHA local/remote được báo ở bàn giao; push không phải bằng chứng ứng dụng production đã chạy thành công.

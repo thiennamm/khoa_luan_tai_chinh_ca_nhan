@@ -96,6 +96,34 @@ def planned(rule, month):
     return data, due
 
 
+def rule_status(rule):
+    """Today's effective revision, independent of selected period or processed history."""
+    month = today().replace(day=1)
+    revisions = list(rule.revisions.all())
+    effective = [rev for rev in revisions if rev.effective_month <= month]
+    rev = effective[-1] if effective else None
+    data = rev.snapshot if rev else snapshot(rule)
+    # End is inclusive: only the following month is ended, even if paused.
+    if data['end_month'] and month > date.fromisoformat(data['end_month']):
+        label = 'Đã kết thúc'
+    elif rev is not None and not rev.active:
+        label = 'Đã tạm dừng'
+    elif month < date.fromisoformat(data['start_month']) or rev is None:
+        label = 'Chưa đến tháng bắt đầu'
+    else:
+        label = 'Đang hoạt động'
+    future = [rev for rev in revisions if rev.effective_month > month]
+    note = ''
+    if future:
+        next_rev = future[0]
+        when = next_rev.effective_month.strftime('%m/%Y')
+        if rev is not None and not rev.active and next_rev.active:
+            note = f'Đã lên lịch kích hoạt lại từ {when}.'
+        else:
+            note = f'Thay đổi đã lên lịch có hiệu lực từ {when}.'
+    return {'label': label, 'note': note}
+
+
 def item(rule, month, occurrence=None):
     if occurrence:
         data, due = occurrence.snapshot, occurrence.due_date

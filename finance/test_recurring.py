@@ -341,6 +341,124 @@ class RecurringTests(RecurringCase):
             self.assertEqual(recurring.today(),date(2027,1,1))
 
 
+class RecurringStatusAndActualDateTests(RecurringCase):
+    def test_rule_status_inclusive_start_end_and_processed_period(self):
+        rule = self.rule(start_month='2026-10', end_month='2026-12')
+        recurring.process(self.user, rule.pk, date(2026,10,1), 'record', self.confirm())
+        for day, label in [(date(2026,10,22), 'Đang hoạt động'),
+                (date(2026,12,31), 'Đang hoạt động'), (date(2027,1,1), 'Đã kết thúc')]:
+            with self.subTest(day=day), patch('finance.recurring.today', return_value=day):
+                self.assertEqual(recurring.rule_status(rule)['label'], label)
+        self.assertContains(self.client.get(reverse('finance:recurring_list')), 'Đang hoạt động')
+        self.assertEqual(RecurringOccurrence.objects.get().status, 'recorded')
+
+    def test_future_start_pause_and_ended_precedence(self):
+        future = self.rule(start_month='2026-11', end_month='2026-12')
+        self.assertEqual(recurring.rule_status(future)['label'], 'Chưa đến tháng bắt đầu')
+        recurring.set_active(self.user, future.pk, False)
+        future.refresh_from_db()
+        self.assertEqual(recurring.rule_status(future)['label'], 'Đã tạm dừng')
+        with patch('finance.recurring.today', return_value=date(2027,1,1)):
+            self.assertEqual(recurring.rule_status(future)['label'], 'Đã kết thúc')
+        with patch('finance.recurring.today', return_value=date(2026,9,30)):
+            self.assertEqual(recurring.rule_status(future)['label'], 'Chưa đến tháng bắt đầu')
+
+    def test_resume_waits_for_effective_month_and_filters_do_not_change_status(self):
+        rule = self.rule()
+        recurring.set_active(self.user, rule.pk, False)
+        recurring.set_active(self.user, rule.pk, True)
+        rule.refresh_from_db()
+        status = recurring.rule_status(rule)
+        self.assertEqual(status['label'], 'Đã tạm dừng')
+        self.assertIn('kích hoạt lại từ 11/2026', status['note'])
+        page = self.client.get(reverse('finance:recurring_list'), {'month':'2026-11'})
+        self.assertEqual(list(page.context['rules_page'])[0].display_status, status)
+        with patch('finance.recurring.today', return_value=date(2026,11,1)):
+            self.assertEqual(recurring.rule_status(rule), {'label':'Đang hoạt động', 'note':''})
+
+    def test_scheduled_edit_does_not_change_current_effective_status(self):
+        rule = self.rule()
+        form = RecurringRuleForm({'name':'Thay đổi', 'kind':'expense', 'amount':'100',
+            'category':self.cat.pk, 'due_day':'20', 'start_month':'2026-12', 'end_month':''},
+            instance=rule, user=self.user)
+        self.assertTrue(form.is_valid(), form.errors)
+        recurring.save_rule(form, self.user)
+        rule.refresh_from_db()
+        self.assertEqual(recurring.rule_status(rule)['label'], 'Đang hoạt động')
+        self.assertIn('11/2026', recurring.rule_status(rule)['note'])
+        with patch('finance.recurring.today', return_value=date(2026,11,1)):
+            self.assertEqual(recurring.rule_status(rule)['label'], 'Chưa đến tháng bắt đầu')
+
+    def test_form_defaults_today_and_keeps_due_date_separate(self):
+        rule = self.rule(due_day=31)
+        page = self.client.get(self.url(rule, 'record'))
+        self.assertEqual(page.context['form'].initial['date'], date(2026,10,22))
+        self.assertEqual(page.context['form'].fields['date'].label, 'Ngày giao dịch thực tế')
+        self.assertEqual(page.context['form'].fields['date'].widget.attrs['max'], '2026-10-22')
+        self.assertContains(page, 'Ngày đến hạn: 31/10/2026')
+        self.assertContains(page, 'đã thực sự phát sinh')
+        self.assertFalse(Transaction.objects.exists())
+
+    def test_future_date_rejected_preserves_input_without_side_effects(self):
+        rule = self.rule()
+        data = {'date':'2026-10-31', 'amount':'777', 'category':self.cat.pk, 'description':'Giữ nguyên QA'}
+        page = self.client.post(self.url(rule, 'record'), data)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn('date', page.context['form'].errors)
+        for field in ('date', 'amount', 'description'):
+            self.assertEqual(page.context['form'][field].value(), data[field])
+        self.assertEqual(int(page.context['form']['category'].value()), self.cat.pk)
+        self.assertFalse(Transaction.objects.exists())
+        self.assertFalse(RecurringOccurrence.objects.exists())
+        self.assertFalse(RecurringEvent.objects.exists())
+        self.assertFalse(ForecastDataVersion.objects.exists())
+
+    def test_future_date_policy_is_specific_to_recurring_confirmation(self):
+        from .forms import TransactionForm
+        data = {'date':'2026-10-31', 'amount':'100', 'category':self.cat.pk,
+            'description':'QA', 'kind':'expense'}
+        normal = TransactionForm(data, user=self.user)
+        self.assertTrue(normal.is_valid(), normal.errors)
+        confirmation = RecurringConfirmationForm(data, user=self.user, expected_kind='expense')
+        self.assertFalse(confirmation.is_valid())
+        self.assertIn('date', confirmation.errors)
+
+    def test_actual_past_month_and_today_accepted_due_month_unchanged(self):
+        rule = self.rule()
+        response = self.client.post(self.url(rule, 'record'), {'date':'2026-09-30',
+            'amount':'777', 'category':self.cat.pk, 'description':'Thực tế tháng trước'})
+        self.assertEqual(response.status_code, 302)
+        occurrence = RecurringOccurrence.objects.get()
+        self.assertEqual(occurrence.month, date(2026,10,1))
+        self.assertEqual(occurrence.due_date, date(2026,10,31))
+        self.assertEqual(occurrence.transaction.date, date(2026,9,30))
+        self.assertEqual(monthly_budgets(self.user,date(2026,9,1))['recorded_expense'], Decimal('777'))
+        self.assertEqual(monthly_budgets(self.user,date(2026,10,1))['recorded_expense'], Decimal(0))
+        self.confirm(date='2026-10-22')
+
+    def test_vietnam_midnight_default_and_validation_independent_of_runtime_timezone(self):
+        rule = self.rule()
+        self.clock.stop()
+        with override_settings(TIME_ZONE='UTC'):
+            for instant, expected in [(datetime(2026,10,21,16,59,tzinfo=dt_timezone.utc), date(2026,10,21)),
+                    (datetime(2026,10,21,17,0,tzinfo=dt_timezone.utc), date(2026,10,22))]:
+                with self.subTest(instant=instant), patch('django.utils.timezone.now', return_value=instant):
+                    page = self.client.get(self.url(rule, 'record'))
+                    self.assertEqual(page.context['form'].initial['date'], expected)
+                    standalone = RecurringConfirmationForm(user=self.user, expected_kind='expense')
+                    self.assertEqual(standalone.initial['date'], expected)
+                    form = RecurringConfirmationForm({'date':'2026-10-22','amount':'1',
+                        'category':self.cat.pk, 'description':''}, user=self.user, expected_kind='expense')
+                    self.assertEqual(form.is_valid(), expected == date(2026,10,22))
+
+    def test_vietnam_year_boundary_rule_status(self):
+        rule = self.rule(end_month='2026-12')
+        self.clock.stop()
+        with override_settings(TIME_ZONE='UTC'), patch('django.utils.timezone.now',
+                return_value=datetime(2026,12,31,17,0,tzinfo=dt_timezone.utc)):
+            self.assertEqual(recurring.rule_status(rule)['label'], 'Đã kết thúc')
+
+
 class ConcurrentRecurringTests(TransactionTestCase):
     def test_two_concurrent_confirmations_never_duplicate(self):
         user=User.objects.create_user('parallel-qa')

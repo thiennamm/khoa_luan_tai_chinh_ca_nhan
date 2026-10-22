@@ -2,6 +2,7 @@ from django import forms
 
 from .forms import TransactionForm
 from .models import Category, RecurringRule
+from . import recurring
 
 
 class RecurringRuleForm(forms.ModelForm):
@@ -31,6 +32,16 @@ class RecurringConfirmationForm(TransactionForm):
         self.fields['kind'].disabled = True
         self.fields['kind'].widget = forms.HiddenInput()
         self.fields['category'].queryset = Category.objects.filter(user=user, kind=expected_kind)
+        self.initial['date'] = recurring.today()
+        self.fields['date'].label = 'Ngày giao dịch thực tế'
+        self.fields['date'].help_text = 'Chỉ ghi nhận khoản đã thực sự phát sinh; có thể chọn ngày quá khứ.'
+        self.fields['date'].widget.attrs['max'] = recurring.today().isoformat()
+
+    def clean_date(self):
+        value = self.cleaned_data['date']
+        if value > recurring.today():
+            raise forms.ValidationError('Ngày giao dịch thực tế không được ở tương lai theo giờ Việt Nam.')
+        return value
 
 
 class RecurringActionForm(forms.Form):

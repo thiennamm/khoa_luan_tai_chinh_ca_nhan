@@ -36,10 +36,14 @@ def recurring_list(request):
                 rows = [row for row in rows if row['state'] == state]
     params = request.GET.copy()
     params.pop('page', None); params.pop('rules_page', None)
+    rules_page = Paginator(RecurringRule.objects.filter(user=request.user).select_related('category')
+        .prefetch_related('revisions'), 20).get_page(request.GET.get('rules_page'))
+    for rule in rules_page:
+        rule.display_status = recurring.rule_status(rule)
     return render(request, 'finance/recurring_list.html', {
         'month_form': month_form, 'state': state, 'states': STATES, 'filter_query': params.urlencode(),
         'page_obj': Paginator(rows, 20).get_page(request.GET.get('page')),
-        'rules_page': Paginator(RecurringRule.objects.filter(user=request.user).select_related('category'), 20).get_page(request.GET.get('rules_page')),
+        'rules_page': rules_page,
     })
 
 
@@ -103,7 +107,7 @@ def occurrence_action(request, pk, year, month, action):
             kind=row['snapshot']['kind']).first()
         form = RecurringConfirmationForm(request.POST if request.method == 'POST' else None,
             user=request.user, expected_kind=row['snapshot']['kind'], initial={
-                'date': row['due_date'], 'amount': row['amount'], 'category': cat,
+                'amount': row['amount'], 'category': cat,
                 'description': row['snapshot']['name']})
     else:
         form = RecurringActionForm(request.POST if request.method == 'POST' else None)
