@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Sửa{% else %}Tạo{% endif %} quy tắc định kỳ{% endblock %}
+{% block content %}<div class="page-heading"><div><h1>{% if editing %}Sửa{% else %}Tạo{% endif %} quy tắc định kỳ</h1><p>Chỉ lặp hàng tháng. Đây là khoản dự kiến, chưa phải giao dịch thực tế.</p></div></div>
+<section class="card form-card">{% if editing %}<p class="notice">Thông tin sửa có hiệu lực từ tháng sau. Kỳ tháng hiện tại và snapshot các kỳ đã xử lý giữ nguyên. Nếu sửa nhiều lần trước tháng sau, dùng lần lưu gần nhất.</p>{% else %}<p class="help">Bắt đầu xét từ tháng tạo quy tắc; không tạo bù các tháng trước dù nhập tháng bắt đầu trong quá khứ.</p>{% endif %}
+<form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<div class="form-actions"><button class="button" type="submit">Lưu quy tắc</button><a class="button secondary" href="{% url 'finance:recurring_list' %}">Hủy</a></div></form></section>{% endblock %}

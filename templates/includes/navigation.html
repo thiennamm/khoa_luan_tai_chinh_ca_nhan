@@ -1,6 +1,7 @@
 <nav aria-label="Điều hướng chính">
       <a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◫</span> Tổng quan</a>
       <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name or 'csv_' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↔</span> Giao dịch</a>
+      <a href="{% url 'finance:recurring_list' %}" {% if 'recurring' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↻</span> Giao dịch định kỳ</a>
       <a href="{% url 'finance:classification_feedback' %}" {% if request.resolver_match.url_name == 'classification_feedback' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">✓</span> Phản hồi phân loại</a>
       <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▦</span> Danh mục</a>
       <a href="{% url 'finance:monthly_history' %}" {% if request.resolver_match.url_name == 'monthly_history' or 'coverage' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▤</span> Lịch sử ghi chép</a>

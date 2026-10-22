@@ -34,6 +34,14 @@ Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi 
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
+## Giao dịch định kỳ — TASK 15B
+
+Vào **Giao dịch định kỳ** để tạo khoản thu/chi lặp hàng tháng với số tiền **dự kiến**, danh mục và ngày đến hạn 1–31. Tháng ngắn dùng ngày cuối tháng. Chọn **Ghi nhận**, kiểm tra ngày/tiền/danh mục/mô tả thực tế rồi xác nhận mới tạo giao dịch; **Bỏ qua** không tạo giao dịch. Không có scheduler, gửi email hoặc tự cộng khoản dự kiến vào thống kê/ngân sách/dự báo.
+
+Sửa thông tin quy tắc có hiệu lực từ tháng sau. Tạm dừng các kỳ chưa từng xử lý từ tháng hiện tại; kích hoạt lại từ tháng sau, không tạo bù. Snapshot các kỳ đã xử lý giữ nguyên. Xóa giao dịch liên kết không tự tạo lại; phải xác nhận mở lại kỳ. Trang Tổng quan nhắc các khoản đến hạn/quá hạn trong cửa sổ 12 tháng và sắp đến hạn trong 7 ngày.
+
+TASK 15B đã sao lưu SQLite local bằng backup API, kiểm integrity/hash rồi áp dụng migration `0011`; dữ liệu nghiệp vụ cũ giữ nguyên, không để lại dữ liệu QA. Máy khác cần sao lưu và migrate theo [docs/recurring-transactions.md](docs/recurring-transactions.md), không chạy mã mới với schema cũ. Chưa truy cập database production; tương thích PostgreSQL mới rà/compile offline, chưa thử trên PostgreSQL thật.
+
 ## Phản hồi phân loại — TASK 15A
 
 Trong **Thêm/Sửa giao dịch**, yêu cầu gợi ý VI/EN, tùy chọn bấm **Áp dụng**, rồi tự bấm **Lưu giao dịch**. Nếu gợi ý còn hiệu lực và danh mục cuối có ánh xạ nhãn chuẩn, hệ thống ghi nhận nhãn đề xuất và lựa chọn khi lưu. Trang **Phản hồi phân loại** chỉ hiển thị phản hồi của bạn, phân biệt cùng/khác nhãn với việc có bấm Áp dụng. Transfer vẫn cần xem lại và không áp dụng tự động.

@@ -1,9 +1,23 @@
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, pre_delete
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 
 from .coverage_state import reset_months
 from .models import Transaction
+
+
+@receiver(pre_delete, sender=Transaction, dispatch_uid='finance.recurring_transaction_deleted')
+def recurring_transaction_deleted(sender, instance, using, **kwargs):
+    from .models import RecurringOccurrence, RecurringEvent
+    from django.utils import timezone
+    # Collector's atomic includes both this update and the actual delete.
+    rows = RecurringOccurrence.objects.using(using).filter(transaction_id=instance.pk)
+    for occurrence in rows:
+        changed = RecurringOccurrence.objects.using(using).filter(pk=occurrence.pk,
+            transaction_id=instance.pk, status='recorded').update(
+                status='deleted', transaction=None, updated_at=timezone.now())
+        if changed:
+            RecurringEvent.objects.using(using).create(occurrence_id=occurrence.pk, action='delete')
 
 
 @receiver(post_delete, sender=Transaction, dispatch_uid='finance.reset_month_after_transaction_delete')

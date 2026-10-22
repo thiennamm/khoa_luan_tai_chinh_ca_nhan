@@ -9,6 +9,7 @@
   <article class="summary-card balance-card"><div class="summary-label"><span>Chênh lệch thu–chi</span><span class="metric-icon" aria-hidden="true">＝</span></div><p class="metric">{{ balance|vnd }}</p><span>Tổng thu trừ tổng chi trong tháng</span></article>
 </section>
 {% include 'finance/includes/budget_summary.html' %}
+<section class="card activity"><div class="section-heading"><div><h2>Khoản định kỳ cần chú ý</h2><p class="muted">Đến hạn/quá hạn trong 12 tháng gần nhất, hoặc sắp đến hạn trong 7 ngày tính từ hôm nay (giờ Việt Nam). {{ recurring_due_count }} khoản; hiển thị tối đa 5.</p></div><a href="{% url 'finance:recurring_list' %}">Xem định kỳ</a></div>{% include 'finance/includes/recurring_table.html' with items=recurring_due %}<p class="help">Khoản dự kiến chưa được cộng vào thu/chi thực tế, ngân sách hoặc dự báo; độc lập bộ chọn tháng thống kê.</p></section>
 {% include 'finance/includes/financial_statistics.html' %}
 <section class="card activity"><div class="section-heading"><div><h2>Giao dịch gần đây</h2><p class="muted">{{ transaction_count }} giao dịch trong tháng {{ month_label }}</p></div><a href="{% url 'finance:transaction_list' %}?month={{ month }}">Xem tất cả <span aria-hidden="true">→</span></a></div>
 {% if recent_transactions %}{% include 'includes/transaction_table.html' with transactions=recent_transactions %}{% else %}

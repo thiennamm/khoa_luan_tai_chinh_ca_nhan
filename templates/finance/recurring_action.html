@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}{{ action_title }}{% endblock %}
+{% block content %}<div class="page-heading"><h1>{{ action_title }}</h1></div><section class="card form-card"><h2>{{ rule.name }}</h2><p>{{ explanation }}</p><p>Không thay đổi giao dịch hoặc lịch sử ghi chép.</p><form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<div class="form-actions"><button class="button" type="submit">Xác nhận</button><a class="button secondary" href="{% url 'finance:recurring_list' %}">Hủy</a></div></form></section>{% endblock %}

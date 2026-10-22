@@ -184,6 +184,8 @@ class Category(models.Model):
                 raise ValidationError({"name": "Bạn đã có danh mục cùng tên và loại này."})
         if self.pk:
             original = Category.objects.get(pk=self.pk)
+            if (original.kind != self.kind or original.user_id != self.user_id) and self.recurring_rules.exists():
+                raise ValidationError({'kind': 'Danh mục đang dùng cho giao dịch định kỳ. Hãy chuyển danh mục của quy tắc trước khi đổi loại hoặc chủ sở hữu.'})
             if (original.kind != self.kind or original.user_id != self.user_id) and self.budgets.exists():
                 raise ValidationError({'kind': 'Danh mục đang có ngân sách. Hãy xóa hoặc chuyển ngân sách trước khi đổi loại hoặc chủ sở hữu.'})
             if (original.kind != self.kind or original.user_id != self.user_id) and self.transactions.exists():
@@ -234,6 +236,99 @@ class Budget(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
+
+
+class RecurringRule(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField('Tên khoản', max_length=80)
+    kind = models.CharField('Loại', max_length=7, choices=Kind.choices)
+    amount = models.DecimalField('Số tiền dự kiến (VND)', max_digits=15, decimal_places=0,
+        validators=[MinValueValidator(Decimal('1'))])
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='recurring_rules', verbose_name='Danh mục')
+    due_day = models.PositiveSmallIntegerField('Ngày đến hạn')
+    start_month = models.DateField('Tháng bắt đầu')
+    end_month = models.DateField('Tháng kết thúc', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name', 'pk']
+        constraints = [
+            models.CheckConstraint(condition=models.Q(kind__in=Kind.values), name='recurring_rule_kind'),
+            models.CheckConstraint(condition=models.Q(due_day__gte=1, due_day__lte=31), name='recurring_rule_day'),
+            models.CheckConstraint(condition=models.Q(amount__gt=0, amount__lte=999999999999999)
+                & models.Q(amount=Round('amount', precision=0)), name='recurring_rule_integer_vnd'),
+            models.CheckConstraint(condition=models.Q(start_month__day=1), name='recurring_rule_start'),
+            models.CheckConstraint(condition=models.Q(end_month__isnull=True)
+                | (models.Q(end_month__day=1) & models.Q(end_month__gte=models.F('start_month'))), name='recurring_rule_end'),
+        ]
+
+    def clean(self):
+        super().clean()
+        self.name = self.name.strip()
+        errors = {}
+        if not self.name:
+            errors['name'] = 'Nhập tên khoản.'
+        if self.due_day is not None and not 1 <= self.due_day <= 31:
+            errors['due_day'] = 'Ngày đến hạn từ 1 đến 31.'
+        if self.start_month and self.start_month.day != 1:
+            errors['start_month'] = 'Chọn tháng hợp lệ.'
+        if self.end_month and (self.end_month.day != 1 or (self.start_month and self.end_month < self.start_month)):
+            errors['end_month'] = 'Tháng kết thúc không được trước tháng bắt đầu.'
+        if self.category_id and (self.category.user_id != self.user_id or self.category.kind != self.kind):
+            errors['category'] = 'Chọn danh mục của bạn, đúng loại thu/chi.'
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+
+class RecurringRevision(models.Model):
+    rule = models.ForeignKey(RecurringRule, on_delete=models.CASCADE, related_name='revisions')
+    effective_month = models.DateField()
+    active = models.BooleanField()
+    snapshot = models.JSONField()
+
+    class Meta:
+        ordering = ['effective_month', 'pk']
+        constraints = [models.UniqueConstraint(fields=['rule', 'effective_month'], name='recurring_revision_month'),
+            models.CheckConstraint(condition=models.Q(effective_month__day=1), name='recurring_revision_first_day')]
+
+
+class RecurringOccurrence(models.Model):
+    class Status(models.TextChoices):
+        OPEN = 'open', 'Chưa xử lý'
+        RECORDED = 'recorded', 'Đã ghi nhận'
+        SKIPPED = 'skipped', 'Đã bỏ qua'
+        DELETED = 'deleted', 'Giao dịch đã xóa — cần mở lại'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rule = models.ForeignKey(RecurringRule, on_delete=models.CASCADE, related_name='occurrences')
+    month = models.DateField()
+    due_date = models.DateField()
+    snapshot = models.JSONField()
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
+    transaction = models.OneToOneField('Transaction', null=True, on_delete=models.SET_NULL, related_name='recurring_occurrence')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['rule', 'month'], name='recurring_occurrence_once'),
+            models.CheckConstraint(condition=models.Q(month__day=1), name='recurring_occurrence_first_day'),
+            models.CheckConstraint(condition=(models.Q(status='recorded', transaction__isnull=False)
+                | models.Q(status__in=['open', 'skipped', 'deleted'], transaction__isnull=True)), name='recurring_occurrence_state')]
+
+
+class RecurringEvent(models.Model):
+    occurrence = models.ForeignKey(RecurringOccurrence, on_delete=models.CASCADE, related_name='events')
+    action = models.CharField(max_length=12, choices=[('record', 'Ghi nhận'), ('skip', 'Bỏ qua'),
+        ('reopen', 'Mở lại'), ('delete', 'Giao dịch bị xóa')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'pk']
 
 
 class Transaction(models.Model):

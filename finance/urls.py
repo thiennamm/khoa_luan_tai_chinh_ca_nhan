@@ -6,9 +6,16 @@ from . import forecast_views
 from . import forecast_demo_views
 from .csv_export import transaction_export
 from . import budget_views
+from . import recurring_views
 
 app_name = "finance"
 urlpatterns = [
+    path('giao-dich-dinh-ky/', recurring_views.recurring_list, name='recurring_list'),
+    path('giao-dich-dinh-ky/them/', recurring_views.rule_edit, name='recurring_create'),
+    path('giao-dich-dinh-ky/<int:pk>/sua/', recurring_views.rule_edit, name='recurring_edit'),
+    path('giao-dich-dinh-ky/<int:pk>/lich-su/', recurring_views.rule_history, name='recurring_history'),
+    path('giao-dich-dinh-ky/<int:pk>/trang-thai/<str:action>/', recurring_views.rule_status, name='recurring_status'),
+    path('giao-dich-dinh-ky/<int:pk>/<int:year>/<int:month>/<str:action>/', recurring_views.occurrence_action, name='recurring_occurrence'),
     path('phan-hoi-phan-loai/', views.classification_feedback_list, name='classification_feedback'),
     path('giao-dich/goi-y-danh-muc/thao-tac/', views.suggestion_action, name='suggestion_action'),
     path("", views.dashboard, name="dashboard"),

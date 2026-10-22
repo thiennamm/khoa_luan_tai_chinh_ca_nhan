@@ -21,6 +21,7 @@ from .transaction_filters import TransactionFilterForm, apply_filters, filtered_
 from .statistics import StatisticsSpanForm, financial_statistics
 from .budgets import monthly_budgets
 from . import classification_feedback as feedback_service
+from .recurring import dashboard_items
 from .models import ClassificationFeedback, ClassificationSuggestion
 
 
@@ -147,6 +148,7 @@ def dashboard(request):
         context.update(monthly_totals(request.user, context['start'], context['end']))
         context['transaction_count'] = rows.count()
     context.update(monthly_budgets(request.user, context['start']))
+    context.update(dashboard_items(request.user))
     return render(request, "finance/dashboard.html", context)
 
 
@@ -245,11 +247,13 @@ def category_delete(request, pk):
         try:
             category.delete()
         except ProtectedError:
-            messages.error(request, "Không thể xóa danh mục đang có giao dịch hoặc ngân sách. Hãy xử lý các mục liên quan trước.")
+            messages.error(request, "Không thể xóa danh mục đang có giao dịch hoặc ngân sách hoặc quy tắc định kỳ. Hãy xử lý các mục liên quan trước.")
         else:
             messages.success(request, "Đã xóa danh mục.")
         return redirect("finance:category_list")
+    protected_recurring = category.recurring_rules.exists()
     return render(request, "finance/confirm_delete.html", {
         "object": category, "object_type": "danh mục", "cancel_url": "finance:category_list",
-        "protected": category.transactions.exists() or category.budgets.exists(),
+        "protected": category.transactions.exists() or category.budgets.exists() or protected_recurring,
+        'protected_recurring': protected_recurring,
     })
