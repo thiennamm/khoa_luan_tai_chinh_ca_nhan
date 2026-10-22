@@ -3,10 +3,10 @@ import dj_database_url
 from .production_shared import *
 
 if os.environ.get('RENDER') != 'true':
-    raise ImproperlyConfigured('config.render chỉ dành cho môi trường Render được xác định.')
+    raise configuration_error('RENDER_CONTEXT_INVALID', 'RENDER', 'DJANGO_SETTINGS_MODULE')
 
+database_url = required('DATABASE_URL')
 try:
-    database_url = required('DATABASE_URL')
     parsed_db = urlsplit(database_url)
     if (parsed_db.scheme not in ('postgres', 'postgresql') or not parsed_db.hostname
             or not parsed_db.username or not parsed_db.password or not parsed_db.path.strip('/')):
@@ -16,7 +16,7 @@ try:
         raise ValueError
 except Exception:
     # Không in DATABASE_URL hoặc exception của parser (có thể chứa mật khẩu).
-    raise ImproperlyConfigured('DATABASE_URL bắt buộc là kết nối PostgreSQL đầy đủ, không có fallback SQLite.') from None
+    raise configuration_error('DATABASE_URL_INVALID', 'DATABASE_URL') from None
 database['OPTIONS'] = {**database.get('OPTIONS', {}), 'connect_timeout': 10, 'sslmode': 'require'}
 DATABASES = {'default': database}
 del database_url, parsed_db, database

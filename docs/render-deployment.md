@@ -231,3 +231,68 @@ GITHUB_ARTIFACT_TOKEN=REPLACE_WITH_SERVER_SIDE_READ_ONLY_ARTIFACT_TOKEN
 `RENDER`, `PORT`, `RENDER_EXTERNAL_HOSTNAME` do Render cấp. **Không có biến `DJANGO_MODEL_ASSET_ID` trong hợp đồng tải hiện tại**: script tra tag/tên asset cố định, ID/API URL trên là biên nhận để đối chiếu. Token Render vẫn chưa tạo; lần tải kiểm này dùng đăng nhập Git Credential Manager hiện có, không chứng minh một fine-grained token mới đã hoạt động. Không tái dùng credential GCM bằng cách chép nó vào Render; khi được phép sẽ tạo token chỉ đọc riêng theo mục 4.
 
 Đã publish model trong **Release của repo Private**, không commit ZIP/model vào Git. Chưa tạo token triển khai, database, Web Service hoặc deploy; chưa sửa dữ liệu thật/model/kết quả thí nghiệm. Các giới hạn Linux/PostgreSQL/Render runtime ở mục 8 vẫn còn.
+
+## 10. Chẩn đoán build dừng ở inference bundle (commit 4683ced)
+
+Thông tin người vận hành cung cấp: Render cài `requirements-render.txt` và `pip check` thành công, rồi báo `Không chuẩn bị được inference bundle (ImproperlyConfigured); dừng build.` Không có log chi tiết cấu hình hoặc quyền truy cập Render trong lần chẩn đoán này. **Chưa xác định được biến thực tế nào đang thiếu/sai trên Render.**
+
+### Nơi phát sinh và nơi che nguyên nhân trong commit đang build
+
+1. `deploy/render-build.sh:10` chạy `python -X utf8 scripts/download_inference_bundle.py` ngay sau pip check, trước collectstatic/migrations. Script đã đặt `DJANGO_SETTINGS_MODULE=config.render`; gate `RENDER=true` đã qua nếu thực sự tới bước pip theo build script này.
+2. `download_inference_bundle.py:153` import `required` từ `config.production_shared`. Import này **thực thi kiểm cấu hình** SECRET_KEY, ALLOWED_HOSTS, CSRF origins ngay, không chỉ lấy một hàm. `required()` và các validator của module có thể ném `ImproperlyConfigured`.
+3. `download_inference_bundle.py:154` đọc `settings.INFERENCE_ROOT`. LazySettings nạp `config.render`; file này kiểm Render context và `DATABASE_URL`. URL thiếu/sai định dạng cũng ném `ImproperlyConfigured`. Đây là parse cấu hình, **không mở kết nối DB**; không có căn cứ kết luận PostgreSQL đang mất kết nối từ lỗi bundle này.
+4. `download_inference_bundle.py:160–163` gọi `required()` cho token/tag, rồi **sau khi download** mới đọc hash ZIP. Vì vậy hash env thiếu vẫn có thể tạo đúng lỗi đã thấy sau một lần tải thành công; không được khẳng định log này chứng minh chưa hề request GitHub.
+5. `download_inference_bundle.py:170–173` bắt mọi `Exception` và chỉ in `type(exc).__name__`. Do đó nhiều nguyên nhân khác nhau bị gộp thành cùng dòng. Token đã nhập nhưng bị GitHub từ chối thường thành HTTPError/BundleError, hash lệch thành BundleError; chúng không phải lớp ImproperlyConfigured trong code cũ. Nhưng **token để trống/placeholder** thì có thể đúng là ImproperlyConfigured.
+
+Các số dòng trên thuộc commit **4683ced**, không phải số dòng sau bản sửa chẩn đoán. Pip check chỉ xác nhận dependency, không xác nhận các biến Django/Release.
+
+### Checklist env, mặc định và hợp đồng Release
+
+| Biến | Điều kiện bắt buộc / mặc định |
+|---|---|
+| `DJANGO_SECRET_KEY` | Không mặc định. Riêng production, ngẫu nhiên, >=50 ký tự, >=5 ký tự khác nhau, không tiền tố `django-insecure-`; không dùng khóa local |
+| `DJANGO_ALLOWED_HOSTS` | Không mặc định. Host cụ thể, cách nhau dấu phẩy; không `https://`, port hoặc wildcard |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | Không mặc định. HTTPS origins có host trong ALLOWED_HOSTS; không path/query; port phải hợp lệ |
+| `DATABASE_URL` | Không mặc định/fallback SQLite. PostgreSQL URL đầy đủ user/password/host/database; không gửi giá trị này vào chat |
+| `GITHUB_ARTIFACT_TOKEN` | Không mặc định và không tự lấy credential từ kết nối GitHub của Render. Cần quyền đọc Contents đúng repo Private; không gửi token vào chat |
+| `DJANGO_MODEL_RELEASE_TAG` | Không mặc định; giá trị đã phát hành **`inference-vi-en-v1`**, không nhập URL/asset ID |
+| `DJANGO_MODEL_BUNDLE_SHA256` | Không mặc định; **`08884ddf9a7b90ed8ebd23cc96f0121dfde3c0342f300ce7e19e7d8e46f17eeb`**, 64 hex thường, không tiền tố `sha256:` |
+| `DJANGO_SETTINGS_MODULE` | Build script đặt `config.render`; không dùng local/SQLite profile |
+| `RENDER` | Render cấp chuỗi `true`; không tự giả lập cho hosting khác |
+| `PORT` | Chỉ cần ở server start, không đọc trong bước tải bundle |
+| `PYTHON_VERSION` | Runtime đã chọn 3.13.16; không thay phiên bản để xử lý lỗi env |
+
+`required()` strip khoảng trắng, từ chối trống hoặc bắt đầu bằng `REPLACE_`/`<`. `.env` và các file example **không tự được đọc**. Các tên `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `GITHUB_TOKEN`, `GH_TOKEN` không thay cho tên app yêu cầu ở bảng. `RENDER_EXTERNAL_HOSTNAME` không tự bổ sung vào ALLOWED_HOSTS/CSRF trong cấu hình này. Các biến SQLite của TASK 13C không được dùng cho `config.render`.
+
+Repository cố định trong mã là `thiennamm/khoa_luan_tai_chinh_ca_nhan`; tên asset cố định **`inference-vi-en-v1.zip`**. Script đọc Release theo tag bằng API, yêu cầu đã publish và đúng một asset có tên đó, trạng thái uploaded và kích thước trong giới hạn; lấy ID từ metadata rồi tải API binary. **Không đọc `DJANGO_MODEL_ASSET_ID`, không nhận URL tùy ý.** ID đã xác minh ở 14B là `664434697`; không cần nhập ID này vào env. 14B kiểm bằng credential GCM hiện có không chứng minh token riêng trên Render đã được nhập/đủ quyền.
+
+### Bản sửa chẩn đoán an toàn (ghi nhận trước bước commit/push)
+
+- `config/configuration_errors.py` tạo lỗi vẫn thuộc lớp `ImproperlyConfigured`, kèm mã và tên biến theo allowlist. Không gắn giá trị env vào thông báo. `production_shared.py` và `render.py` dùng mã này; thiếu DATABASE_URL được phân biệt với URL sai định dạng.
+- `download_inference_bundle.py` phân giai đoạn `django_config`, `artifact_config`, `build_storage`, `release_lookup`, `asset_download`, `archive_hash`, `zip_extract`, `bundle_verify`. Kiểm token/tag/hash trước mọi request mạng, không tải xong mới phát hiện thiếu hash env.
+- CLI in mã/giai đoạn và mô tả tĩnh đã cho phép, **không dùng `str(exception)` hoặc traceback**. Lỗi cấu hình không có mã an toàn thì chỉ báo CONFIG_INVALID. HTTP chỉ hiện status số, không response body/headers/URL ký tạm; lỗi mạng không in reason chứa URL. Lỗi ZIP/manifest không in nội dung metadata hoặc đường dẫn ngoài allowlist.
+- Giữ nguyên điều kiện kiểm hash/giải nén, danh sách file, model, dependency và cơ chế không fallback DB. Không nới kiểm tra để build qua.
+
+Ví dụ log mới (chỉ minh họa, không kết luận biến này đang thiếu thật):
+
+```text
+Không chuẩn bị được inference bundle [CONFIG_REQUIRED; bước=django_config]: Thiếu cấu hình bắt buộc, để trống hoặc vẫn là placeholder. Biến cần kiểm tra: DJANGO_SECRET_KEY. Dừng build.
+```
+
+| Mã/giai đoạn mới | Cách khoanh vùng |
+|---|---|
+| CONFIG_REQUIRED / SECRET_KEY_INVALID / HOSTS_INVALID / CSRF_ORIGINS_INVALID / DATABASE_URL_INVALID | Kiểm đúng tên biến được nêu ngay trong Render Environment; không gửi giá trị |
+| GITHUB_HTTP_401 | Có thể token không hợp lệ/hết hạn; không kết luận chỉ từ status |
+| GITHUB_HTTP_403 | Kiểm quyền repo, chính sách truy cập hoặc hạn mức API; không log response body |
+| GITHUB_HTTP_404 ở release_lookup/asset_download | Có thể tag/asset không thấy **hoặc** quyền repo Private chưa đủ; không tự kết luận Release không tồn tại |
+| NETWORK_ERROR | Kết nối/timeout GitHub/CDN; không đồng nghĩa DB lỗi |
+| ARCHIVE_HASH_CONFIG / ARCHIVE_HASH_MISMATCH | Phân biệt sai định dạng env với byte ZIP không khớp; không đổi hash để bỏ kiểm tra |
+| ZIP_INVALID / ZIP_ENTRIES / ZIP_PATH / ZIP_SIZE | ZIP lỗi, thành viên/path/size bị chặn; không giải nén bằng cách bỏ guard |
+| BUNDLE_VERIFY_FAILED ở bundle_verify | Manifest/hash model/requirements không đạt; giữ artifact gốc, không sửa model cho khớp |
+| BUILD_STORAGE_ERROR / BUNDLE_EXISTS | Kiểm quyền vùng build hoặc build cache sạch; không liên quan DB tài chính |
+
+Cần log Render **sau khi bản sửa được phép đưa lên** để biết mã/giai đoạn và tên biến thực tế. Chỉ cần dòng chẩn đoán an toàn, commit đang build và Build Command; không cần dump env, token, SECRET_KEY, DATABASE_URL, traceback hoặc response body. Tại lần chẩn đoán, Render dùng 4683ced và bản sửa còn ở local. Sau khi push, cần xác minh commit của build mới trước khi đối chiếu log; thao tác Git không tự chứng minh Render đã build thành công.
+
+Kiểm thử dùng cấu hình giả, mạng giả và chặn kết nối DB. Nhóm cuối **28/28 đạt** (31,401 giây), bao gồm thiếu từng biến bắt buộc, placeholder, giá trị sai, HTTP 401/403/404/429/500, timeout, lỗi hash/ZIP/metadata/filesystem và nội dung exception có chuỗi bí mật giả. Kiểm cả nhánh tải binary thực trong code: giữ HTTP status nhưng không đọc response body khi bị từ chối; nếu bộ chẩn đoán tự lỗi thì vẫn không in lỗi gốc.
+
+Sau sửa cấu hình dùng chung đã chạy **224/224 hồi quy đạt** (88,955 giây), với settings riêng ngoài dự án, SQLite trong RAM và guard chặn kết nối tệp SQLite. Sau bổ sung hai test cuối về HTTP download/logging, chạy lại nhóm 28 kiểm thử liên quan nêu trên, đều đạt. Không request Release thật, mở/kết nối/đọc/ghi DB thật trong chẩn đoán; không cài dependency hay sửa artifact. Log QA ở `D:\SAO LUU KHOA LUAN\render-diagnostics-20261022-112114`; marker cục bộ: `backups/render-diagnostics-path.txt`. Git diff các requirements, model service, thí nghiệm/metadata không đổi; `git diff --check` đạt. Trạng thái tại cuối lần chẩn đoán: chưa commit/push, HEAD 4683ced. Việc sao lưu Git được thực hiện ở bước tiếp theo theo yêu cầu riêng; không thay token, artifact hoặc cấu hình Render trong bước Git.

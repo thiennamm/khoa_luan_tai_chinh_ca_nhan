@@ -5,41 +5,42 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from django.core.exceptions import ImproperlyConfigured
 from .base import *
+from .configuration_errors import configuration_error
 
 
 def required(name):
     value = os.environ.get(name, '').strip()
     if not value or value.startswith(('REPLACE_', '<')):
-        raise ImproperlyConfigured(f'Thiếu cấu hình production bắt buộc: {name}.')
+        raise configuration_error('CONFIG_REQUIRED', name)
     return value
 
 
 def absolute_path(name):
     path = Path(required(name)).expanduser()
     if not path.is_absolute():
-        raise ImproperlyConfigured(f'{name} phải là đường dẫn tuyệt đối theo máy triển khai.')
+        raise configuration_error('ABSOLUTE_PATH_REQUIRED', name)
     return path.resolve()
 
 
 DEBUG = False
 SECRET_KEY = required('DJANGO_SECRET_KEY')
 if len(SECRET_KEY) < 50 or len(set(SECRET_KEY)) < 5 or SECRET_KEY.startswith('django-insecure-'):
-    raise ImproperlyConfigured('DJANGO_SECRET_KEY phải là khóa ngẫu nhiên mạnh, riêng cho production.')
+    raise configuration_error('SECRET_KEY_INVALID', 'DJANGO_SECRET_KEY')
 ALLOWED_HOSTS = [s.strip().lower() for s in required('DJANGO_ALLOWED_HOSTS').split(',')]
 if any(not h or not re.fullmatch(r'(?:[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?|\[::1\])', h)
        or '..' in h for h in ALLOWED_HOSTS):
-    raise ImproperlyConfigured('DJANGO_ALLOWED_HOSTS cần tên host rõ ràng, không wildcard, scheme hoặc port.')
+    raise configuration_error('HOSTS_INVALID', 'DJANGO_ALLOWED_HOSTS')
 CSRF_TRUSTED_ORIGINS = []
 for origin in required('DJANGO_CSRF_TRUSTED_ORIGINS').split(','):
     try:
         parsed = urlsplit(origin.strip())
         port = parsed.port
     except ValueError:
-        raise ImproperlyConfigured('DJANGO_CSRF_TRUSTED_ORIGINS có origin không hợp lệ.') from None
+        raise configuration_error('CSRF_ORIGINS_INVALID', 'DJANGO_CSRF_TRUSTED_ORIGINS') from None
     host = f'[{parsed.hostname}]' if parsed.hostname and ':' in parsed.hostname else parsed.hostname
     if (parsed.scheme != 'https' or host not in ALLOWED_HOSTS or parsed.username or parsed.password
             or parsed.path not in ['', '/'] or parsed.query or parsed.fragment):
-        raise ImproperlyConfigured('CSRF trusted origins cần HTTPS origin thuộc ALLOWED_HOSTS, không wildcard/path.')
+        raise configuration_error('CSRF_ORIGINS_INVALID', 'DJANGO_CSRF_TRUSTED_ORIGINS', 'DJANGO_ALLOWED_HOSTS')
     CSRF_TRUSTED_ORIGINS.append(origin.strip().rstrip('/'))
 
 SESSION_COOKIE_SECURE = True
