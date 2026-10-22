@@ -24,7 +24,7 @@ py -3.13 -m venv .venv
 
 ## Sử dụng lần đầu
 
-1. Chọn **Đăng ký** và tự đặt tên đăng nhập, mật khẩu. Không có tài khoản hoặc mật khẩu mặc định.
+1. Chọn **Đăng ký** và tự đặt tên đăng nhập, mật khẩu. Sau khi tạo tài khoản thành công, website chuyển tới **Đăng nhập**; bạn cần đăng nhập bằng tài khoản vừa tạo để tiếp tục. Đăng ký không tự đăng nhập. Không có tài khoản hoặc mật khẩu mặc định.
 2. Mở **Danh mục**, tạo danh mục thu nhập hoặc chi tiêu của riêng bạn.
 3. Chọn **Thêm giao dịch**, nhập loại, số tiền, ngày, danh mục và mô tả nếu cần.
 4. Mở **Tổng quan** và chọn tháng để xem tổng thu, tổng chi, chênh lệch. Trang **Giao dịch** tìm trong mô tả, lọc theo loại/danh mục và chọn tháng hoặc khoảng ngày; phân trang 20 dòng.

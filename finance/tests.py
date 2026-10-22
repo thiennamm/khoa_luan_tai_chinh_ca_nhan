@@ -227,17 +227,62 @@ class SummaryTests(FinanceCase):
 
 
 class AuthenticationTests(TestCase):
-    def test_signup_hashes_password_and_starts_empty(self):
-        response = self.client.post(reverse('signup'), {
+    def register(self):
+        return self.client.post(reverse('signup'), {
             'username': 'new-person', 'password1': 'Unique!8392Test', 'password2': 'Unique!8392Test',
         }, follow=True)
-        self.assertEqual(response.status_code, 200)
+
+    def test_signup_hashes_password_and_requires_explicit_login(self):
+        response = self.register()
+        self.assertRedirects(response, reverse('login'))
+        self.assertEqual(response.redirect_chain, [(reverse('login'), 302)])
+        self.assertEqual(User.objects.count(), 1)
         user = User.objects.get(username='new-person')
         self.assertTrue(user.check_password('Unique!8392Test'))
-        self.assertEqual(str(user.pk), self.client.session['_auth_user_id'])
+        self.assertNotEqual(user.password, 'Unique!8392Test')
+        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
         self.assertEqual(Category.objects.count(), 0)
         self.assertEqual(Transaction.objects.count(), 0)
-        self.assertContains(response, 'Tháng này chưa ghi nhận giao dịch')
+        self.assertContains(response, 'Đăng ký thành công. Vui lòng đăng nhập để tiếp tục.')
+
+    def test_new_signup_cannot_access_protected_pages(self):
+        self.register()
+        for route in [
+            'finance:dashboard', 'finance:transaction_list', 'finance:category_list',
+            'finance:monthly_history', 'finance:forecast', 'finance:budget_list', 'account',
+        ]:
+            with self.subTest(route=route):
+                url = reverse(route)
+                self.assertRedirects(self.client.get(url), reverse('login') + '?next=' + url)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_new_signup_can_login_with_created_credentials(self):
+        self.register()
+        user = User.objects.get(username='new-person')
+        response = self.client.post(reverse('login'), {
+            'username': 'new-person', 'password': 'Unique!8392Test',
+        }, follow=True)
+        self.assertRedirects(response, reverse('finance:dashboard'))
+        self.assertEqual(self.client.session['_auth_user_id'], str(user.pk))
+        self.assertEqual(response.wsgi_request.user.pk, user.pk)
+
+    def test_invalid_signup_does_not_create_account(self):
+        User.objects.create_user('existing-person', password='Unique!8392Test')
+        for username, confirmation in [
+            ('existing-person', 'Unique!8392Test'),
+            ('invalid name!', 'Unique!8392Test'),
+            ('new-person', 'Different!8392Test'),
+        ]:
+            with self.subTest(username=username):
+                response = self.client.post(reverse('signup'), {
+                    'username': username, 'password1': 'Unique!8392Test',
+                    'password2': confirmation,
+                })
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(response.context['form'].errors)
+                self.assertEqual(User.objects.count(), 1)
+                self.assertNotIn('_auth_user_id', self.client.session)
 
     def test_weak_password_rejected(self):
         response = self.client.post(reverse('signup'), {'username': 'new', 'password1': '123', 'password2': '123'})

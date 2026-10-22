@@ -5,7 +5,6 @@ from .classification_modes import suggest_label, ModelUnavailable
 from .classification_labels import LABELS, compatible_kind
 from .forms import SuggestionForm
 from django.contrib import messages
-from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
@@ -70,10 +69,9 @@ def signup(request):
         return redirect("finance:dashboard")
     form = SignUpForm(request.POST if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():
-        user = form.save()
-        login(request, user)
-        messages.success(request, "Đăng ký thành công. Hãy tạo danh mục đầu tiên của bạn.")
-        return redirect("finance:dashboard")
+        form.save()
+        messages.success(request, "Đăng ký thành công. Vui lòng đăng nhập để tiếp tục.")
+        return redirect("login")
     return render(request, "registration/signup.html", {"form": form})
 
 
