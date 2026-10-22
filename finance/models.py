@@ -85,6 +85,55 @@ class ForecastResult(models.Model):
         return Decimal(self.estimate)
 
 
+class ForecastHistoryQuerySet(models.QuerySet):
+    def bulk_create(self, objs, *args, **kwargs):
+        if kwargs.get('update_conflicts'):
+            raise ValidationError('Snapshot lịch sử dự báo không được sửa.')
+        return super().bulk_create(objs, *args, **kwargs)
+
+    def update(self, **kwargs):
+        raise ValidationError('Snapshot lịch sử dự báo không được sửa.')
+
+
+class ForecastHistory(models.Model):
+    """Append-only application snapshots; account deletion still cascades."""
+    objects = ForecastHistoryQuerySet.as_manager()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    calculated_at = models.DateTimeField(default=timezone.now, editable=False)
+    target_month = models.DateField()
+    estimate = models.CharField(max_length=30, validators=[RegexValidator(r'\A[0-9]{1,30}\Z')])
+    method = models.CharField(max_length=32)
+    configuration_version = models.CharField(max_length=64)
+    configuration = models.JSONField(default=dict)
+    fingerprint = models.CharField(max_length=64)
+    history_start = models.DateField()
+    history_end = models.DateField()
+    history_count = models.PositiveIntegerField()
+    inputs = models.JSONField(default=list)
+    details = models.JSONField(default=dict)
+    origin = models.CharField(max_length=16, choices=[('live-post-v1', 'Tính trong website'),
+        ('legacy', 'Kết quả cũ, thiếu bằng chứng')])
+
+    class Meta:
+        ordering = ['-target_month', 'calculated_at', 'pk']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'target_month', 'fingerprint', 'origin'], name='forecast_history_once'),
+            models.CheckConstraint(condition=models.Q(target_month__day=1), name='forecast_history_month'),
+            models.CheckConstraint(condition=models.Q(origin__in=['live-post-v1', 'legacy']), name='forecast_history_origin'),
+        ]
+        indexes = [models.Index(fields=['user', 'target_month'], name='forecast_history_user_month')]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError('Snapshot lịch sử dự báo không được sửa.')
+        kwargs['force_insert'] = True
+        return super().save(*args, **kwargs)
+
+    @property
+    def estimate_decimal(self):
+        return Decimal(self.estimate)
+
+
 class MonthlyCoverage(models.Model):
     class Status(models.TextChoices):
         UNKNOWN = 'unknown', 'Chưa xác nhận'

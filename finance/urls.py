@@ -7,6 +7,7 @@ from . import forecast_demo_views
 from .csv_export import transaction_export
 from . import budget_views
 from . import recurring_views
+from . import forecast_history_views
 
 app_name = "finance"
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
     path('ngan-sach/<int:pk>/sua/', budget_views.budget_edit, name='budget_edit'),
     path('ngan-sach/<int:pk>/xoa/', budget_views.budget_delete, name='budget_delete'),
     path('du-bao/', forecast_views.forecast, name='forecast'),
+    path('du-bao/lich-su/', forecast_history_views.history, name='forecast_history'),
     path('du-bao/demo/', forecast_demo_views.demo, name='forecast_demo'),
     path('lich-su-ghi-chep/', coverage_views.history, name='monthly_history'),
     path('lich-su-ghi-chep/<int:year>/<int:month>/xac-nhan/', coverage_views.confirm, name='coverage_confirm'),

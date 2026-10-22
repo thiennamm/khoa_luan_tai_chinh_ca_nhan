@@ -12,7 +12,7 @@ from .coverage_calendar import current_month
 from .coverage_state import lock_coverage_writes
 from .forecast_config import CONFIG
 from .forecast_math import ForecastFailure, calculate
-from .models import ForecastDataVersion, ForecastResult, MonthlyCoverage
+from .models import ForecastDataVersion, ForecastResult, ForecastHistory, MonthlyCoverage
 
 
 def shift_month(month, count):
@@ -83,10 +83,23 @@ def compute_and_store(user, source):
         if fresh['fingerprint'] != source['fingerprint']:
             raise StaleForecast('Dữ liệu, xác nhận, cấu hình hoặc tháng đích đã thay đổi khi tính. Hãy kiểm tra và tính lại.')
         history = source['history']
-        return ForecastResult.objects.update_or_create(user=user, defaults={
+        saved = ForecastResult.objects.update_or_create(user=user, defaults={
             'target_month': source['target'], 'fingerprint': source['fingerprint'],
             'history_count': len(history), 'history_start': history[0]['month'], 'history_end': history[-1]['month'],
             'method': result['method'], 'estimate': str(result['estimate']),
             'configuration': source['configuration'],
             'details': {key: value for key, value in result.items() if key not in ['method', 'estimate']},
         })[0]
+        ForecastHistory.objects.get_or_create(user=user, target_month=saved.target_month,
+            fingerprint=saved.fingerprint, origin='live-post-v1', defaults={
+                'calculated_at': saved.calculated_at,
+                'estimate': saved.estimate, 'method': saved.method,
+                'configuration_version': source['configuration']['design']['version'],
+                'configuration': source['configuration'], 'details': saved.details,
+                'history_start': saved.history_start, 'history_end': saved.history_end,
+                'history_count': saved.history_count,
+                'inputs': [{'month': row['month'].isoformat(), 'expense': str(row['forecast_expense']),
+                    'status': row['status'], 'confirmed_at': row['confirmed_at'].isoformat() if row['confirmed_at'] else None,
+                    'transaction_count': row['transaction_count']} for row in history],
+            })
+        return saved

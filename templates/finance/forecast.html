@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">ƯỚC TÍNH CỦA BẠN</p><h1>Dự báo tổng chi{% if source %} tháng {{ source.target|date:'m/Y' }}{% endif %}</h1><p class="muted">Ước tính tổng các khoản chi được ghi trong website, không phải toàn bộ chi tiêu thực tế.</p></div></div>
 {% if error %}<div class="notice" role="alert"><strong>Chưa tạo được kết quả mới.</strong><p>{{ error }}</p></div>{% endif %}
-<p><a class="button secondary" href="{% url 'finance:forecast_demo' %}">Demo dự báo</a> <span class="help">Dữ liệu mô phỏng riêng, không cần xác nhận lịch sử cá nhân.</span></p>
+<p><a class="button secondary" href="{% url 'finance:forecast_history' %}">Lịch sử dự báo</a> <a class="button secondary" href="{% url 'finance:forecast_demo' %}">Demo dự báo</a> <span class="help">Dữ liệu demo mô phỏng riêng, không đưa vào lịch sử cá nhân.</span></p>
 {% if source %}
 <section class="card forecast-card">
   <h2>Tháng đích: {{ source.target|date:'m/Y' }}</h2>

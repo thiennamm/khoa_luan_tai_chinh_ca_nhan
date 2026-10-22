@@ -34,6 +34,14 @@ Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi 
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
+## Lịch sử dự báo — TASK 15C
+
+Từ **Dự báo → Lịch sử dự báo**, xem các phiên bản dự báo cá nhân và đối chiếu với tổng khoản chi đã ghi trong website. Chỉ tháng đã kết thúc theo giờ Việt Nam, được xác nhận ghi chép đầy đủ mới có số thực tế; tháng không có chi chỉ bằng 0 sau xác nhận. Mỗi tháng dùng bản đầu tiên hợp lệ được lập **trong tháng** để tính MAE, các phiên bản sau chỉ xem lịch sử. MAE đối chiếu thực tế tách riêng MAE validation và không phải chỉ số riêng của Ridge.
+
+Snapshot dự báo được giữ khi kết quả hiện hành lỗi thời. Tính lại cùng fingerprint/cấu hình/tháng không tạo bản lịch sử mới; demo không vào lịch sử cá nhân. Kết quả cũ trước chức năng được đánh dấu thiếu bằng chứng đánh giá. Không tự tính khi mở trang.
+
+Migration `0012_forecast_history` đã áp dụng trên SQLite QA và local thật sau backup API, kiểm integrity/khóa ngoại/hash; dữ liệu nghiệp vụ cũ giữ nguyên, không để lại dữ liệu hoặc thời gian QA. Máy khác cần sao lưu rồi migrate theo [docs/forecast-history.md](docs/forecast-history.md). Chưa truy cập production; PostgreSQL mới rà/compile offline, chưa thử database thật.
+
 ## Giao dịch định kỳ — TASK 15B
 
 Vào **Giao dịch định kỳ** để tạo khoản thu/chi lặp hàng tháng với số tiền **dự kiến**, danh mục và ngày đến hạn 1–31. Tháng ngắn dùng ngày cuối tháng. Chọn **Ghi nhận**, kiểm tra ngày/tiền/danh mục/mô tả thực tế rồi xác nhận mới tạo giao dịch; **Bỏ qua** không tạo giao dịch. Không có scheduler, gửi email hoặc tự cộng khoản dự kiến vào thống kê/ngân sách/dự báo.
