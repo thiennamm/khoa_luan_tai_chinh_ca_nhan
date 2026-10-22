@@ -27,12 +27,30 @@ py -3.13 -m venv .venv
 1. Chọn **Đăng ký** và tự đặt tên đăng nhập, mật khẩu. Không có tài khoản hoặc mật khẩu mặc định.
 2. Mở **Danh mục**, tạo danh mục thu nhập hoặc chi tiêu của riêng bạn.
 3. Chọn **Thêm giao dịch**, nhập loại, số tiền, ngày, danh mục và mô tả nếu cần.
-4. Mở **Tổng quan** và chọn tháng để xem tổng thu, tổng chi, chênh lệch. Trang **Giao dịch** cũng lọc theo tháng và phân trang 20 dòng.
+4. Mở **Tổng quan** và chọn tháng để xem tổng thu, tổng chi, chênh lệch. Trang **Giao dịch** tìm trong mô tả, lọc theo loại/danh mục và chọn tháng hoặc khoảng ngày; phân trang 20 dòng.
 5. Nhấn **Xem** để xem chi tiết, sửa hoặc xác nhận xóa giao dịch. Đăng xuất bằng nút ở đầu trang.
 
 Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi nhập không gõ dấu chấm/phẩy phân cách hoặc ký hiệu tiền; ví dụ `150000`. Khi hiển thị, website định dạng thành `150.000 ₫`. Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùng `Decimal`. Tổng được cộng theo từng dòng Decimal để tránh làm tròn khi tổng lớn trên SQLite. Riêng đại số ML của Ridge chuyển tổng tháng sang float64 tại ranh giới mô hình; không dùng float để lưu giao dịch hoặc cộng tổng tài chính.
 
-Chênh lệch là **tổng thu trừ tổng chi trong tháng được chọn**, có thể âm. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
+Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
+
+## Tên đăng nhập và mật khẩu — TASK 11D
+
+Vào **Tài khoản** trong menu để xem tên đăng nhập hiện tại. Hai biểu mẫu độc lập cho phép **đổi tên đăng nhập** (tên mới + mật khẩu hiện tại) hoặc **đổi mật khẩu** (mật khẩu hiện tại + mật khẩu mới + xác nhận). Sau đổi tên, lần đăng nhập sau dùng tên mới; ID, quyền và dữ liệu thu chi giữ nguyên. Sau đổi mật khẩu, phiên hiện tại được giữ, các phiên khác mất hiệu lực khi được kiểm tra lại. Không có luồng quên mật khẩu/email trong bước này. Các ô mật khẩu không được điền lại khi có lỗi; không đưa mật khẩu lên URL. Chi tiết và giới hạn kiểm tra trình duyệt: [docs/account-management.md](docs/account-management.md).
+
+## Thống kê theo danh mục và nhiều tháng — TASK 11C
+
+Trang **Tổng quan** có **Cơ cấu chi theo danh mục** của tháng được chọn, biểu đồ thanh ngang và bảng số tiền/tỷ trọng. Chọn **So sánh 6 tháng/12 tháng** để xem thu, chi và chênh lệch từng tháng, kết thúc ở tháng đang xem. Biểu đồ cột và bảng dùng chung số liệu, chạy ngoại tuyến và không cần JavaScript. Trên màn hình nhỏ, kéo ngang riêng vùng biểu đồ để xem các tháng còn lại; bảng chuyển thành từng khối có nhãn.
+
+Tháng hiện tại ghi **Tháng chưa kết thúc**. Tháng không có giao dịch hiện tổng đã ghi là 0 và trạng thái lịch sử riêng; số 0 thống kê không làm tháng đó thành dữ liệu đầy đủ để dự báo. Không có chi thì không hiển thị tỷ trọng giả. Chi tiết: [docs/financial-statistics.md](docs/financial-statistics.md).
+
+## Tìm kiếm, lọc và xuất CSV — TASK 11B/11E
+
+Sau khi **Lọc**, bấm **Xuất CSV** để tải toàn bộ kết quả, kể cả các trang chưa xem. Tệp UTF-8 có BOM dùng đúng năm cột của mẫu nhập CSV. Bộ lọc lỗi không cho tải; không có kết quả thì tệp chỉ có header. Các ô danh mục/mô tả có nguy cơ giống công thức được thêm tab bảo vệ trong bản xuất, nên có thể khác chuỗi gốc và **không bảo đảm nhập lại nguyên văn**. Import không tự bỏ tab này; danh mục đã được bảo vệ có thể không còn khớp tên hiện có. Chưa kiểm chứng bằng Excel thật. Xem [docs/csv-export.md](docs/csv-export.md).
+
+Trong **Giao dịch**, nhập chuỗi mô tả (tối đa 500 ký tự), chọn **Tất cả/Thu nhập/Chi tiêu**, danh mục riêng của bạn và chế độ **Theo tháng** hoặc **Khoảng ngày**, rồi bấm **Lọc**. Tìm bằng chuỗi chứa không phân biệt hoa/thường, kể cả chữ Việt có dấu; vẫn phân biệt có dấu/không dấu. Khoảng ngày bao gồm cả hai ngày biên. Chỉ chế độ đã chọn có hiệu lực; mặc định là tháng hiện tại.
+
+Tổng thu, tổng chi, chênh lệch và số kết quả tính trên **toàn bộ** kết quả lọc, không chỉ 20 dòng đang xem. Chuyển trang giữ các điều kiện; **Xóa bộ lọc** trở về tháng hiện tại. Bộ lọc sai sẽ báo lỗi, chưa hiển thị kết quả hoặc tổng tiền; danh mục không hợp lệ dùng thông báo chung, không tiết lộ tài khoản khác. Tìm kiếm chỉ đọc, không sửa/xóa giao dịch hoặc thay trạng thái lịch sử/dự báo. Chi tiết và kết quả kiểm tra: [docs/transaction-filters.md](docs/transaction-filters.md).
 
 Danh mục phải cùng tài khoản và cùng loại thu/chi với giao dịch. Danh mục đã có giao dịch được đổi tên và nhãn gợi ý; không thể đổi loại hay xóa cho đến khi các giao dịch liên quan được chuyển hoặc xóa. Đổi nhãn gợi ý không sửa giao dịch cũ. Danh mục trùng tên và loại trong cùng tài khoản bị từ chối.
 
@@ -166,6 +184,10 @@ TASK 08A bổ sung kiểm thử hash/metadata, chuẩn hóa, vector rỗng, lỗ
 
 ## Cấu trúc chính
 
+Render Free (TASK 14A): dùng riêng `config.render`, PostgreSQL qua `DATABASE_URL`, Waitress và WhiteNoise; local không đổi. Build: `bash deploy/render-build.sh`; Start: `bash deploy/render-start.sh`. Xem [env, private Release, migrations và giới hạn chưa kiểm chứng](docs/render-deployment.md). Chưa deploy; không dùng profile SQLite của TASK 13C trên Render Free.
+
+Chuẩn bị triển khai (TASK 13C): local vẫn dùng `config.settings` và các lệnh hiện tại. Production dùng riêng `config.production`, môi trường bắt buộc, SQLite trên storage bền vững và WSGI Waitress; chưa deploy. Xem [cấu hình, static, gói EN/VI và kết quả kiểm tra](docs/deployment-preparation.md). `.env.example` chỉ có placeholder, Django không tự đọc `.env`. `requirements-production.txt` thêm Waitress, giữ nguyên `requirements.txt` và phiên bản ML.
+
 ```text
 config/                 Cấu hình Django và URL gốc
 finance/models.py       Danh mục, giao dịch và quy tắc dữ liệu
@@ -178,3 +200,10 @@ templates/               Giao diện Django tiếng Việt
 static/                  CSS responsive và hỗ trợ chọn danh mục
 requirements.txt         Phiên bản thư viện được giữ nguyên
 ```
+## Ngân sách tháng (TASK 13A)
+
+Mở **Ngân sách** trên menu, chọn tháng và **Tạo ngân sách**. Để trống danh mục để đặt hạn mức tổng; chọn danh mục chi của chính bạn để đặt hạn mức riêng. Số tiền là số nguyên VND dương, tối đa 15 chữ số. Mỗi phạm vi/tháng chỉ có một ngân sách, có thể sửa hoặc mở trang xác nhận xóa.
+
+Số **Chi đã ghi nhận** lấy từ giao dịch chi của tháng; không dùng dự báo. Ngân sách tổng và danh mục không cộng thành một hạn mức. Cảnh báo theo các mốc 80%/100%/vượt; thanh vẽ tối đa 100%, số tiền/tỷ lệ vẫn hiển thị mức vượt thật. Tổng quan có tóm tắt cùng tháng và vẫn hiển thị trạng thái lịch sử ghi chép. Chưa có email hoặc thông báo đẩy.
+
+Danh mục có ngân sách bị chặn xóa/đổi loại/chủ sở hữu; có thể đổi tên, hoặc xử lý ngân sách trước. Lưu/xóa ngân sách không thay đổi giao dịch, coverage hoặc kết quả dự báo. Cần khởi động lại server sau cập nhật code và áp dụng `0007_budget`, `0008_budget_category_guards` bằng Python `.venv` của **dự án chính**, sau khi sao lưu SQLite bằng backup API. Hai migration đã áp dụng trên máy hiện tại; không cần chạy trên bản phục hồi cổng 8003. Xem [quy tắc, kiểm thử và ảnh QA](docs/monthly-budget.md).

@@ -4,16 +4,23 @@ from . import csv_views
 from . import coverage_views
 from . import forecast_views
 from . import forecast_demo_views
+from .csv_export import transaction_export
+from . import budget_views
 
 app_name = "finance"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path('ngan-sach/', budget_views.budget_list, name='budget_list'),
+    path('ngan-sach/them/', budget_views.budget_edit, name='budget_create'),
+    path('ngan-sach/<int:pk>/sua/', budget_views.budget_edit, name='budget_edit'),
+    path('ngan-sach/<int:pk>/xoa/', budget_views.budget_delete, name='budget_delete'),
     path('du-bao/', forecast_views.forecast, name='forecast'),
     path('du-bao/demo/', forecast_demo_views.demo, name='forecast_demo'),
     path('lich-su-ghi-chep/', coverage_views.history, name='monthly_history'),
     path('lich-su-ghi-chep/<int:year>/<int:month>/xac-nhan/', coverage_views.confirm, name='coverage_confirm'),
     path('lich-su-ghi-chep/<int:year>/<int:month>/trang-thai/', coverage_views.change_status, name='coverage_status'),
     path("giao-dich/", views.transaction_list, name="transaction_list"),
+    path('giao-dich/xuat-csv/', transaction_export, name='transaction_export'),
     path('giao-dich/nhap-csv/', csv_views.csv_upload, name='csv_upload'),
     path('giao-dich/nhap-csv/mau/', csv_views.csv_template, name='csv_template'),
     path('giao-dich/nhap-csv/<uuid:pk>/', csv_views.csv_preview, name='csv_preview'),

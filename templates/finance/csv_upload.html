@@ -4,16 +4,17 @@
 <div class="page-heading"><div><p class="eyebrow">NHẬP GIAO DỊCH</p><h1>Tải CSV để xem trước</h1><p class="muted">Chưa thêm giao dịch khi tải tệp. Bạn sẽ kiểm tra trước khi xác nhận.</p></div></div>
 <section class="card form-card">
   <p><a class="button secondary" href="{% url 'finance:csv_template' %}">Tải mẫu CSV chỉ có header</a></p>
-  <p>CSV dùng <strong>UTF-8 (chấp nhận BOM)</strong>, dấu phẩy phân cách, đúng 5 cột theo thứ tự:</p>
+  <p>CSV <strong>UTF-8 (chấp nhận BOM)</strong>, tối đa <strong>2 MiB và 5.000 giao dịch</strong>. Dùng dấu phẩy phân cách, đúng 5 cột:</p>
   <p><code class="csv-header">date,kind,amount,category,description</code></p>
-  <ul class="csv-guide">
+  <details class="format-guide"><summary>Định dạng các cột và quy tắc nhập</summary><ul class="csv-guide">
     <li><strong>date:</strong> YYYY-MM-DD, ngày có thật.</li>
     <li><strong>kind:</strong> income (thu) hoặc expense (chi).</li>
     <li><strong>amount:</strong> số nguyên VND dương, tối đa 15 chữ số; không dấu phân cách, ký hiệu tiền hoặc phần thập phân.</li>
     <li><strong>category:</strong> tên danh mục của chính bạn, đúng loại. So khớp không phân biệt hoa/thường, không tự bỏ khoảng trắng. Tên có nhiều kết quả phải được sửa để xác định duy nhất. <a href="{% url 'finance:category_list' %}">Xem danh mục</a>.</li>
     <li><strong>description:</strong> có thể để trống nhưng giữ cột, tối đa 500 ký tự. Ô có dấu phẩy, xuống dòng hoặc dấu nháy phải được bao/thoát theo chuẩn CSV (dấu nháy kép).</li>
   </ul>
-  <p class="help">Tối đa 2 MiB (2.097.152 byte) và 5.000 giao dịch/lần. Không nhận cột user_id; không tự tạo danh mục, sửa dòng lỗi hoặc gán nhãn ML. Khoảng ngày trong CSV không chứng minh lịch sử thu chi đầy đủ.</p>
+  <p class="help">2 MiB = 2.097.152 byte. Không nhận cột user_id; không tự tạo danh mục, sửa dòng lỗi hoặc gán nhãn ML.</p></details>
+  <p class="help">Khoảng ngày trong CSV không chứng minh lịch sử thu chi đầy đủ. Có dòng lỗi thì chưa thể xác nhận nhập.</p>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}{% include 'includes/form_fields.html' %}
     <div class="form-actions"><button class="button" type="submit">Kiểm tra và xem trước</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Quay lại</a></div>
   </form>

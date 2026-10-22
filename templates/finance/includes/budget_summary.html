@@ -1,0 +1,6 @@
+{% load money %}
+<section class="card budget-summary" aria-labelledby="budget-summary-title"><div class="section-heading"><h2 id="budget-summary-title">Ngân sách tháng {{ month_label }}</h2><a href="{% url 'finance:budget_list' %}?month={{ month }}" class="button secondary">Xem ngân sách →</a></div>
+<p class="help">Chi đã ghi nhận: {{ recorded_expense|vnd }} · Lịch sử ghi chép: <strong>{{ budget_coverage }}</strong>. Số đã ghi nhận không chứng minh lịch sử đầy đủ.</p>
+{% if total_budget %}{% include 'finance/includes/budget_card.html' with item=total_budget show_actions=False %}{% else %}<p>Chưa đặt ngân sách tổng. <a class="button secondary" href="{% url 'finance:budget_create' %}?month={{ month }}">Tạo ngân sách</a></p>{% endif %}
+{% if category_budgets %}<ul class="budget-mini-list">{% for item in category_budgets %}<li><strong>{{ item.budget.category.name }}</strong>: {{ item.spent|vnd }} / {{ item.budget.amount|vnd }} · {{ item.status_label }}{% if item.over %} · Vượt {{ item.over|vnd }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+</section>

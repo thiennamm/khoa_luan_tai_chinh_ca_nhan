@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Tài khoản{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">THÔNG TIN ĐĂNG NHẬP</p><h1>Tài khoản</h1><p>Tên đăng nhập hiện tại: <strong class="account-current-username">{{ user.username }}</strong></p></div></div>
+<p class="muted">Đổi thông tin đăng nhập không thay đổi ID hoặc dữ liệu thu chi của bạn.</p>
+<section class="card form-card account-card" aria-labelledby="username-title">
+<h2 id="username-title">Đổi tên đăng nhập</h2>
+<form method="post" action="{% url 'account' %}" id="username-change-form">{% csrf_token %}<input type="hidden" name="action" value="username">
+{% include 'includes/form_fields.html' with form=username_form %}
+<button type="submit" class="button">Đổi tên đăng nhập</button>
+</form></section>
+<section class="card form-card account-card" aria-labelledby="password-title">
+<h2 id="password-title">Đổi mật khẩu</h2>
+<form method="post" action="{% url 'account' %}" id="password-change-form">{% csrf_token %}<input type="hidden" name="action" value="password">
+{% include 'includes/form_fields.html' with form=password_form %}
+<button type="submit" class="button">Đổi mật khẩu</button>
+</form><p class="help">Phiên hiện tại được giữ sau khi đổi thành công. Các phiên khác mất hiệu lực khi được kiểm tra lại. Chưa có chức năng quên mật khẩu qua email.</p>
+</section>
+{% endblock %}

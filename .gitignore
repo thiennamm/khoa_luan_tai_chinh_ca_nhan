@@ -6,6 +6,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+# Render build output: private inference bundle and collected public static
+.render-private/
+.render-static/
 .coverage
 htmlcov/
 

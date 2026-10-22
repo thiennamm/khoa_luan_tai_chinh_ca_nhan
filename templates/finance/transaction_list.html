@@ -1,11 +1,38 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load static money %}
 {% block title %}Giao dịch{% endblock %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">SỔ GHI CHÉP</p><h1>Giao dịch</h1><p class="muted">Các khoản thu và chi của bạn trong tháng {{ month_label }}.</p></div><a class="button" href="{% url 'finance:transaction_create' %}">＋ Thêm giao dịch</a></div>
-{% include 'includes/month_filter.html' %}
-<p><a class="button secondary" href="{% url 'finance:csv_upload' %}">Nhập CSV có xem trước</a></p>
-<section class="card activity"><div class="section-heading"><h2>Tháng {{ month_label }}</h2><span class="muted">{{ page_obj.paginator.count }} giao dịch</span></div>
-{% if page_obj %}{% include 'includes/transaction_table.html' with transactions=page_obj %}{% else %}<div class="empty-state"><span class="empty-icon" aria-hidden="true">↔</span><h3>Chưa có giao dịch trong tháng này</h3><p>Chọn một tháng khác hoặc ghi lại giao dịch đầu tiên.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch</a></div>{% endif %}
-{% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Phân trang">{% if page_obj.has_previous %}<a href="?month={{ month }}&amp;page={{ page_obj.previous_page_number }}">← Trang trước</a>{% endif %}<span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?month={{ month }}&amp;page={{ page_obj.next_page_number }}">Trang sau →</a>{% endif %}</nav>{% endif %}
+<div class="page-heading"><div><p class="eyebrow">SỔ GHI CHÉP</p><h1>Giao dịch</h1><p class="muted">Tìm và xem các khoản thu chi của bạn.</p></div><a class="button" href="{% url 'finance:transaction_create' %}">＋ Thêm giao dịch</a></div>
+<details class="card filter-disclosure" {% if not filters_valid %}open{% endif %}>
+<summary>Tìm và lọc giao dịch <span class="help">· mở để thay đổi điều kiện</span></summary>
+<form method="get" class="transaction-filters" id="transaction-filters">
+  <div class="filter-grid">
+  {% for field in filter_form %}<div class="field {% if field.errors %}field-invalid{% endif %}" data-filter-field="{{ field.name }}">
+    {{ field.label_tag }}{{ field }}{% if field.errors %}<div class="field-errors" role="alert">{{ field.errors }}</div>{% endif %}
+  </div>{% endfor %}
+  </div>
+  <p class="help">Chọn theo tháng hoặc khoảng ngày. Khoảng ngày tính cả ngày bắt đầu và kết thúc; chỉ chế độ đã chọn được áp dụng.</p>
+  <div class="filter-buttons"><button class="button" type="submit">Lọc</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Xóa bộ lọc</a></div>
+</form></details>
+{% if filters_valid %}
+<p class="active-filters"><strong>Đang áp dụng:</strong>
+{% if filter_form.cleaned_data.period == 'month' %}Tháng {{ filter_form.cleaned_data.month_start|date:'m/Y' }}{% else %}Từ {{ filter_form.cleaned_data.start|date:'d/m/Y' }} đến {{ filter_form.cleaned_data.end|date:'d/m/Y' }}{% endif %}
+ · Loại: {% if filter_form.cleaned_data.kind == 'income' %}Thu nhập{% elif filter_form.cleaned_data.kind == 'expense' %}Chi tiêu{% else %}Tất cả{% endif %}
+ · Danh mục: {{ filter_form.cleaned_data.category.name|default:'Tất cả' }}{% if filter_form.cleaned_data.q %} · Mô tả chứa: “{{ filter_form.cleaned_data.q }}”{% endif %}.
+</p>
+<section class="summary-grid summary-compact" aria-label="Tổng toàn bộ kết quả lọc">
+<div class="summary-card"><div class="summary-label">Tổng thu</div><p class="metric income">{{ income|vnd }}</p></div>
+<div class="summary-card"><div class="summary-label">Tổng chi</div><p class="metric expense">{{ expense|vnd }}</p></div>
+<div class="summary-card balance-card"><div class="summary-label">Chênh lệch thu–chi</div><p class="metric">{{ balance|vnd }}</p></div>
+</section>
+{% else %}<p class="notice" role="alert">Bộ lọc chưa hợp lệ. Hãy sửa các trường được đánh dấu; chưa hiển thị kết quả hoặc tổng tiền.</p>{% endif %}
+<details class="card transaction-tools"><summary>Công cụ CSV · nhập / xuất</summary>
+<div class="tool-buttons"><a class="button secondary" href="{% url 'finance:csv_upload' %}">Nhập CSV có xem trước</a>
+{% if filters_valid %}<a class="button secondary" id="export-csv" href="{% url 'finance:transaction_export' %}?{{ filter_query }}">Xuất CSV</a>{% endif %}</div>
+{% if filters_valid %}<p class="help">Xuất toàn bộ {{ result_count }} kết quả lọc, không chỉ trang này. Ô giống công thức có thể được thêm ký tự bảo vệ; tệp không bảo đảm nhập lại nguyên văn.</p>{% endif %}
+</details>
+<section class="card activity"><div class="section-heading"><h2>Kết quả lọc</h2>{% if filters_valid %}<span class="muted">{{ result_count }} giao dịch</span>{% endif %}</div>
+{% if page_obj %}{% include 'includes/transaction_table.html' with transactions=page_obj %}{% elif filters_valid %}<div class="empty-state"><h3>Không có kết quả phù hợp</h3><p>Thử thay đổi điều kiện hoặc xóa bộ lọc để xem tháng hiện tại.</p></div>{% endif %}
+{% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Phân trang">{% if page_obj.has_previous %}<a href="?{{ filter_query }}&amp;page={{ page_obj.previous_page_number }}">← Trang trước</a>{% endif %}<span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?{{ filter_query }}&amp;page={{ page_obj.next_page_number }}">Trang sau →</a>{% endif %}</nav>{% endif %}
 </section>
 {% endblock %}
+{% block scripts %}<script src="{% static 'js/transaction-filters.js' %}" defer></script>{% endblock %}

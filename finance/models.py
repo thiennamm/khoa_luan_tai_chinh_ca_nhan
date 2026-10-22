@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models, router, transaction
+from django.db.models.functions import Round
 from django.utils import timezone
 from .classification_labels import MAPPING_CHOICES, compatible_kind
 from .coverage_calendar import current_month
@@ -141,8 +142,52 @@ class Category(models.Model):
                 raise ValidationError({"name": "Bạn đã có danh mục cùng tên và loại này."})
         if self.pk:
             original = Category.objects.get(pk=self.pk)
+            if (original.kind != self.kind or original.user_id != self.user_id) and self.budgets.exists():
+                raise ValidationError({'kind': 'Danh mục đang có ngân sách. Hãy xóa hoặc chuyển ngân sách trước khi đổi loại hoặc chủ sở hữu.'})
             if (original.kind != self.kind or original.user_id != self.user_id) and self.transactions.exists():
                 raise ValidationError({"kind": "Danh mục đã có giao dịch. Chỉ được đổi tên, không được đổi loại hoặc chủ sở hữu."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+
+class Budget(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    month = models.DateField('Tháng')
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.PROTECT,
+        related_name='budgets', verbose_name='Danh mục chi',
+        help_text='Để trống để đặt ngân sách tổng. Ngân sách tổng và danh mục là hai mức theo dõi riêng.')
+    amount = models.DecimalField('Hạn mức (VND)', max_digits=15, decimal_places=0,
+        validators=[MinValueValidator(Decimal('1'))])
+
+    class Meta:
+        ordering = ['month', 'pk']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'month'], condition=models.Q(category__isnull=True),
+                name='budget_unique_total_month', violation_error_message='Tháng này đã có ngân sách tổng.'),
+            models.UniqueConstraint(fields=['user', 'month', 'category'], condition=models.Q(category__isnull=False),
+                name='budget_unique_category_month', violation_error_message='Danh mục này đã có ngân sách trong tháng.'),
+            models.CheckConstraint(condition=models.Q(month__day=1), name='budget_month_first_day'),
+            models.CheckConstraint(condition=models.Q(amount__gt=0, amount__lte=999999999999999)
+                & models.Q(amount=Round('amount', precision=0)), name='budget_positive_integer_vnd'),
+        ]
+
+    def __str__(self):
+        scope = self.category.name if self.category_id else 'Ngân sách tổng'
+        return f'{scope} · {self.month:%m/%Y}'
+
+    def clean(self):
+        super().clean()
+        if self.month and self.month.day != 1:
+            raise ValidationError({'month': 'Tháng phải là ngày đầu tháng.'})
+        if self.category_id:
+            try:
+                category = self.category
+            except Category.DoesNotExist:
+                raise ValidationError({'category': 'Danh mục không hợp lệ.'})
+            if category.user_id != self.user_id or category.kind != Kind.EXPENSE:
+                raise ValidationError({'category': 'Chỉ chọn danh mục chi của chính bạn.'})
 
     def save(self, *args, **kwargs):
         self.full_clean()

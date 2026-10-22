@@ -1,0 +1,9 @@
+{% load money l10n %}
+<article class="card budget-card budget-{{ item.status }}">
+<div class="section-heading"><h3>{% if item.budget.category_id %}{{ item.budget.category.name }}{% else %}Ngân sách tổng{% endif %}</h3><strong>{{ item.status_label }}</strong></div>
+<div class="budget-body"><dl>
+<div><dt>Hạn mức</dt><dd>{{ item.budget.amount|vnd }}</dd></div>
+<div><dt>Chi đã ghi nhận</dt><dd>{{ item.spent|vnd }} · {{ item.percent|floatformat:2 }}%</dd></div>
+<div>{% if item.over %}<dt>Vượt hạn mức</dt><dd class="expense">{{ item.over|vnd }}</dd>{% else %}<dt>Còn lại theo ghi nhận</dt><dd>{{ item.remaining|vnd }}</dd>{% endif %}</div>
+</dl><div class="budget-track" aria-hidden="true"><div style="width:{{ item.width }}%"></div></div>
+{% if show_actions %}<div class="budget-actions"><a class="button secondary" href="{% url 'finance:budget_edit' item.budget.pk %}">Sửa</a><a class="button danger-outline" href="{% url 'finance:budget_delete' item.budget.pk %}">Xóa</a></div>{% endif %}</div></article>

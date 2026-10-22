@@ -1,0 +1,3 @@
+# Các script gọi bằng bash trên Render cần LF kể cả checkout từ Windows.
+deploy/render-build.sh text eol=lf
+deploy/render-start.sh text eol=lf

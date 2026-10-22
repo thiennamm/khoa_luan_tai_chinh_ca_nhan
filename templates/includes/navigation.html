@@ -1,0 +1,9 @@
+<nav aria-label="Điều hướng chính">
+      <a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◫</span> Tổng quan</a>
+      <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name or 'csv_' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↔</span> Giao dịch</a>
+      <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▦</span> Danh mục</a>
+      <a href="{% url 'finance:monthly_history' %}" {% if request.resolver_match.url_name == 'monthly_history' or 'coverage' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▤</span> Lịch sử ghi chép</a>
+      <a href="{% url 'finance:forecast' %}" {% if request.resolver_match.url_name == 'forecast' or request.resolver_match.url_name == 'forecast_demo' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↗</span> Dự báo</a>
+      <a href="{% url 'finance:budget_list' %}" {% if 'budget' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▥</span> Ngân sách</a>
+      <a href="{% url 'account' %}" {% if request.resolver_match.url_name == 'account' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">○</span> Tài khoản</a>
+    </nav>

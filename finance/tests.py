@@ -196,7 +196,7 @@ class SummaryTests(FinanceCase):
         self.assertEqual(response.context['income'], Decimal('0'))
         self.assertEqual(response.context['expense'], Decimal('0'))
         self.assertEqual(response.context['balance'], Decimal('0'))
-        self.assertContains(response, 'Tháng này chưa có giao dịch')
+        self.assertContains(response, 'Tháng này chưa ghi nhận giao dịch')
 
     def test_large_sums_remain_exact_decimal(self):
         for _ in range(11):
@@ -237,7 +237,7 @@ class AuthenticationTests(TestCase):
         self.assertEqual(str(user.pk), self.client.session['_auth_user_id'])
         self.assertEqual(Category.objects.count(), 0)
         self.assertEqual(Transaction.objects.count(), 0)
-        self.assertContains(response, 'Tháng này chưa có giao dịch')
+        self.assertContains(response, 'Tháng này chưa ghi nhận giao dịch')
 
     def test_weak_password_rejected(self):
         response = self.client.post(reverse('signup'), {'username': 'new', 'password1': '123', 'password2': '123'})

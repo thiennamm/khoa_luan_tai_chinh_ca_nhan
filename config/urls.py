@@ -2,8 +2,10 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from finance.forms import VietnameseAuthenticationForm
 from finance.views import signup
+from finance.account_views import account
 
 urlpatterns = [
+    path('tai-khoan/', account, name='account'),
     path("tai-khoan/dang-ky/", signup, name="signup"),
     path("tai-khoan/dang-nhap/", auth_views.LoginView.as_view(
         template_name="registration/login.html", authentication_form=VietnameseAuthenticationForm,

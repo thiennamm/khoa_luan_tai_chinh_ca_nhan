@@ -1,5 +1,6 @@
 <form class="month-filter" method="get">
   <label for="id_month">Xem theo tháng</label>
-  <div class="month-controls">{{ month_form.month }}<button class="button secondary" type="submit">Xem</button></div>
+  <div class="month-controls">{{ month_form.month }}{% if statistics_span_form %}{{ statistics_span_form.span.label_tag }}{{ statistics_span_form.span }}{% endif %}<button class="button secondary" type="submit">Xem</button></div>
+  {% if statistics_span_form.span.errors %}<div class="field-errors" role="alert">{{ statistics_span_form.span.errors }}</div>{% endif %}
   {% if month_form.month.errors %}<div class="field-errors" role="alert">{{ month_form.month.errors }}<span>Đang hiển thị tháng {{ month_label }}.</span></div>{% endif %}
 </form>

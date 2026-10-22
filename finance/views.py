@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
+from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,6 +18,9 @@ from django.views.decorators.http import require_http_methods
 from .forms import CategoryForm, MonthForm, SignUpForm, TransactionForm
 from .models import Category, Transaction
 from .services import monthly_totals
+from .transaction_filters import TransactionFilterForm, apply_filters, filtered_totals
+from .statistics import StatisticsSpanForm, financial_statistics
+from .budgets import monthly_budgets
 
 
 @login_required
@@ -77,17 +82,36 @@ def signup(request):
 def dashboard(request):
     context = month_context(request)
     rows = Transaction.objects.filter(user=request.user, date__gte=context["start"], date__lt=context["end"])
-    context.update(monthly_totals(request.user, context["start"], context["end"]))
-    context.update({"recent_transactions": rows.select_related("category")[:5], "transaction_count": rows.count()})
+    context['recent_transactions'] = rows.select_related('category')[:5]
+    span_form = StatisticsSpanForm({'span': request.GET.get('span', '6')})
+    context['statistics_span_form'] = span_form
+    if span_form.is_valid():
+        context.update(financial_statistics(request.user, context['start'], span_form.cleaned_data['span']))
+        selected = context['monthly_statistics'][-1]
+        context.update({key: selected[key] for key in ['income', 'expense', 'balance']})
+        context['transaction_count'] = selected['count']
+    else:
+        context.update(monthly_totals(request.user, context['start'], context['end']))
+        context['transaction_count'] = rows.count()
+    context.update(monthly_budgets(request.user, context['start']))
     return render(request, "finance/dashboard.html", context)
 
 
 @login_required
 @require_http_methods(["GET"])
 def transaction_list(request):
-    context = month_context(request)
-    rows = Transaction.objects.filter(user=request.user, date__gte=context["start"], date__lt=context["end"]).select_related("category")
-    context["page_obj"] = Paginator(rows, 20).get_page(request.GET.get("page"))
+    form = TransactionFilterForm(request.GET, user=request.user)
+    valid = form.is_valid()
+    rows = Transaction.objects.filter(user=request.user)
+    rows = apply_filters(rows, form.cleaned_data) if valid else rows.none()
+    params = form.data.copy()
+    inactive = {'start', 'end'} if form.data.get('period') == 'month' else {'month'}
+    for name in list(params):
+        if name not in form.fields or name in inactive:
+            params.pop(name, None)
+    context = {'filter_form': form, 'filters_valid': valid, 'filter_query': params.urlencode(),
+               'page_obj': Paginator(rows.select_related('category'), 20).get_page(request.GET.get('page'))}
+    context.update(filtered_totals(rows))
     return render(request, "finance/transaction_list.html", context)
 
 
@@ -138,9 +162,14 @@ def category_edit(request, pk=None):
     category = get_object_or_404(Category, pk=pk, user=request.user) if pk is not None else None
     form = CategoryForm(request.POST if request.method == "POST" else None, instance=category, user=request.user)
     if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Đã lưu danh mục.")
-        return redirect("finance:category_list")
+        try:
+            with transaction.atomic():
+                form.save()
+        except (ValidationError, IntegrityError):
+            form.add_error(None, 'Không thể lưu danh mục. Kiểm tra ngân sách/giao dịch liên quan hoặc tên bị trùng rồi thử lại.')
+        else:
+            messages.success(request, "Đã lưu danh mục.")
+            return redirect("finance:category_list")
     return render(request, "finance/category_form.html", {"form": form, "editing": category is not None})
 
 
@@ -152,11 +181,11 @@ def category_delete(request, pk):
         try:
             category.delete()
         except ProtectedError:
-            messages.error(request, "Không thể xóa danh mục đang có giao dịch. Hãy chuyển hoặc xóa các giao dịch liên quan trước.")
+            messages.error(request, "Không thể xóa danh mục đang có giao dịch hoặc ngân sách. Hãy xử lý các mục liên quan trước.")
         else:
             messages.success(request, "Đã xóa danh mục.")
         return redirect("finance:category_list")
     return render(request, "finance/confirm_delete.html", {
         "object": category, "object_type": "danh mục", "cancel_url": "finance:category_list",
-        "protected": category.transactions.exists(),
+        "protected": category.transactions.exists() or category.budgets.exists(),
     })

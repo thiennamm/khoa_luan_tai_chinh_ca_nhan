@@ -4,13 +4,15 @@
 <div class="page-heading"><div><p class="eyebrow">TÀI CHÍNH CÁ NHÂN</p><h1>Tổng quan tháng {{ month_label }}</h1><p class="muted">Nhìn lại thu chi, chủ động cho tháng của bạn.</p></div><a class="button" href="{% url 'finance:transaction_create' %}"><span aria-hidden="true">＋</span> Thêm giao dịch</a></div>
 {% include 'includes/month_filter.html' %}
 <section class="summary-grid" aria-label="Tổng hợp thu chi trong tháng">
-  <article class="summary-card"><div class="summary-label"><span>Tổng thu</span><span class="metric-icon income" aria-hidden="true">↙</span></div><p class="metric income">{{ income|vnd }}</p><span class="muted">Thu nhập trong tháng</span></article>
-  <article class="summary-card"><div class="summary-label"><span>Tổng chi</span><span class="metric-icon expense" aria-hidden="true">↗</span></div><p class="metric expense">{{ expense|vnd }}</p><span class="muted">Chi tiêu trong tháng</span></article>
+  <article class="summary-card"><div class="summary-label"><span>Tổng thu</span><span class="metric-icon income" aria-hidden="true">↙</span></div><p class="metric income">{{ income|vnd }}</p><span class="muted">Thu đã ghi nhận trong tháng</span></article>
+  <article class="summary-card"><div class="summary-label"><span>Tổng chi</span><span class="metric-icon expense" aria-hidden="true">↗</span></div><p class="metric expense">{{ expense|vnd }}</p><span class="muted">Chi đã ghi nhận trong tháng</span></article>
   <article class="summary-card balance-card"><div class="summary-label"><span>Chênh lệch thu–chi</span><span class="metric-icon" aria-hidden="true">＝</span></div><p class="metric">{{ balance|vnd }}</p><span>Tổng thu trừ tổng chi trong tháng</span></article>
 </section>
+{% include 'finance/includes/budget_summary.html' %}
+{% include 'finance/includes/financial_statistics.html' %}
 <section class="card activity"><div class="section-heading"><div><h2>Giao dịch gần đây</h2><p class="muted">{{ transaction_count }} giao dịch trong tháng {{ month_label }}</p></div><a href="{% url 'finance:transaction_list' %}?month={{ month }}">Xem tất cả <span aria-hidden="true">→</span></a></div>
 {% if recent_transactions %}{% include 'includes/transaction_table.html' with transactions=recent_transactions %}{% else %}
-<div class="empty-state"><span class="empty-icon" aria-hidden="true">↔</span><h3>Tháng này chưa có giao dịch</h3><p>Thêm khoản thu hoặc chi đầu tiên để bắt đầu theo dõi.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch đầu tiên</a><a class="sub-link" href="{% url 'finance:category_list' %}">Quản lý danh mục trước <span aria-hidden="true">→</span></a></div>
+<div class="empty-state"><span class="empty-icon" aria-hidden="true">↔</span><h3>Tháng này chưa ghi nhận giao dịch</h3><p>Thêm khoản thu hoặc chi đầu tiên để bắt đầu theo dõi.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch đầu tiên</a><a class="sub-link" href="{% url 'finance:category_list' %}">Quản lý danh mục trước <span aria-hidden="true">→</span></a></div>
 {% endif %}</section>
-<aside class="tip"><span aria-hidden="true">✦</span><p><strong>Mỗi khoản nhỏ đều đáng được ghi lại.</strong> Tổng quan chỉ tính các giao dịch thuộc tháng bạn chọn, không phải số dư ví hoặc tài khoản ngân hàng.</p></aside>
+<aside class="tip"><span aria-hidden="true">✦</span><p><strong>Mỗi khoản nhỏ đều đáng được ghi lại.</strong> Các số tổng ở đầu trang tính theo tháng bạn chọn; bảng so sánh theo khoảng 6/12 tháng. Đây không phải số dư ví hoặc tài khoản ngân hàng.</p></aside>
 {% endblock %}

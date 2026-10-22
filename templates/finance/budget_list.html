@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% load money %}
+{% block title %}Ngân sách{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">KẾ HOẠCH THÁNG</p><h1>Ngân sách tháng {{ month_label }}</h1><p class="muted">Theo dõi các khoản chi đã ghi nhận so với hạn mức.</p></div><a class="button" href="{% url 'finance:budget_create' %}?month={{ month }}">Tạo ngân sách</a></div>
+{% include 'includes/month_filter.html' %}
+<p class="notice">Lịch sử ghi chép: <strong>{{ budget_coverage }}</strong>. Chi đã ghi nhận: <strong>{{ recorded_expense|vnd }}</strong>. Đây chưa chắc là toàn bộ chi tiêu thực tế. <a href="{% url 'finance:monthly_history' %}?year={{ start.year }}">Xem lịch sử ghi chép</a>.</p>
+<p class="help">Ngân sách tổng và từng danh mục là hai mức theo dõi riêng, không cộng thành một hạn mức. Cảnh báo chỉ dựa trên khoản chi đã ghi nhận, không dùng dự báo.</p>
+{% if total_budget %}{% include 'finance/includes/budget_card.html' with item=total_budget show_actions=True %}{% else %}<section class="card empty-state"><h2>Chưa đặt ngân sách tổng</h2><p>Đặt hạn mức để theo dõi tổng chi đã ghi nhận trong tháng.</p><a class="button secondary" href="{% url 'finance:budget_create' %}?month={{ month }}">Đặt ngân sách tổng</a></section>{% endif %}
+<h2 class="budget-section-title">Ngân sách theo danh mục</h2>
+{% if category_budgets %}<div class="budget-grid">{% for item in category_budgets %}{% include 'finance/includes/budget_card.html' with show_actions=True %}{% endfor %}</div>{% else %}<section class="card empty-state"><h3>Chưa có ngân sách danh mục</h3><p>Bạn có thể đặt thêm hạn mức cho từng danh mục chi.</p><a class="button secondary" href="{% url 'finance:budget_create' %}?month={{ month }}">Đặt ngân sách danh mục</a></section>{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+# Không thay phiên bản ML/Django trong requirements.txt.
+-r requirements-production.txt
+dj-database-url==3.1.2
+psycopg==3.3.6
+psycopg-binary==3.3.6
+whitenoise==6.12.0

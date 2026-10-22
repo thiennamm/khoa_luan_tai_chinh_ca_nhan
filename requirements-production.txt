@@ -1,0 +1,3 @@
+# Giữ nguyên mọi phiên bản runtime/ML đã khóa.
+-r requirements.txt
+waitress==3.0.2
