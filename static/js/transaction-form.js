@@ -28,11 +28,23 @@ if (kindInput && categoryInput && kindsNode) {
   const choices = document.getElementById('suggestion-category');
   const apply = document.getElementById('apply-suggestion');
   const token = document.querySelector('#transaction-form [name=csrfmiddlewaretoken]');
+  const receiptInput = document.getElementById('suggestion-id');
+  const form = document.getElementById('transaction-form');
+  let applying = false;
   let generation = 0;
   let offered = new Set();
   let snapshot = null;
 
   function clear() {
+    const oldReceipt = receiptInput.value;
+    receiptInput.value = '';
+    if (oldReceipt) {
+      fetch(panel.dataset.actionUrl, {
+        method: 'POST', credentials: 'same-origin', mode: 'same-origin',
+        headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
+        body: new URLSearchParams({action: 'revoke', suggestion_id: oldReceipt}),
+      }).catch(() => {}); // Backend still checks current input and expiry if offline.
+    }
     generation += 1;
     offered = new Set();
     snapshot = null;
@@ -45,6 +57,12 @@ if (kindInput && categoryInput && kindsNode) {
   description.addEventListener('input', clear);
   kindInput.addEventListener('change', clear);
   modeInput.addEventListener('change', clear);
+  form.addEventListener('submit', event => {
+    if (applying) {
+      event.preventDefault();
+      result.textContent = 'Đang xác nhận áp dụng. Vui lòng chờ rồi bấm Lưu giao dịch.';
+    }
+  });
   choices.addEventListener('change', () => { apply.disabled = !offered.has(choices.value); });
 
   button.addEventListener('click', async () => {
@@ -61,7 +79,7 @@ if (kindInput && categoryInput && kindsNode) {
       const response = await fetch(panel.dataset.url, {
         method: 'POST', credentials: 'same-origin', mode: 'same-origin',
         headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
-        body: new URLSearchParams(snapshot),
+        body: new URLSearchParams({...snapshot, transaction_id: panel.dataset.transactionId || ''}),
       });
       if (current !== generation) return;
       if (response.redirected) throw new Error('Phiên đăng nhập đã hết hạn.');
@@ -70,6 +88,7 @@ if (kindInput && categoryInput && kindsNode) {
       if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
           || snapshot.mode !== modeInput.value) { clear(); return; }
       if (!response.ok && !['unavailable', 'invalid'].includes(data.status)) throw new Error('Gợi ý không sẵn sàng.');
+      receiptInput.value = data.suggestion_id || '';
       result.textContent = (data.label ? `Nhãn dự đoán: ${data.label_display} (${data.label}). ` : '') + data.message;
       if (data.status !== 'suggestion' || !data.categories?.length) return;
       const placeholder = document.createElement('option');
@@ -93,15 +112,40 @@ if (kindInput && categoryInput && kindsNode) {
       if (current === generation) button.disabled = false;
     }
   });
-  apply.addEventListener('click', () => {
+  apply.addEventListener('click', async () => {
     if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
         || snapshot.mode !== modeInput.value
-        || !offered.has(choices.value)) return;
+        || !offered.has(choices.value) || !receiptInput.value || applying) return;
     const option = [...categoryInput.options].find(option => option.value === choices.value && !option.disabled);
     if (!option) return;
-    categoryInput.value = option.value;
-    categoryInput.dispatchEvent(new Event('change', {bubbles: true}));
-    result.textContent = 'Đã áp dụng danh mục vào biểu mẫu. Kiểm tra các thông tin và bấm Lưu giao dịch khi bạn muốn lưu.';
+    const current = generation;
+    const chosen = option.value;
+    applying = true;
     apply.disabled = true;
+    try {
+      const response = await fetch(panel.dataset.actionUrl, {
+        method: 'POST', credentials: 'same-origin', mode: 'same-origin',
+        headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
+        body: new URLSearchParams({...snapshot, transaction_id: panel.dataset.transactionId || '',
+          action: 'apply', suggestion_id: receiptInput.value, category: chosen}),
+      });
+      const data = await response.json();
+      if (current !== generation) return;
+      if (response.redirected || !response.ok || data.status !== 'applied' || String(data.category_id) !== chosen) {
+        throw new Error('Invalid receipt');
+      }
+      if (snapshot.description !== description.value || snapshot.kind !== kindInput.value
+          || snapshot.mode !== modeInput.value) { clear(); return; }
+      categoryInput.value = chosen;
+      categoryInput.dispatchEvent(new Event('change', {bubbles: true}));
+      result.textContent = 'Đã áp dụng danh mục vào biểu mẫu. Kiểm tra các thông tin và bấm Lưu giao dịch khi bạn muốn lưu.';
+    } catch (_) {
+      if (current === generation) {
+        result.textContent = 'Chưa xác nhận được áp dụng. Hãy yêu cầu gợi ý lại hoặc chọn danh mục thủ công.';
+        receiptInput.value = '';
+      }
+    } finally {
+      applying = false;
+    }
   });
 })();

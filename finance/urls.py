@@ -9,6 +9,8 @@ from . import budget_views
 
 app_name = "finance"
 urlpatterns = [
+    path('phan-hoi-phan-loai/', views.classification_feedback_list, name='classification_feedback'),
+    path('giao-dich/goi-y-danh-muc/thao-tac/', views.suggestion_action, name='suggestion_action'),
     path("", views.dashboard, name="dashboard"),
     path('ngan-sach/', budget_views.budget_list, name='budget_list'),
     path('ngan-sach/them/', budget_views.budget_edit, name='budget_create'),

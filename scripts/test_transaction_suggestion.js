@@ -18,23 +18,23 @@ class Element {
   }
   get selectedOptions() { return this.options.filter(option => option.value === this.value); }
   addEventListener(name, handler) { (this.handlers[name] ??= []).push(handler); }
-  async fire(name) { for (const handler of this.handlers[name] ?? []) await handler(); }
+  async fire(name, event = {}) { for (const handler of this.handlers[name] ?? []) await handler(event); }
   dispatchEvent(event) { this.fire(event.type); }
   replaceChildren() { this.options = []; this.value = ''; }
   append(option) { this.options.push(option); }
 }
 
-function setup(fetchImpl) {
+function setup(fetchImpl, actionImpl) {
   const nodes = Object.fromEntries(['id_kind', 'id_category', 'category-kinds', 'classification-suggestion',
     'id_description', 'suggest-category', 'suggestion-result', 'suggestion-actions',
-    'suggestion-category', 'apply-suggestion', 'suggestion-mode'].map(id => [id, new Element()]));
+    'suggestion-category', 'apply-suggestion', 'suggestion-mode', 'suggestion-id', 'transaction-form'].map(id => [id, new Element()]));
   nodes['suggestion-mode'].value = 'en';
   nodes.id_kind.value = 'expense';
   nodes.id_description.value = 'purchase';
   nodes.id_category.options = [new Element(''), new Element('1'), new Element('2'), new Element('3')];
   nodes.id_category.value = '1';
   nodes['category-kinds'].textContent = JSON.stringify({'1': 'expense', '2': 'expense', '3': 'income'});
-  nodes['classification-suggestion'].dataset = {url: '/giao-dich/goi-y-danh-muc/'};
+  nodes['classification-suggestion'].dataset = {url: '/giao-dich/goi-y-danh-muc/', actionUrl: '/suggestion-action/'};
   nodes['suggestion-actions'].hidden = true;
   nodes['apply-suggestion'].disabled = true;
   const requests = [];
@@ -42,12 +42,21 @@ function setup(fetchImpl) {
     document: {getElementById: id => nodes[id], createElement: () => new Element(),
       querySelector: () => ({value: 'test-csrf'})},
     Event: class { constructor(type) { this.type = type; } }, URLSearchParams,
-    fetch: async (url, options) => { requests.push({url, options}); return fetchImpl(); },
+    fetch: async (url, options) => {
+      requests.push({url, options});
+      if (url === '/suggestion-action/') {
+        if (actionImpl) return actionImpl(options);
+        return response(options.body.get('action') === 'apply'
+          ? {status: 'applied', category_id: Number(options.body.get('category'))}
+          : {status: 'revoked'});
+      }
+      return fetchImpl();
+    },
   });
   return {nodes, requests};
 }
 const response = data => ({ok: true, redirected: false, json: async () => data});
-const suggestion = {status: 'suggestion', label: 'Groceries', label_display: 'Thực phẩm', message: 'Chọn danh mục',
+const suggestion = {status: 'suggestion', suggestion_id: 'server-receipt', label: 'Groceries', label_display: 'Thực phẩm', message: 'Chọn danh mục',
   categories: [{id: 1, name: 'Hiện tại'}, {id: 2, name: '<img src=x onerror=alert(1)>'}, {id: 3, name: 'Sai loại'}, {id: 99, name: 'Không có trong form'}]};
 
 test('gợi ý/việc chọn không ghi đè; chỉ Áp dụng đổi danh mục; fetch chỉ POST gợi ý với CSRF', async () => {
@@ -63,7 +72,11 @@ test('gợi ý/việc chọn không ghi đè; chỉ Áp dụng đổi danh mục
   assert.equal(n['apply-suggestion'].disabled, false);
   await n['apply-suggestion'].fire('click');
   assert.equal(n.id_category.value, '2');
-  assert.equal(requests.length, 1); // Áp dụng không có request lưu giao dịch.
+  assert.equal(requests.length, 2); // POST Apply xác nhận server; không lưu giao dịch.
+  assert.equal(requests[1].url, '/suggestion-action/');
+  assert.equal(requests[1].options.body.get('action'), 'apply');
+  assert.equal(requests[1].options.body.get('suggestion_id'), 'server-receipt');
+  assert.equal(n['suggestion-id'].value, 'server-receipt');
   assert.equal(requests[0].url, '/giao-dich/goi-y-danh-muc/');
   assert.equal(requests[0].options.method, 'POST');
   assert.equal(requests[0].options.headers['X-CSRFToken'], 'test-csrf');
@@ -142,7 +155,7 @@ test('đổi chế độ hủy gợi ý; đổi lại vẫn phải yêu cầu m�
   assert.equal(n['suggestion-actions'].hidden, true);
   n['suggestion-mode'].value = 'vi';
   await n['suggest-category'].fire('click');
-  assert.equal(requests[1].options.body.get('mode'), 'vi');
+  assert.equal(requests.filter(r => r.url === '/giao-dich/goi-y-danh-muc/')[1].options.body.get('mode'), 'vi');
 });
 
 test('đổi chế độ khi đang fetch hoặc đọc JSON bỏ phản hồi cũ', async () => {
@@ -183,4 +196,47 @@ test('lỗi ở mỗi chế độ không gửi yêu cầu đổi mô hình', asy
     assert.equal(requests[0].options.body.get('mode'), mode);
     assert.equal(n.id_category.value, '1');
   }
+});
+
+test('đổi đầu vào xóa receipt trong form và gửi POST thu hồi', async () => {
+  for (const [field, event] of [['id_description','input'], ['id_kind','change'], ['suggestion-mode','change']]) {
+    const {nodes:n, requests} = setup(async () => response(suggestion));
+    await n['suggest-category'].fire('click');
+    assert.equal(n['suggestion-id'].value, 'server-receipt');
+    await n[field].fire(event);
+    assert.equal(n['suggestion-id'].value, '');
+    assert.equal(requests[1].options.body.get('action'), 'revoke');
+    assert.equal(requests[1].options.headers['X-CSRFToken'], 'test-csrf');
+  }
+});
+
+test('server từ chối Apply thì giữ lựa chọn thủ công và bỏ receipt', async () => {
+  const {nodes:n} = setup(async () => response(suggestion), async () => ({
+    ok:false, json:async () => ({status:'invalid'}),
+  }));
+  await n['suggest-category'].fire('click');
+  n['suggestion-category'].value = '2';
+  await n['apply-suggestion'].fire('click');
+  assert.equal(n.id_category.value, '1');
+  assert.equal(n['suggestion-id'].value, '');
+  assert.match(n['suggestion-result'].textContent, /Chưa xác nhận/);
+});
+
+test('không lưu khi Apply đang chờ; kết quả Apply đến muộn không ghi đè sau đổi mô tả', async () => {
+  let finish;
+  const {nodes:n} = setup(async () => response(suggestion), options =>
+    options.body.get('action') === 'apply'
+      ? new Promise(resolve => {finish=resolve;}) : Promise.resolve(response({status:'revoked'})));
+  await n['suggest-category'].fire('click');
+  n['suggestion-category'].value = '2';
+  const pending = n['apply-suggestion'].fire('click');
+  let prevented = false;
+  await n['transaction-form'].fire('submit', {preventDefault() {prevented=true;}});
+  assert.equal(prevented, true);
+  n.id_description.value = 'mới';
+  await n.id_description.fire('input');
+  finish(response({status:'applied',category_id:2}));
+  await pending;
+  assert.equal(n.id_category.value, '1');
+  assert.equal(n['suggestion-id'].value, '');
 });

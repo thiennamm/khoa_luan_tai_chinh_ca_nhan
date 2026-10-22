@@ -34,6 +34,14 @@ Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi 
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
+## Phản hồi phân loại — TASK 15A
+
+Trong **Thêm/Sửa giao dịch**, yêu cầu gợi ý VI/EN, tùy chọn bấm **Áp dụng**, rồi tự bấm **Lưu giao dịch**. Nếu gợi ý còn hiệu lực và danh mục cuối có ánh xạ nhãn chuẩn, hệ thống ghi nhận nhãn đề xuất và lựa chọn khi lưu. Trang **Phản hồi phân loại** chỉ hiển thị phản hồi của bạn, phân biệt cùng/khác nhãn với việc có bấm Áp dụng. Transfer vẫn cần xem lại và không áp dụng tự động.
+
+**Phản hồi phản ánh lựa chọn của người dùng, không phải nhãn đúng đã được kiểm định.** Không tự huấn luyện, không chuyển phản hồi vào tập nghiên cứu. Không có gợi ý hoặc danh mục chưa ánh xạ vẫn lưu giao dịch thủ công được. Gợi ý hết hạn sau 15 phút; nếu gửi một gợi ý cũ không hợp lệ, yêu cầu gợi ý lại hoặc kiểm tra danh mục rồi bấm Lưu lần nữa để lưu thủ công.
+
+Migration `0010_classificationsuggestion_classificationfeedback` cần được áp dụng **sau khi sao lưu**, trước khi dùng trang phản hồi. Khi bàn giao TASK 15A đã sao lưu, kiểm tra và migrate SQLite local thật; dữ liệu nghiệp vụ cũ giữ nguyên. Không kết nối database production trong bước bàn giao. Cách sao lưu, migrate local/Render, dọn gợi ý hết hạn và kết quả kiểm thử: [docs/classification-feedback.md](docs/classification-feedback.md).
+
 ## Tên đăng nhập và mật khẩu — TASK 11D
 
 Vào **Tài khoản** trong menu để xem tên đăng nhập hiện tại. Hai biểu mẫu độc lập cho phép **đổi tên đăng nhập** (tên mới + mật khẩu hiện tại) hoặc **đổi mật khẩu** (mật khẩu hiện tại + mật khẩu mới + xác nhận). Sau đổi tên, lần đăng nhập sau dùng tên mới; ID, quyền và dữ liệu thu chi giữ nguyên. Sau đổi mật khẩu, phiên hiện tại được giữ, các phiên khác mất hiệu lực khi được kiểm tra lại. Không có luồng quên mật khẩu/email trong bước này. Các ô mật khẩu không được điền lại khi có lỗi; không đưa mật khẩu lên URL. Chi tiết và giới hạn kiểm tra trình duyệt: [docs/account-management.md](docs/account-management.md).

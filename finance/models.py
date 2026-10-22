@@ -18,6 +18,48 @@ class Kind(models.TextChoices):
     EXPENSE = "expense", "Chi tiêu"
 
 
+class ClassificationSuggestion(models.Model):
+    """Server-side receipt; no transaction description or model score."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    input_digest = models.CharField(max_length=64)
+    kind = models.CharField(max_length=7, choices=Kind.choices)
+    mode = models.CharField(max_length=2, choices=[('vi', 'Tiếng Việt'), ('en', 'Tiếng Anh')])
+    predicted_label = models.CharField(max_length=32)
+    model_name = models.CharField(max_length=64)
+    model_sha256 = models.CharField(max_length=64)
+    seal = models.CharField(max_length=64)
+    source_transaction = models.ForeignKey('Transaction', null=True, blank=True,
+        on_delete=models.CASCADE, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    revoked_at = models.DateTimeField(null=True)
+    applied_at = models.DateTimeField(null=True)
+    applied_category = models.ForeignKey('Category', null=True, on_delete=models.SET_NULL, related_name='+')
+    consumed_at = models.DateTimeField(null=True)
+    saved_transaction = models.ForeignKey('Transaction', null=True, on_delete=models.CASCADE, related_name='+')
+
+
+class ClassificationFeedback(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    transaction = models.ForeignKey('Transaction', on_delete=models.CASCADE, related_name='classification_feedback')
+    suggestion = models.OneToOneField(ClassificationSuggestion, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    mode = models.CharField(max_length=2, choices=[('vi', 'Tiếng Việt'), ('en', 'Tiếng Anh')])
+    model_name = models.CharField(max_length=64)
+    model_sha256 = models.CharField(max_length=64)
+    predicted_label = models.CharField(max_length=32)
+    final_category = models.ForeignKey('Category', null=True, on_delete=models.SET_NULL, related_name='+')
+    final_category_name = models.CharField(max_length=80)
+    final_label = models.CharField(max_length=32)
+    applied = models.BooleanField(default=False)
+    same_label = models.BooleanField()
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        indexes = [models.Index(fields=['user', '-created_at'], name='feedback_user_created')]
+
+
 class ForecastDataVersion(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
     version = models.PositiveBigIntegerField(default=0)

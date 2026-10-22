@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Phản hồi phân loại{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">GỢI Ý THỬ NGHIỆM</p><h1>Phản hồi phân loại</h1><p>Phản hồi phản ánh lựa chọn của người dùng, không phải nhãn đúng đã được kiểm định.</p></div><a class="button secondary" href="{% url 'finance:transaction_list' %}">Về giao dịch</a></div>
+<section class="summary-grid feedback-summary" aria-label="Tổng phản hồi của bạn">
+<div class="summary-card"><div class="summary-label">So sánh được</div><p class="metric">{{ total }}</p></div>
+<div class="summary-card"><div class="summary-label">Cùng nhãn</div><p class="metric">{{ same }}</p></div>
+<div class="summary-card"><div class="summary-label">Khác nhãn</div><p class="metric">{{ different }}</p></div>
+<div class="summary-card"><div class="summary-label">Có bấm Áp dụng</div><p class="metric">{{ applied }}</p></div>
+</section>
+<p class="help">Cùng nhãn và khác nhãn cộng thành tổng so sánh được. Có bấm Áp dụng có thể giao với cả hai nhóm: danh mục có thể được đổi trước khi lưu. Tự chọn cùng nhãn không được tính là đã bấm Áp dụng; khác nhãn không có nghĩa mô hình sai.</p>
+<section class="card">
+{% if page_obj %}<div class="table-wrap"><table><thead><tr><th>Thời điểm</th><th>Chế độ</th><th>Nhãn đề xuất</th><th>Danh mục / nhãn khi lưu</th><th>Đối chiếu</th><th>Áp dụng</th></tr></thead><tbody>
+{% for item in page_obj %}<tr><td data-label="Thời điểm">{{ item.created_at|date:'d/m/Y H:i' }}</td><td data-label="Chế độ">{{ item.get_mode_display }}</td><td data-label="Đề xuất">{{ item.predicted_label }}{% if item.predicted_label == 'Transfer' %}<br><strong>Cần xem lại</strong>{% endif %}</td><td data-label="Khi lưu">{{ item.final_category_name }}<br><span class="help">{{ item.final_label }}</span></td><td data-label="Đối chiếu">{% if item.same_label %}Cùng nhãn{% else %}Khác nhãn{% endif %}</td><td data-label="Áp dụng">{% if item.applied %}Có bấm Áp dụng{% else %}Không bấm Áp dụng{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+<nav class="pagination" aria-label="Phân trang phản hồi">{% if page_obj.has_previous %}<a class="button secondary" href="?page={{ page_obj.previous_page_number }}">Trước</a>{% endif %}<span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="button secondary" href="?page={{ page_obj.next_page_number }}">Sau</a>{% endif %}</nav>
+{% else %}<div class="empty-state"><h2>Chưa có phản hồi so sánh được</h2><p>Phản hồi chỉ được ghi khi lưu giao dịch với gợi ý còn hiệu lực và danh mục đã ánh xạ.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch</a></div>{% endif %}
+</section>
+{% endblock %}
