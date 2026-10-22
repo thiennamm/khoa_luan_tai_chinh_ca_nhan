@@ -1,6 +1,6 @@
 # TASK 14A — Chuẩn bị Render Free
 
-Ngày rà: **22/10/2026**, dự án chính `D:\KHÓA LUẬN TỐT NGHIỆP`. Chỉ chuẩn bị mã, gói suy luận và hướng dẫn. **Chưa tạo Postgres/Web Service, Release hoặc token; chưa upload, deploy hay phát sinh phí.** Không chuyển dữ liệu local lên server.
+Ngày rà TASK 14A: **22/10/2026**, dự án chính `D:\KHÓA LUẬN TỐT NGHIỆP`. Tại mốc 14A chỉ chuẩn bị mã, gói suy luận và hướng dẫn. **Kết quả GitHub Release TASK 14B xem mục 9**; vẫn chưa tạo Postgres/Web Service hoặc token triển khai, chưa deploy. Không chuyển dữ liệu local lên server.
 
 ## 1. Thông số triển khai đã chuẩn bị
 
@@ -72,7 +72,7 @@ whitenoise==6.12.0
 - Chưa chạy migration nào vào SQLite thật. **0009 chưa đánh dấu áp dụng ở DB local**; đây là trạng thái dự kiến của task, không phải thao tác bị bỏ quên. Migrations mới đã chạy trong DB test riêng của Django.
 - PostgreSQL thật chưa có trong môi trường này, nên **chưa xác minh thực thi PL/pgSQL, rollback, khóa đồng thời hoặc toàn bộ nghiệp vụ trên PostgreSQL**. Kiểm thử vendor/SQL không thay thế kiểm thử DB thật. Đây là mục bắt buộc kiểm trên môi trường thử trước khi dùng dữ liệu có giá trị; không báo đã tương thích hoàn toàn chỉ vì cấu hình import được.
 
-## 4. Chuẩn bị private Release (chưa thực hiện upload)
+## 4. Chuẩn bị private Release (ghi nhận tại TASK 14A, trước upload)
 
 Gói tối thiểu TASK 13C vẫn giữ nguyên. ZIP đã chuẩn bị tại:
 
@@ -167,7 +167,7 @@ QA nằm tại `D:\SAO LUU KHOA LUAN\preparation-14a-20261022-085600`, Python ve
 | Cài dependency, pip check | 14 phiên bản cũ + Waitress và 4 gói Render đúng pin; pip check đạt |
 | Hồi quy Django cuối | **215/215 đạt**, 64,675 giây, DB test riêng; gồm 12 kiểm thử Render và các luồng website có sẵn |
 | ZIP thật đóng gói → kiểm hash → giải nén → verify | Đạt, đúng 7 tệp và hai hash model |
-| Tải Release riêng tư qua mạng | **Chưa kiểm**: chưa có Release/token; dùng mock HTTP để kiểm redirect/header/quyền thất bại |
+| Tải Release riêng tư qua mạng | Tại 14A chỉ kiểm mock. **14B đã tải lại asset bằng đăng nhập hiện có và kiểm hash, xem mục 9**; chưa tạo/kiểm token chỉ đọc dành cho Render |
 | Cấu hình Render / DB URL | Từ chối thiếu/sai/SQLite; không connect khi import; runtime không fallback khi DB mất |
 | collectstatic | 4 tệp copy, 8 post-process (hash/gzip), không cần Nginx |
 | WhiteNoise/Waitress QA thật trên Windows | Trang đăng nhập và CSS hashed/gzip trả đúng nội dung; forwarding header giả không thay host/scheme; đường dẫn artifact riêng trả 404 |
@@ -191,6 +191,43 @@ Preflight bằng đăng nhập Git Credential Manager hiện có: API xác nhậ
 
 ZIP nguồn đúng đường dẫn mục 4, **4.081.000 byte**, SHA-256 **08884ddf9a7b90ed8ebd23cc96f0121dfde3c0342f300ce7e19e7d8e46f17eeb**. Đã kiểm trước giải nén, danh sách đúng 7 tệp, manifest và hash cả hai model trùng tài liệu/mã. Hai joblib và năm tệp metadata/khóa runtime; không có DB, giao dịch, dataset, secret hoặc launcher DLL.
 
-Rà **184 tệp ứng viên**, kể cả **123 tệp đã theo dõi**: không có đường dẫn dữ liệu/model/secret bị cấm, không thấy token/private key theo mẫu hoặc khóa local thật. Secret chỉ so sánh trong bộ nhớ, không in nội dung. Mã website đã hoàn thành nhưng chưa sao lưu từ mốc 11A cũng được đưa vào mốc mã để bảo đảm đủ module/templates/migrations cần chạy. Không sửa nghiệp vụ, dữ liệu hoặc kết quả ML trong task này; tận dụng hồi quy 215/215 của 14A vì mã không đổi.
+Rà **184 tệp ứng viên**, kể cả **123 tệp đã theo dõi**: không có đường dẫn dữ liệu/model/secret bị cấm, không thấy token/private key theo mẫu hoặc khóa local thật. Secret chỉ so sánh trong bộ nhớ, không in nội dung. Mã website đã hoàn thành nhưng chưa sao lưu từ mốc 11A cũng được đưa vào mốc mã để bảo đảm đủ module/templates/migrations cần chạy. Không sửa nghiệp vụ, dữ liệu hoặc kết quả ML trong task này; chỉ dọn dòng trắng cuối `config/local.py` khi kiểm diff. Tận dụng hồi quy 215/215 của 14A vì logic không đổi, không chạy lại thí nghiệm.
 
-Release dùng tag **`inference-vi-en-v1`**, ghim commit mã đã push. Biên nhận URL/asset và lần tải kiểm lại được bổ sung sau khi thao tác thành công; cập nhật tài liệu sau đó dùng commit riêng, không di chuyển tag.
+### Biên nhận phát hành và tải lại đã xác minh
+
+| Mục | Giá trị thực tế |
+|---|---|
+| Nhánh | `main` |
+| Commit mã đã push, tag trỏ tới | **`31023bb2ba578c6b1504afa1e27a9aa9d9001169`** |
+| Tag | **`inference-vi-en-v1`** |
+| Release | [Inference VI/EN v1 — Render preparation](https://github.com/thiennamm/khoa_luan_tai_chinh_ca_nhan/releases/tag/inference-vi-en-v1) |
+| Release ID / trạng thái | `420245883` / đã publish, không còn draft |
+| Asset | **`inference-vi-en-v1.zip`** |
+| Asset ID | **`664434697`** |
+| Asset API URL | [GitHub API asset 664434697](https://api.github.com/repos/thiennamm/khoa_luan_tai_chinh_ca_nhan/releases/assets/664434697) |
+| Kích thước | **4.081.000 byte** |
+| SHA-256 bản gốc, GitHub digest và bản tải lại | **`08884ddf9a7b90ed8ebd23cc96f0121dfde3c0342f300ce7e19e7d8e46f17eeb`** |
+| Hash model tải lại | EN/VI cùng các hash đã khóa ở mục 4, manifest từng tệp đạt |
+| Privacy kiểm sau publish | `private=true`, `visibility=private`, tài khoản `thiennamm` |
+
+Tạo draft trỏ đúng commit đã push → upload ZIP đã kiểm → tải asset bằng credential GitHub hiện có → kiểm SHA-256/giải nén an toàn/hash từng model → publish. Sau publish đã kiểm API tag trỏ chính xác commit mã trên và chạy thật `resolve_asset_id()` của dự án theo tag, nhận đúng `664434697`. Không ghi đè/xóa asset, không di chuyển tag, force-push hoặc đổi remote/quyền repo. Biên nhận tài liệu được commit riêng sau commit mã; tag luôn giữ ở mốc mã nêu trên.
+
+Bản tải kiểm lại nằm ngoài Git ở `D:\SAO LUU KHOA LUAN\release-14b-20261022-092139\downloaded-inference-vi-en-v1.zip`; kết quả API/hash không có credential ở `release-result.json` cùng thư mục. Không lưu credential vào các tệp này. **168 tệp** DB thật/requirements gốc/dữ liệu/model đối chiếu lại vẫn nguyên hash.
+
+### Hợp đồng env Render sau Release
+
+```dotenv
+DJANGO_SETTINGS_MODULE=config.render
+PYTHON_VERSION=3.13.16
+DJANGO_SECRET_KEY=REPLACE_WITH_SEPARATE_RANDOM_PRODUCTION_SECRET
+DJANGO_ALLOWED_HOSTS=REPLACE_WITH_EXACT_RENDER_HOSTNAME
+DJANGO_CSRF_TRUSTED_ORIGINS=https://REPLACE_WITH_EXACT_RENDER_HOSTNAME
+DATABASE_URL=REPLACE_WITH_RENDER_INTERNAL_POSTGRES_URL
+DJANGO_MODEL_RELEASE_TAG=inference-vi-en-v1
+DJANGO_MODEL_BUNDLE_SHA256=08884ddf9a7b90ed8ebd23cc96f0121dfde3c0342f300ce7e19e7d8e46f17eeb
+GITHUB_ARTIFACT_TOKEN=REPLACE_WITH_SERVER_SIDE_READ_ONLY_ARTIFACT_TOKEN
+```
+
+`RENDER`, `PORT`, `RENDER_EXTERNAL_HOSTNAME` do Render cấp. **Không có biến `DJANGO_MODEL_ASSET_ID` trong hợp đồng tải hiện tại**: script tra tag/tên asset cố định, ID/API URL trên là biên nhận để đối chiếu. Token Render vẫn chưa tạo; lần tải kiểm này dùng đăng nhập Git Credential Manager hiện có, không chứng minh một fine-grained token mới đã hoạt động. Không tái dùng credential GCM bằng cách chép nó vào Render; khi được phép sẽ tạo token chỉ đọc riêng theo mục 4.
+
+Đã publish model trong **Release của repo Private**, không commit ZIP/model vào Git. Chưa tạo token triển khai, database, Web Service hoặc deploy; chưa sửa dữ liệu thật/model/kết quả thí nghiệm. Các giới hạn Linux/PostgreSQL/Render runtime ở mục 8 vẫn còn.
