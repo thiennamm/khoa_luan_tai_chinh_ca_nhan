@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Đăng nhập{% endblock %}
 {% block content %}
-<section class="auth-intro"><p class="eyebrow">CHÀO MỪNG BẠN TRỞ LẠI</p><h1>Thu chi rõ ràng. Mỗi ngày nhẹ nhàng.</h1><p>Ghi lại giao dịch, sắp xếp danh mục và nhìn lại tài chính của bạn theo từng tháng.</p><div class="auth-note"><span aria-hidden="true">↗</span><span>Bắt đầu từ những khoản nhỏ.<br><strong>Tạo thói quen cho những mục tiêu lớn.</strong></span></div></section>
+<section class="auth-intro"><p class="eyebrow">CHÀO MỪNG BẠN TRỞ LẠI</p><h1>Thu chi rõ ràng.<br>Mỗi ngày nhẹ nhàng.</h1><p>Ghi lại giao dịch, sắp xếp danh mục và nhìn lại tài chính của bạn theo từng tháng.</p><div class="auth-note"><span>{% include 'includes/icon.html' with name='forecast' %}</span><span>Bắt đầu từ những khoản nhỏ.<br><strong>Tạo thói quen cho những mục tiêu lớn.</strong></span></div></section>
 <section class="card auth-card"><p class="eyebrow">KHÔNG GIAN CỦA BẠN</p><h2>Đăng nhập</h2><p class="muted">Tiếp tục với sổ thu chi cá nhân của bạn.</p>
-  <form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}<button class="button full" type="submit">Đăng nhập <span aria-hidden="true">→</span></button></form>
+  <form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}<button class="button full" type="submit">Đăng nhập {% include 'includes/icon.html' with name='arrow' %}</button></form>
   <p class="auth-switch">Chưa có tài khoản? <a href="{% url 'signup' %}">Đăng ký</a></p>
 </section>
 {% endblock %}

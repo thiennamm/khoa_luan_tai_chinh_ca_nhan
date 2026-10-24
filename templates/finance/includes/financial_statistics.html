@@ -1,30 +1,25 @@
 {% load money l10n %}
 {% if monthly_statistics %}
-<section class="card statistics-card" aria-labelledby="category-statistics-title">
-<h2 id="category-statistics-title">Cơ cấu chi tháng {{ month_label }}</h2>
-{% if statistics_expense %}
-<div class="category-bars" aria-hidden="true">
-{% for item in category_statistics %}<div class="category-bar"><span>{{ item.name }}</span><strong>{{ item.amount|vnd }}</strong><div class="bar-track"><div style="width:{{ item.width }}%"></div></div></div>{% endfor %}
-</div>
-<div class="table-wrap"><table id="category-statistics"><caption class="sr-only">Cơ cấu chi theo danh mục tháng {{ month_label }}</caption><thead><tr><th>Danh mục</th><th class="numeric">Tổng chi</th><th class="numeric">Tỷ trọng</th></tr></thead><tbody>
-{% for item in category_statistics %}<tr><td data-label="Danh mục">{{ item.name }}</td><td data-label="Tổng chi" class="numeric">{{ item.amount|vnd }}</td><td data-label="Tỷ trọng" class="numeric">{{ item.share|floatformat:2 }}%</td></tr>{% endfor %}
-</tbody></table></div>
-<p><strong>Tổng chi: {{ statistics_expense|vnd }}</strong></p>
-{% else %}<div class="empty-state"><p>Tháng này chưa ghi nhận khoản chi. Chưa có cơ cấu hoặc tỷ trọng để hiển thị.</p><a class="button secondary" href="{% url 'finance:transaction_create' %}">Ghi khoản chi</a><a class="sub-link" href="{% url 'finance:category_create' %}">Tạo danh mục nếu cần</a></div>{% endif %}
-</section>
-<section class="card statistics-card" aria-labelledby="month-statistics-title">
-<h2 id="month-statistics-title">Thu chi {{ statistics_actual_months }} tháng đến {{ month_label }}</h2>
-<p class="help">Tổng đã ghi trong website. Chênh lệch thu–chi không phải số dư ngân hàng. Tháng chưa có giao dịch hiển thị 0, không có nghĩa lịch sử đã đầy đủ.</p>
+<div class="analytics-grid">
+<section class="card statistics-card time-statistics" aria-labelledby="month-statistics-title">
+<div class="chart-heading"><div><p class="eyebrow">DÒNG THU CHI ĐÃ GHI NHẬN</p><h2 id="month-statistics-title">Thu chi {{ statistics_actual_months }} tháng đến {{ month_label }}</h2></div><span class="unit-label">{{ chart_axis_unit }}</span></div>
+<p class="chart-legend"><span><i class="legend-dot legend-income" aria-hidden="true"></i>Thu nhập</span><span><i class="legend-dot legend-expense" aria-hidden="true"></i>Chi tiêu</span></p>
 {% if statistics_actual_months != statistics_span %}<p class="help">Phạm vi rút gọn do giới hạn lịch năm 0001.</p>{% endif %}
-<p class="chart-legend"><span class="income">■ Thu nhập</span> <span class="expense">■ Chi tiêu</span></p>
-<p class="help">Nếu biểu đồ rộng hơn màn hình, kéo ngang để xem đủ các tháng. Bảng bên dưới luôn có đầy đủ số liệu.</p>
-<div class="statistics-chart-scroll" tabindex="0" role="img" aria-label="Biểu đồ cột thu chi; số liệu đầy đủ trong bảng phía dưới. Có thể cuộn ngang.">
-<div class="month-columns" aria-hidden="true">
+<div class="monthly-chart"><div class="chart-y-axis" aria-hidden="true">{% for tick in chart_axis_ticks %}<span style="bottom:{{ tick.position }}%">{{ tick.label }}</span>{% endfor %}</div>
+<div class="statistics-chart-scroll" tabindex="0" role="img" aria-label="Biểu đồ cột thu chi, đơn vị {{ chart_axis_unit }}; nhãn trục được làm tròn, số tiền VND đầy đủ trong bảng chi tiết phía dưới. Có thể cuộn ngang."><div class="month-columns" aria-hidden="true">
 {% for item in monthly_statistics %}<div class="month-column"><div class="column-pair"><div class="income-column" style="height:{{ item.income_height }}%" title="Thu {{ item.income|vnd }}"></div><div class="expense-column" style="height:{{ item.expense_height }}%" title="Chi {{ item.expense|vnd }}"></div></div><span>{{ item.month|date:'m/Y' }}</span>{% if item.period_note %}<small>{{ item.period_note }}</small>{% endif %}</div>{% endfor %}
-</div></div>
-<div class="table-wrap"><table id="monthly-statistics"><caption class="sr-only">Thu chi đã ghi từng tháng và trạng thái lịch sử</caption><thead><tr><th>Tháng</th><th class="numeric">Tổng thu</th><th class="numeric">Tổng chi</th><th class="numeric">Chênh lệch</th><th>Lịch sử ghi chép</th></tr></thead><tbody>
+</div></div></div>
+<p class="chart-caption">Biểu đồ là tổng đã ghi: không có bản ghi hiển thị 0, không khẳng định tháng đó không chi tiền. Tháng chưa xác nhận/chưa đầy đủ vẫn là dữ liệu chưa biết cho dự báo. Xem trạng thái từng tháng trong bảng; kéo ngang biểu đồ nếu cần.</p>
+<details class="data-disclosure"><summary>Xem bảng thu chi và trạng thái ghi chép</summary><div class="table-wrap dense-table"><table id="monthly-statistics"><caption class="sr-only">Thu chi đã ghi từng tháng và trạng thái lịch sử</caption><thead><tr><th>Tháng</th><th class="numeric">Tổng thu</th><th class="numeric">Tổng chi</th><th class="numeric">Chênh lệch</th><th>Lịch sử ghi chép</th></tr></thead><tbody>
 {% for item in monthly_statistics %}<tr><td data-label="Tháng">{{ item.month|date:'m/Y' }}{% if item.period_note %}<small class="coverage-time">{{ item.period_note }}</small>{% endif %}</td><td data-label="Tổng thu" class="numeric">{{ item.income|vnd }}</td><td data-label="Tổng chi" class="numeric">{{ item.expense|vnd }}</td><td data-label="Chênh lệch" class="numeric">{{ item.balance|vnd }}</td><td data-label="Lịch sử">{{ item.status_display }}</td></tr>{% endfor %}
-</tbody></table></div>
-<p class="help">Xác nhận đầy đủ là xác nhận của bạn, không phải hệ thống chứng minh. Dự báo vẫn chỉ dùng lịch sử hợp lệ theo quy tắc riêng. <a href="{% url 'finance:monthly_history' %}">Xem lịch sử ghi chép</a>.</p>
+</tbody></table></div><p class="help">Xác nhận đầy đủ là xác nhận của bạn, không phải hệ thống chứng minh. Dự báo vẫn chỉ dùng lịch sử hợp lệ theo quy tắc riêng. <a href="{% url 'finance:monthly_history' %}">Xem lịch sử ghi chép</a>.</p></details>
 </section>
+<section class="card statistics-card category-statistics" aria-labelledby="category-statistics-title">
+<div class="chart-heading"><div><p class="eyebrow">CHI THEO DANH MỤC</p><h2 id="category-statistics-title">Cơ cấu chi tháng {{ month_label }}</h2></div></div>
+{% if statistics_expense %}
+<p class="category-total">{{ statistics_expense|vnd }} <span>đã ghi nhận</span></p>
+<div class="category-bars" aria-hidden="true">{% for item in category_statistics %}<div class="category-bar"><span title="{{ item.name }}">{{ item.name }}</span><strong>{{ item.amount|vnd }}</strong><div class="bar-track"><div style="width:{{ item.width }}%"></div></div></div>{% endfor %}</div>
+<details class="data-disclosure"><summary>Xem số tiền và tỷ trọng</summary><div class="table-wrap"><table id="category-statistics"><caption class="sr-only">Cơ cấu chi theo danh mục tháng {{ month_label }}</caption><thead><tr><th>Danh mục</th><th class="numeric">Tổng chi</th><th class="numeric">Tỷ trọng</th></tr></thead><tbody>{% for item in category_statistics %}<tr><td data-label="Danh mục">{{ item.name }}</td><td data-label="Tổng chi" class="numeric">{{ item.amount|vnd }}</td><td data-label="Tỷ trọng" class="numeric">{{ item.share|floatformat:2 }}%</td></tr>{% endfor %}</tbody></table></div><p><strong>Tổng chi: {{ statistics_expense|vnd }}</strong></p></details>
+{% else %}<div class="empty-state compact-empty">{% include 'includes/icon.html' with name='category' %}<h3>Chưa có khoản chi được ghi</h3><p>Tháng này chưa ghi nhận khoản chi. Chưa có cơ cấu hoặc tỷ trọng để hiển thị.</p><a class="button secondary" href="{% url 'finance:transaction_create' %}">Ghi khoản chi</a><a class="sub-link" href="{% url 'finance:category_create' %}">Tạo danh mục nếu cần</a></div>{% endif %}
+</section></div>
 {% else %}<p class="notice">Chưa hiển thị thống kê nhiều tháng: vui lòng chọn khoảng 6 hoặc 12 tháng hợp lệ.</p>{% endif %}

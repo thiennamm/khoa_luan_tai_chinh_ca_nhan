@@ -129,3 +129,26 @@ class TransactionFilterTests(FinanceCase):
 
     def test_december_9999_no_overflow(self):
         self.assertTrue(self.get(month='9999-12').context['filters_valid'])
+
+    def test_first_transaction_guidance_ignores_other_accounts(self):
+        Transaction.objects.filter(user=self.alice).delete()
+        self.assertTrue(Transaction.objects.filter(user=self.bob).exists())
+        response = self.get()
+        self.assertContains(response, 'Bạn chưa ghi nhận giao dịch nào')
+        self.assertContains(response, 'Thêm giao dịch đầu tiên')
+        self.assertContains(response, reverse('finance:category_list'))
+        self.assertNotContains(response, 'Không có kết quả phù hợp')
+        self.assertNotContains(response, self.bob_row.description)
+        invalid = self.get(month='bad')
+        self.assertContains(invalid, 'Bộ lọc chưa hợp lệ')
+        self.assertNotContains(invalid, 'Bạn chưa ghi nhận giao dịch nào')
+
+    def test_no_match_guidance_when_account_has_transactions_elsewhere(self):
+        for params in [{'q': 'QA không có mô tả này'}, {'month': '2026-09'}]:
+            with self.subTest(params=params):
+                response = self.get(**params)
+                self.assertEqual(response.context['result_count'], 0)
+                self.assertContains(response, 'Không có kết quả phù hợp')
+                self.assertContains(response, 'Xóa bộ lọc về tháng hiện tại')
+                self.assertContains(response, 'chọn lại thời gian')
+                self.assertNotContains(response, 'Bạn chưa ghi nhận giao dịch nào')

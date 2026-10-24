@@ -1,12 +1,12 @@
 {% load money %}
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="transaction-table">
   <thead><tr><th>Ngày</th><th>Giao dịch</th><th>Danh mục</th><th>Loại</th><th class="numeric">Số tiền</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
   <tbody>{% for item in transactions %}<tr>
-    <td data-label="Ngày">{{ item.date|date:"d/m/Y" }}</td>
-    <td data-label="Giao dịch" class="description"><a href="{% url 'finance:transaction_detail' item.pk %}">{{ item.description|default:"Không có mô tả"|truncatechars:55 }}</a></td>
-    <td data-label="Danh mục">{{ item.category.name }}</td>
-    <td data-label="Loại"><span class="badge {{ item.kind }}">{{ item.get_kind_display }}</span></td>
-    <td data-label="Số tiền" class="numeric amount {{ item.kind }}">{% if item.kind == 'income' %}+{% else %}−{% endif %}{{ item.amount|vnd }}</td>
-    <td class="row-action"><a href="{% url 'finance:transaction_detail' item.pk %}" aria-label="Xem giao dịch {{ item.pk }}">Xem <span aria-hidden="true">↗</span></a></td>
+    <td data-label="Ngày" class="transaction-date">{{ item.date|date:"d/m/Y" }}</td>
+    <td data-label="Giao dịch" class="description transaction-description"><a href="{% url 'finance:transaction_detail' item.pk %}">{{ item.description|default:"Không có mô tả"|truncatechars:55 }}</a></td>
+    <td data-label="Danh mục" class="transaction-category">{{ item.category.name }}</td>
+    <td data-label="Loại" class="transaction-kind"><span class="badge {{ item.kind }}">{{ item.get_kind_display }}</span></td>
+    <td data-label="Số tiền" class="numeric amount transaction-amount {{ item.kind }}">{% if item.kind == 'income' %}+{% else %}−{% endif %}{{ item.amount|vnd }}</td>
+    <td class="row-action"><a href="{% url 'finance:transaction_detail' item.pk %}" aria-label="Xem giao dịch {{ item.pk }}">Xem {% include 'includes/icon.html' with name='arrow' %}</a></td>
   </tr>{% endfor %}</tbody>
 </table></div>

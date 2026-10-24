@@ -158,6 +158,7 @@ def transaction_list(request):
     form = TransactionFilterForm(request.GET, user=request.user)
     valid = form.is_valid()
     rows = Transaction.objects.filter(user=request.user)
+    has_transactions = rows.exists()
     rows = apply_filters(rows, form.cleaned_data) if valid else rows.none()
     params = form.data.copy()
     inactive = {'start', 'end'} if form.data.get('period') == 'month' else {'month'}
@@ -165,6 +166,7 @@ def transaction_list(request):
         if name not in form.fields or name in inactive:
             params.pop(name, None)
     context = {'filter_form': form, 'filters_valid': valid, 'filter_query': params.urlencode(),
+               'has_transactions': has_transactions,
                'page_obj': Paginator(rows.select_related('category'), 20).get_page(request.GET.get('page'))}
     context.update(filtered_totals(rows))
     return render(request, "finance/transaction_list.html", context)

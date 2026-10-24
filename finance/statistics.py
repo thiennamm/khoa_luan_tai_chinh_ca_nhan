@@ -17,6 +17,22 @@ def percent(amount, total):
     return (amount * Decimal('100') / total).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total else Decimal('0')
 
 
+def chart_axis(maximum):
+    """Nhãn trình bày rút gọn; giữ nguyên thang cột và số tiền trong bảng."""
+    units = [('triệu tỷ VND', '1000000000000000'), ('nghìn tỷ VND', '1000000000000'),
+             ('tỷ VND', '1000000000'), ('triệu VND', '1000000'), ('nghìn VND', '1000')]
+    unit, divisor = next(((name, Decimal(value)) for name, value in units
+                          if maximum >= Decimal(value)), ('VND', Decimal('1')))
+    ticks = []
+    for position in ([100, 75, 50, 25, 0] if maximum else [0]):
+        value = (maximum * Decimal(position) / Decimal('100') / divisor).quantize(
+            Decimal('0.01'), rounding=ROUND_HALF_UP)
+        label = format(value, 'f').rstrip('0').rstrip('.').replace('.', ',')
+        ticks.append({'position': position, 'value': maximum * Decimal(position) / Decimal('100'),
+                      'label': label})
+    return {'chart_axis_unit': unit, 'chart_axis_ticks': ticks}
+
+
 def financial_statistics(user, selected, span):
     if span not in (6, 12) or selected.day != 1:
         raise ValueError('Khoảng thống kê không hợp lệ')
@@ -53,5 +69,5 @@ def financial_statistics(user, selected, span):
         item['share'] = percent(item['amount'], expense)
         item['width'] = format(item['share'], 'f')
     assert sum((c['amount'] for c in category_rows), Decimal('0')) == expense
-    return {'category_statistics': category_rows, 'monthly_statistics': list(series.values()),
+    return {**chart_axis(maximum), 'category_statistics': category_rows, 'monthly_statistics': list(series.values()),
             'statistics_expense': expense, 'statistics_span': span, 'statistics_actual_months': len(months)}

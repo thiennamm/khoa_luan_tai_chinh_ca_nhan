@@ -1,13 +1,40 @@
 from datetime import date
 from decimal import Decimal
 from unittest.mock import patch
-from django.test import override_settings
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from .models import Category, Transaction, MonthlyCoverage
 from .coverage import monthly_history
-from .statistics import financial_statistics
+from .statistics import chart_axis, financial_statistics
 from .tests import FinanceCase
+
+
+class ChartAxisTests(SimpleTestCase):
+    def test_compact_labels_use_vietnamese_decimal_separator(self):
+        axis = chart_axis(Decimal('125000'))
+        self.assertEqual(axis['chart_axis_unit'], 'nghìn VND')
+        self.assertEqual([t['label'] for t in axis['chart_axis_ticks']],
+                         ['125', '93,75', '62,5', '31,25', '0'])
+        self.assertEqual([t['value'] for t in axis['chart_axis_ticks']],
+                         [Decimal('125000'), Decimal('93750'), Decimal('62500'),
+                          Decimal('31250'), Decimal('0')])
+
+    def test_zero_has_no_fictitious_positive_limit(self):
+        axis = chart_axis(Decimal('0'))
+        self.assertEqual(axis['chart_axis_unit'], 'VND')
+        self.assertEqual(axis['chart_axis_ticks'], [{'position': 0, 'value': Decimal('0'), 'label': '0'}])
+
+    def test_scale_boundaries_and_rounding_preserve_exact_values(self):
+        for amount, unit in [('999', 'VND'), ('1000', 'nghìn VND'),
+                             ('1000000', 'triệu VND'), ('1000000000', 'tỷ VND'),
+                             ('1000000000000', 'nghìn tỷ VND'),
+                             ('25000000000124975', 'triệu tỷ VND')]:
+            with self.subTest(amount=amount):
+                axis = chart_axis(Decimal(amount))
+                self.assertEqual(axis['chart_axis_unit'], unit)
+                self.assertEqual(axis['chart_axis_ticks'][0]['value'], Decimal(amount))
+                self.assertTrue(all(len(t['label']) <= 6 for t in axis['chart_axis_ticks']))
 
 
 class FinancialStatisticsTests(FinanceCase):
@@ -51,6 +78,9 @@ class FinancialStatisticsTests(FinanceCase):
         self.assertTrue(all(r['income_height']=='0' and r['expense_height']=='0' for r in bymonth.values()))
         history=monthly_history(self.alice,date(2026,7,1),date(2026,9,1))
         self.assertEqual([m['forecast_expense'] for m in history],[None,Decimal('0'),None])
+        page = self.client.get(reverse('finance:dashboard'), {'month': '2026-09'})
+        self.assertContains(page, 'không khẳng định tháng đó không chi tiền')
+        self.assertContains(page, 'vẫn là dữ liệu chưa biết cho dự báo')
 
     def test_current_future_and_vietnam_time(self):
         with patch('finance.statistics.current_month',return_value=date(2026,10,1)):
@@ -73,6 +103,8 @@ class FinancialStatisticsTests(FinanceCase):
         self.assertEqual(last['expense_height'],'100.00')
         self.assertEqual(last['income_height'],'4.00')
         self.assertEqual(last['balance'],last['income']-last['expense'])
+        self.assertEqual(result['chart_axis_ticks'][0]['value'], last['expense'])
+        self.assertEqual(result['chart_axis_unit'], 'triệu tỷ VND')
 
     def test_escaped_special_names_no_js_and_same_data_for_chart_table(self):
         self.food.name='<script>alert("x")</script> & Điện'

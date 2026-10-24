@@ -1,11 +1,17 @@
 <nav aria-label="Điều hướng chính">
-      <a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◫</span> Tổng quan</a>
-      <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name or 'csv_' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↔</span> Giao dịch</a>
-      <a href="{% url 'finance:recurring_list' %}" {% if 'recurring' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↻</span> Giao dịch định kỳ</a>
-      <a href="{% url 'finance:classification_feedback' %}" {% if request.resolver_match.url_name == 'classification_feedback' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">✓</span> Phản hồi phân loại</a>
-      <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▦</span> Danh mục</a>
-      <a href="{% url 'finance:monthly_history' %}" {% if request.resolver_match.url_name == 'monthly_history' or 'coverage' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▤</span> Lịch sử ghi chép</a>
-      <a href="{% url 'finance:forecast' %}" {% if request.resolver_match.url_name == 'forecast' or request.resolver_match.url_name == 'forecast_demo' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↗</span> Dự báo</a>
-      <a href="{% url 'finance:budget_list' %}" {% if 'budget' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▥</span> Ngân sách</a>
-      <a href="{% url 'account' %}" {% if request.resolver_match.url_name == 'account' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">○</span> Tài khoản</a>
-    </nav>
+  <div class="nav-group"><a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='home' %}<span>Tổng quan</span></a></div>
+  <div class="nav-group" role="group" aria-label="Ghi chép"><p class="nav-label">Ghi chép</p>
+    <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name or 'csv_' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='transactions' %}<span>Giao dịch</span></a>
+    <a href="{% url 'finance:recurring_list' %}" {% if 'recurring' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='repeat' %}<span>Giao dịch định kỳ</span></a>
+    <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='category' %}<span>Danh mục</span></a>
+  </div>
+  <div class="nav-group" role="group" aria-label="Kế hoạch"><p class="nav-label">Kế hoạch</p>
+    <a href="{% url 'finance:budget_list' %}" {% if 'budget' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='budget' %}<span>Ngân sách</span></a>
+    <a href="{% url 'finance:forecast' %}" {% if request.resolver_match.url_name == 'forecast' or request.resolver_match.url_name == 'forecast_demo' or request.resolver_match.url_name == 'forecast_history' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='forecast' %}<span>Dự báo</span></a>
+    <a href="{% url 'finance:monthly_history' %}" {% if request.resolver_match.url_name == 'monthly_history' or 'coverage' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='calendar' %}<span>Lịch sử ghi chép</span></a>
+  </div>
+  <div class="nav-group" role="group" aria-label="Cá nhân"><p class="nav-label">Cá nhân</p>
+    <a href="{% url 'finance:classification_feedback' %}" {% if request.resolver_match.url_name == 'classification_feedback' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='feedback' %}<span>Phản hồi phân loại</span></a>
+    <a href="{% url 'account' %}" {% if request.resolver_match.url_name == 'account' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='user' %}<span>Tài khoản</span></a>
+  </div>
+</nav>

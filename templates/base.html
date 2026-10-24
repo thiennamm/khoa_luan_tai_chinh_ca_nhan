@@ -2,24 +2,25 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#174c40">
+  <meta name="theme-color" content="#123f36">
   <title>{% block title %}Sổ Thu Chi{% endblock %} · Tài chính cá nhân</title>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=15a.1">
+  <link rel="icon" href="{% static 'img/brand.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=17a.3">
 </head>
 <body>
 <a class="skip-link" href="#main">Đến nội dung chính</a>
 {% if user.is_authenticated %}
 <div class="app-shell">
   <aside class="sidebar">
-    <a class="brand" href="{% url 'finance:dashboard' %}"><span class="brand-icon" aria-hidden="true">₫</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a>
+    <a class="brand" href="{% url 'finance:dashboard' %}"><span class="brand-icon">{% include 'includes/icon.html' with name='wallet' %}</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a>
     <div class="desktop-navigation">{% include 'includes/navigation.html' %}</div>
-    <details class="mobile-navigation"><summary>Menu điều hướng</summary>{% include 'includes/navigation.html' %}</details>
-    <div class="sidebar-foot"><span class="local-dot"></span> Không gian thu chi của bạn<small>Đơn vị tiền: Việt Nam đồng (VND)</small></div>
+    <details class="mobile-navigation"><summary>{% include 'includes/icon.html' with name='menu' %}<span>Menu điều hướng</span>{% include 'includes/icon.html' with name='chevron' %}</summary>{% include 'includes/navigation.html' %}</details>
+    <div class="sidebar-foot">{% include 'includes/icon.html' with name='shield' %}<span>Không gian của riêng bạn<small>Đơn vị tiền: VND</small></span></div>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span class="muted">Một chút ghi chép, rõ hơn mỗi ngày.</span><div class="account"><span class="username">{{ user.username }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit">Đăng xuất</button></form></div></header>
+    <header class="topbar"><span class="workspace-label">Sổ tài chính cá nhân</span><div class="account"><a href="{% url 'account' %}" class="account-link" title="{{ user.username }}">{% include 'includes/icon.html' with name='user' %}<span class="username">{{ user.username }}</span></a><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit">{% include 'includes/icon.html' with name='logout' %}<span>Đăng xuất</span></button></form></div></header>
 {% else %}
-<div class="auth-shell"><header class="auth-header"><a class="brand" href="{% url 'login' %}"><span class="brand-icon" aria-hidden="true">₫</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a><span class="muted">Gọn gàng hơn. Chủ động hơn.</span></header>
+<div class="auth-shell"><header class="auth-header"><a class="brand" href="{% url 'login' %}"><span class="brand-icon">{% include 'includes/icon.html' with name='wallet' %}</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a><span class="muted">Ghi chép rõ ràng. Chủ động mỗi ngày.</span></header>
 {% endif %}
     <main id="main" {% if not user.is_authenticated %}class="auth-main"{% endif %}>
       {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}" role="{% if 'error' in message.tags %}alert{% else %}status{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
