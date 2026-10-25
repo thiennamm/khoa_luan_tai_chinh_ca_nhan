@@ -1,0 +1,24 @@
+<section class="suggestion-inline" id="classification-suggestion" data-url="{% url 'finance:category_suggestion' %}" data-action-url="{% url 'finance:suggestion_action' %}" data-transaction-id="{{ source_transaction_id }}" aria-label="Gợi ý danh mục thử nghiệm">
+  <div class="suggestion-toolbar">
+    <div class="suggestion-language"><label for="suggestion-mode">Gợi ý thử nghiệm · ML</label>
+      <select id="suggestion-mode" name="suggestion_mode">
+        <option value="vi" aria-label="Tiếng Việt — thử nghiệm" {% if suggestion_mode == 'vi' %}selected{% endif %}>VI — Tiếng Việt</option>
+        <option value="en" aria-label="Tiếng Anh — thử nghiệm" {% if suggestion_mode == 'en' %}selected{% endif %}>EN — Tiếng Anh</option>
+      </select>
+    </div>
+    <button class="button secondary" type="button" id="suggest-category">Gợi ý danh mục</button>
+  </div>
+  <p class="suggestion-caution">Gợi ý có thể sai. Hãy kiểm tra trước khi áp dụng.</p>
+  <div role="status" aria-live="polite" aria-atomic="true"><p id="suggestion-result"></p></div>
+  <div id="suggestion-actions" hidden>
+    <label for="suggestion-category">Danh mục phù hợp của bạn</label><select id="suggestion-category"></select>
+    <button class="button secondary" type="button" id="apply-suggestion" disabled>Áp dụng danh mục đã chọn</button>
+  </div>
+  <details class="suggestion-details"><summary>Về mô hình và phản hồi</summary>
+    <p>Mô hình tiếng Việt học từ dữ liệu mô phỏng nhỏ do AI biên soạn, chưa được kiểm chứng trên giao dịch thật đại diện người dùng Việt Nam. Mô hình tiếng Anh được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt.</p>
+    <p>Không tự nhận diện ngôn ngữ hoặc đổi mô hình khi lỗi. Đổi chế độ, mô tả hoặc loại cần yêu cầu gợi ý lại. Transfer luôn cần xem lại, không tự coi là thu hay chi.</p>
+    <p>Gợi ý không đổi danh mục cho đến khi bạn bấm Áp dụng; không tự lưu hoặc tự học. <a href="{% url 'finance:category_list' %}">Quản lý ánh xạ danh mục</a>.</p>
+    <p>Khi lưu với gợi ý còn hiệu lực và danh mục có ánh xạ, hệ thống ghi nhãn đề xuất và lựa chọn cuối. Phản hồi là lựa chọn của người dùng, không phải nhãn đúng đã được kiểm định. <a href="{% url 'finance:classification_feedback' %}">Xem phản hồi</a>.</p>
+  </details>
+  <noscript><p>Bật JavaScript để dùng gợi ý. Bạn vẫn có thể nhập giao dịch thủ công.</p></noscript>
+</section>

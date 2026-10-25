@@ -34,6 +34,18 @@ Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi 
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
+## Nhập nhanh và gợi ý gọn — TASK 17B
+
+Trong **Thêm giao dịch**, ô **Nhập nhanh** nhận một câu như `Ăn trưa 45k hôm nay`. Bấm **Điền vào biểu mẫu** mới phân tích theo quy tắc; không dùng chatbot/ML để đọc câu và không tự lưu hoặc yêu cầu gợi ý danh mục.
+
+Tiền cần đơn vị rõ: `45k`, `45 nghìn`, `1,5 triệu`, `45000đ` (cũng nhận `₫`, `VND`); ngày nhận `hôm nay`, `hôm qua`, `dd/mm/yyyy`. Thiếu ngày dùng hôm nay theo giờ Việt Nam và ghi rõ trong kết quả. Chỉ tiền tố `Thu:`, `Thu nhập:`, `Chi:`, `Chi tiêu:` mới điền loại; nếu không phải tự chọn. Không đoán danh mục. Tiền được chuyển bằng Decimal thành số nguyên VND trong giới hạn hiện có. Quy ước không gõ ký hiệu tiền/dấu phân cách vẫn áp dụng khi nhập trực tiếp trường Số tiền.
+
+Kết quả hiện mô tả sau xử lý và phần cần kiểm tra. Nhiều tiền/ngày, tiền âm/zero/quá lớn hoặc định dạng không hỗ trợ sẽ báo lỗi, giữ nguyên dữ liệu biểu mẫu. Nếu form đã có dữ liệu, phải bấm **Xác nhận thay thế biểu mẫu** hoặc **Giữ dữ liệu hiện tại**. Khi áp dụng nhập nhanh, danh mục được để trống để bạn chọn lại. Cuối cùng vẫn phải kiểm tra và bấm **Lưu giao dịch**. Nhập nhanh chỉ có trên trang Thêm; biểu mẫu thường vẫn dùng được khi JavaScript tắt.
+
+Ô nhập nhanh dùng một dòng. Sau khi điền, tóm tắt gọn tiền–ngày–loại và thông báo **Đã điền, chưa lưu** luôn thấy; lỗi/các trường cần bổ sung không bị giấu. Bảng nhận diện và giải thích đầy đủ mở tại **Xem chi tiết**.
+
+Ngay dưới Mô tả là chọn **VI — Tiếng Việt / EN — Tiếng Anh** và nút **Gợi ý danh mục**; giữ nhãn thử nghiệm, cảnh báo và nút **Áp dụng** riêng. Chi tiết mô hình/phản hồi nằm trong mục mở rộng. Thay mô tả/loại qua nhập nhanh cũng hủy gợi ý cũ; backend vẫn xác minh receipt khi lưu. Xem định dạng, giới hạn, QA, kiểm thử và bàn giao mã tại [docs/quick-transaction-entry.md](docs/quick-transaction-entry.md).
+
 ## Lịch sử dự báo — TASK 15C
 
 Từ **Dự báo → Lịch sử dự báo**, xem các phiên bản dự báo cá nhân và đối chiếu với tổng khoản chi đã ghi trong website. Chỉ tháng đã kết thúc theo giờ Việt Nam, được xác nhận ghi chép đầy đủ mới có số thực tế; tháng không có chi chỉ bằng 0 sau xác nhận. Mỗi tháng dùng bản đầu tiên hợp lệ được lập **trong tháng** để tính MAE, các phiên bản sau chỉ xem lịch sử. MAE đối chiếu thực tế tách riêng MAE validation và không phải chỉ số riêng của Ridge.
@@ -80,7 +92,7 @@ Danh mục phải cùng tài khoản và cùng loại thu/chi với giao dịch.
 
 ## Gợi ý phân loại thử nghiệm — TASK 08A / 10C
 
-Biểu mẫu hiện có hai chế độ **Tiếng Việt — thử nghiệm** (mặc định) và **Tiếng Anh — thử nghiệm**. Người dùng tự chọn; không nhận diện ngôn ngữ hoặc tự chuyển mô hình khi lỗi. Gợi ý có thể sai: phải kiểm tra, chọn danh mục rồi bấm **Áp dụng**; sau đó tự bấm **Lưu giao dịch**. Đổi chế độ, mô tả hoặc loại thu/chi hủy gợi ý cũ, kể cả phản hồi đang chờ.
+Biểu mẫu có hai chế độ thử nghiệm **VI — Tiếng Việt** (mặc định) và **EN — Tiếng Anh**, đặt gọn dưới Mô tả. Người dùng tự chọn; không nhận diện ngôn ngữ hoặc tự chuyển mô hình khi lỗi. Gợi ý có thể sai: phải kiểm tra, chọn danh mục rồi bấm **Áp dụng**; sau đó tự bấm **Lưu giao dịch**. Đổi chế độ, mô tả hoặc loại thu/chi hủy gợi ý cũ, kể cả phản hồi đang chờ. Thông tin mô hình và phản hồi trong mục **Về mô hình và phản hồi**.
 
 Mô hình tiếng Việt là Pipeline TF-IDF `char_wb` (3,5) + LinearSVC C=10 của TASK 10B, giữ bản fit trên train, không refit. Dữ liệu mô phỏng nhỏ do dự án biên soạn với AI; chưa được kiểm chứng trên giao dịch thật đại diện người Việt. Giữ dấu khi chuẩn hóa NFC/casefold/khoảng trắng, bỏ đúng một tiền tố đầu `[debit]`/`[credit]`. Không hiển thị điểm kiểm thử hay decision score như độ chắc chắn của giao dịch; không có blacklist câu mơ hồ.
 

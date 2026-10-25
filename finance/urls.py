@@ -8,6 +8,7 @@ from .csv_export import transaction_export
 from . import budget_views
 from . import recurring_views
 from . import forecast_history_views
+from . import quick_entry_views
 
 app_name = "finance"
 urlpatterns = [
@@ -37,6 +38,7 @@ urlpatterns = [
     path('giao-dich/nhap-csv/<uuid:pk>/', csv_views.csv_preview, name='csv_preview'),
     path('giao-dich/nhap-csv/<uuid:pk>/xac-nhan/', csv_views.csv_confirm, name='csv_confirm'),
     path("giao-dich/them/", views.transaction_edit, name="transaction_create"),
+    path('giao-dich/nhap-nhanh/', quick_entry_views.analyze, name='quick_entry'),
     path("giao-dich/goi-y-danh-muc/", views.category_suggestion, name="category_suggestion"),
     path("giao-dich/<int:pk>/", views.transaction_detail, name="transaction_detail"),
     path("giao-dich/<int:pk>/sua/", views.transaction_edit, name="transaction_edit"),

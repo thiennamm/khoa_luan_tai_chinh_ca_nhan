@@ -1,0 +1,21 @@
+<section class="card quick-entry" id="quick-entry" data-url="{% url 'finance:quick_entry' %}" aria-labelledby="quick-title">
+  <div class="quick-heading"><h2 id="quick-title">{% include 'includes/icon.html' with name='spark' %} Nhập nhanh</h2><span class="unit-label">Theo quy tắc · không phải ML</span></div>
+  <label for="quick-text">Một câu, một giao dịch</label>
+  <div class="quick-input-row"><input type="text" id="quick-text" maxlength="500" placeholder="Ăn trưa 30k hôm nay" aria-describedby="quick-help">
+    <button type="button" class="button secondary" id="quick-fill" disabled>Điền vào biểu mẫu</button></div>
+  <p id="quick-help" class="help">Chỉ điền trước để bạn kiểm tra, không tự lưu.</p>
+  <p id="quick-status" role="status" aria-live="polite"></p>
+  <div id="quick-preview" hidden>
+    <p id="quick-summary" aria-label="Tóm tắt thông tin nhận diện"></p>
+    <p id="quick-default-date" class="help" hidden>Dùng hôm nay làm ngày mặc định.</p>
+    <div id="quick-attention" hidden><strong>Cần bổ sung / kiểm tra</strong><ul id="quick-needed"></ul></div>
+    <div id="quick-confirmation" hidden><p>Biểu mẫu đang có dữ liệu. Chỉ xác nhận nếu muốn thay mô tả, số tiền, ngày, loại và xóa lựa chọn danh mục hiện tại.</p>
+      <div class="form-actions"><button type="button" class="button" id="quick-replace">Xác nhận thay thế biểu mẫu</button><button type="button" class="button secondary" id="quick-cancel">Giữ dữ liệu hiện tại</button></div>
+    </div>
+  </div>
+  <details id="quick-details" class="quick-details"><summary>Xem chi tiết</summary>
+    <p class="help">Tiền có đơn vị, ngày hôm nay/hôm qua hoặc dd/mm/yyyy. Thêm “Thu:” hoặc “Chi:” nếu muốn điền loại. Nhập nhanh dùng quy tắc, không tự đoán danh mục hoặc yêu cầu gợi ý ML.</p>
+    <div id="quick-detail-result" hidden><h3>Thông tin nhận diện được</h3><dl id="quick-fields"></dl><ul id="quick-warnings"></ul></div>
+  </details>
+  <noscript><p>Nhập nhanh cần JavaScript. Hãy dùng biểu mẫu thường bên dưới; không có giao dịch nào được tạo từ ô này.</p></noscript>
+</section>

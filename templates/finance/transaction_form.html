@@ -2,37 +2,19 @@
 {% block title %}{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch{% endblock %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
+{% if not editing %}{% include 'finance/includes/quick_entry.html' %}{% endif %}
 <section class="card form-card">
 {% if editing and form.instance.recurring_occurrence %}<p class="notice">Giao dịch thuộc kỳ định kỳ {{ form.instance.recurring_occurrence.month|date:'m/Y' }}. Sửa ngày, tiền hoặc danh mục không mở lại kỳ; ngày thực tế quyết định tháng báo cáo. Snapshot dự kiến của kỳ giữ nguyên.</p>{% endif %}
 {% if not has_categories %}<div class="notice"><strong>Bạn chưa có danh mục.</strong><p>Tạo ít nhất một danh mục thu hoặc chi trước khi thêm giao dịch.</p><a class="button secondary" href="{% url 'finance:category_create' %}">Tạo danh mục</a></div>{% endif %}
-<form method="post" id="transaction-form">{% csrf_token %}<section class="entry-step"><h2>1. Nhập giao dịch</h2>{% include 'includes/form_fields.html' %}</section>
+<form method="post" id="transaction-form">{% csrf_token %}<section class="entry-step"><h2>Thông tin giao dịch</h2>
+{% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+{% for field in form %}<div class="field{% if field.errors %} field-invalid{% endif %}">
+<label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required" aria-hidden="true"> *</span>{% else %}<span class="optional"> (không bắt buộc)</span>{% endif %}</label>
+{{ field }}{% if field.help_text %}<div class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}{% if field.errors %}<div class="field-errors" id="{{ field.auto_id }}_error" role="alert">{{ field.errors }}</div>{% endif %}
+{% if field.name == 'description' %}{% include 'finance/includes/compact_suggestion.html' %}{% endif %}
+</div>{% endfor %}</section>
 <input type="hidden" id="suggestion-id" name="suggestion_id" value="{{ suggestion_id }}">
-<p class="help">Bạn có thể chọn danh mục thủ công. Gợi ý thử nghiệm có thể sai, hãy kiểm tra trước khi áp dụng.</p>
-<details class="suggestion-disclosure"><summary>2. Gợi ý danh mục (tùy chọn)</summary>
-<section class="suggestion-panel" id="classification-suggestion" data-url="{% url 'finance:category_suggestion' %}" data-action-url="{% url 'finance:suggestion_action' %}" data-transaction-id="{{ source_transaction_id }}" aria-labelledby="suggestion-title">
-  <h2 id="suggestion-title">Gợi ý thử nghiệm</h2>
-  <p>Gợi ý có thể sai. Hãy kiểm tra trước khi áp dụng.</p>
-  <label for="suggestion-mode">Ngôn ngữ mô hình</label>
-  <select id="suggestion-mode" name="suggestion_mode">
-    <option value="vi" {% if suggestion_mode == 'vi' %}selected{% endif %}>Tiếng Việt — thử nghiệm</option>
-    <option value="en" {% if suggestion_mode == 'en' %}selected{% endif %}>Tiếng Anh — thử nghiệm</option>
-  </select>
-  <details><summary>Thông tin mô hình thử nghiệm</summary>
-    <p class="help">Mô hình tiếng Việt học từ dữ liệu mô phỏng nhỏ do AI biên soạn trong dự án, chưa được kiểm chứng trên giao dịch thật đại diện người dùng Việt Nam.</p>
-    <p class="help">Mô hình tiếng Anh được đánh giá trên dữ liệu tổng hợp tiếng Anh, chưa được kiểm chứng cho tiếng Việt. Hệ thống không tự nhận diện ngôn ngữ hoặc đổi mô hình khi lỗi. Đổi chế độ, mô tả hoặc loại thu/chi cần yêu cầu gợi ý lại.</p>
-  </details>
-  <button class="button secondary" type="button" id="suggest-category">Gợi ý danh mục</button>
-  <div role="status" aria-live="polite" aria-atomic="true"><p id="suggestion-result"></p></div>
-  <div id="suggestion-actions" hidden>
-    <label for="suggestion-category">Danh mục phù hợp của bạn</label>
-    <select id="suggestion-category"></select>
-    <button class="button secondary" type="button" id="apply-suggestion" disabled>Áp dụng danh mục đã chọn</button>
-  </div>
-  <p class="help">Gợi ý không thay đổi danh mục hiện tại cho đến khi bạn bấm Áp dụng. <a href="{% url 'finance:category_list' %}">Quản lý ánh xạ danh mục</a>.</p>
-  <p class="help">Khi lưu với gợi ý còn hiệu lực và danh mục có ánh xạ, hệ thống ghi nhận nhãn đề xuất và lựa chọn cuối cùng. <a href="{% url 'finance:classification_feedback' %}">Xem phản hồi phân loại</a>.</p>
-  <noscript><p>Bật JavaScript để dùng gợi ý. Bạn vẫn có thể nhập giao dịch thủ công.</p></noscript>
-</section></details>
-<section class="review-step"><h2>3. Kiểm tra và lưu</h2><p class="help">Kiểm tra số tiền, ngày và danh mục. Giao dịch chỉ được lưu khi bạn bấm Lưu giao dịch.</p>
+<section class="review-step"><h2>Kiểm tra và lưu</h2><p class="help">Kiểm tra số tiền, ngày và danh mục. Giao dịch chỉ được lưu khi bạn bấm Lưu giao dịch.</p>
 <p class="help">Chỉ những danh mục thuộc tài khoản của bạn mới xuất hiện. <a href="{% url 'finance:category_create' %}">Thêm danh mục</a></p><div class="form-actions"><button class="button" type="submit" {% if not has_categories %}disabled{% endif %}>Lưu giao dịch</button><a class="button secondary" href="{% url 'finance:transaction_list' %}">Hủy</a></div></section></form></section>
 {% endblock %}
-{% block scripts %}{{ category_kinds|json_script:'category-kinds' }}<script src="{% static 'js/transaction-form.js' %}" defer></script>{% endblock %}
+{% block scripts %}{{ category_kinds|json_script:'category-kinds' }}<script src="{% static 'js/transaction-form.js' %}" defer></script>{% if not editing %}<script src="{% static 'js/quick-entry.js' %}" defer></script>{% endif %}{% endblock %}
