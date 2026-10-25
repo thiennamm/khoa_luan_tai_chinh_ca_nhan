@@ -5,7 +5,7 @@
   <meta name="theme-color" content="#123f36">
   <title>{% block title %}Sổ Thu Chi{% endblock %} · Tài chính cá nhân</title>
   <link rel="icon" href="{% static 'img/brand.svg' %}" type="image/svg+xml">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=17b.2">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=17c.1">
 </head>
 <body>
 <a class="skip-link" href="#main">Đến nội dung chính</a>
@@ -27,6 +27,7 @@
       {% block content %}{% endblock %}
     </main>
 {% if user.is_authenticated %}<footer class="footer">Sổ Thu Chi <span>Ghi chép của bạn · Dữ liệu của bạn</span></footer></div></div>{% else %}</div>{% endif %}
+<script src="{% static 'js/money.js' %}" defer></script>
 <script src="{% static 'js/form-feedback.js' %}" defer></script>
 {% block scripts %}{% endblock %}
 </body></html>

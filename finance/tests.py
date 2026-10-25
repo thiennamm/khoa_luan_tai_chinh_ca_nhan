@@ -185,7 +185,7 @@ class SummaryTests(FinanceCase):
         self.assertEqual(response.context['expense'], Decimal('125000'))
         self.assertEqual(response.context['balance'], Decimal('5875000'))
         self.assertEqual(response.context['transaction_count'], 3)
-        self.assertContains(response, '6.000.000 ₫')
+        self.assertContains(response, '6.000.000 VND')
 
     def test_negative_balance(self):
         response = self.client.get(reverse('finance:dashboard'), {'month': '2026-10'})
@@ -222,8 +222,8 @@ class SummaryTests(FinanceCase):
         self.assertEqual(response.context['page_obj'].paginator.count, 0)
 
     def test_vnd_formatting(self):
-        self.assertEqual(vnd(Decimal('123456789')), '123.456.789 ₫')
-        self.assertEqual(vnd(Decimal('-500')), '-500 ₫')
+        self.assertEqual(vnd(Decimal('123456789')), '123.456.789 VND')
+        self.assertEqual(vnd(Decimal('-500')), '-500 VND')
 
 
 class AuthenticationTests(TestCase):

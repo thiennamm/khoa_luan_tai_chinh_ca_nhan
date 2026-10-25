@@ -30,7 +30,11 @@ py -3.13 -m venv .venv
 4. Mở **Tổng quan** và chọn tháng để xem tổng thu, tổng chi, chênh lệch. Trang **Giao dịch** tìm trong mô tả, lọc theo loại/danh mục và chọn tháng hoặc khoảng ngày; phân trang 20 dòng.
 5. Nhấn **Xem** để xem chi tiết, sửa hoặc xác nhận xóa giao dịch. Đăng xuất bằng nút ở đầu trang.
 
-Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Khi nhập không gõ dấu chấm/phẩy phân cách hoặc ký hiệu tiền; ví dụ `150000`. Khi hiển thị, website định dạng thành `150.000 ₫`. Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùng `Decimal`. Tổng được cộng theo từng dòng Decimal để tránh làm tròn khi tổng lớn trên SQLite. Riêng đại số ML của Ridge chuyển tổng tháng sang float64 tại ranh giới mô hình; không dùng float để lưu giao dịch hoặc cộng tổng tài chính.
+Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Trường tiền của giao dịch, ngân sách và định kỳ nhận `50000` hoặc `50.000`, hiển thị `50.000` với nhãn **VND** bên cạnh. Dấu chấm chỉ hợp lệ khi phân nhóm đúng ba chữ số; `50.00`, `50,000`, dấu âm/dương, phần lẻ và ký hiệu tiền bị từ chối ở server. Khi JavaScript tắt vẫn nhập và lưu số nguyên được. CSV tiếp tục dùng số nguyên **không dấu phân cách**.
+
+Tiền trên trang được hiển thị thống nhất như `0 VND`, `50.000 VND`, `1.250.000 VND`, `-50.000 VND`; giá trị chưa biết không được đổi thành 0. Biểu đồ có thể dùng đơn vị rút gọn đã ghi rõ. Chi tiết, các tệp thay đổi và bằng chứng QA TASK 17C: [docs/money-formatting.md](docs/money-formatting.md).
+
+Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùng `Decimal`. Tổng được cộng theo từng dòng Decimal để tránh làm tròn khi tổng lớn trên SQLite. Riêng đại số ML của Ridge chuyển tổng tháng sang float64 tại ranh giới mô hình; không dùng float để lưu giao dịch hoặc cộng tổng tài chính. TASK 17C giữ nguyên phép tính và quy tắc làm tròn hiển thị.
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
@@ -38,7 +42,7 @@ Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có
 
 Trong **Thêm giao dịch**, ô **Nhập nhanh** nhận một câu như `Ăn trưa 45k hôm nay`. Bấm **Điền vào biểu mẫu** mới phân tích theo quy tắc; không dùng chatbot/ML để đọc câu và không tự lưu hoặc yêu cầu gợi ý danh mục.
 
-Tiền cần đơn vị rõ: `45k`, `45 nghìn`, `1,5 triệu`, `45000đ` (cũng nhận `₫`, `VND`); ngày nhận `hôm nay`, `hôm qua`, `dd/mm/yyyy`. Thiếu ngày dùng hôm nay theo giờ Việt Nam và ghi rõ trong kết quả. Chỉ tiền tố `Thu:`, `Thu nhập:`, `Chi:`, `Chi tiêu:` mới điền loại; nếu không phải tự chọn. Không đoán danh mục. Tiền được chuyển bằng Decimal thành số nguyên VND trong giới hạn hiện có. Quy ước không gõ ký hiệu tiền/dấu phân cách vẫn áp dụng khi nhập trực tiếp trường Số tiền.
+Tiền cần đơn vị rõ: `45k`, `45 nghìn`, `1,5 triệu`, `45000đ` (cũng nhận `₫`, `VND`); ngày nhận `hôm nay`, `hôm qua`, `dd/mm/yyyy`. Thiếu ngày dùng hôm nay theo giờ Việt Nam và ghi rõ trong kết quả. Chỉ tiền tố `Thu:`, `Thu nhập:`, `Chi:`, `Chi tiêu:` mới điền loại; nếu không phải tự chọn. Không đoán danh mục. Tiền được chuyển bằng Decimal thành số nguyên VND trong giới hạn hiện có. Parser nhập nhanh giữ nguyên cách hiểu `1,5 triệu`; sau phân tích, tóm tắt hiện `1.500.000 VND` và trường tiền hiện `1.500.000`. Cú pháp nhập nhanh khác với trường Số tiền: trường này chỉ nhận số nguyên hoặc dấu chấm phân nhóm hợp lệ, không nhận ký hiệu tiền.
 
 Kết quả hiện mô tả sau xử lý và phần cần kiểm tra. Nhiều tiền/ngày, tiền âm/zero/quá lớn hoặc định dạng không hỗ trợ sẽ báo lỗi, giữ nguyên dữ liệu biểu mẫu. Nếu form đã có dữ liệu, phải bấm **Xác nhận thay thế biểu mẫu** hoặc **Giữ dữ liệu hiện tại**. Khi áp dụng nhập nhanh, danh mục được để trống để bạn chọn lại. Cuối cùng vẫn phải kiểm tra và bấm **Lưu giao dịch**. Nhập nhanh chỉ có trên trang Thêm; biểu mẫu thường vẫn dùng được khi JavaScript tắt.
 

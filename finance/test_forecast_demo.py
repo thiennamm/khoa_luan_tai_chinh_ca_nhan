@@ -134,7 +134,7 @@ class DemoWebTests(FinanceCase):
             page = self.client.get(self.url)
         fit.assert_not_called()
         self.assertEqual(before, self.all_rows())
-        self.assertContains(page, '7.802.124 ₫')
+        self.assertContains(page, '7.802.124 VND')
         self.assertContains(page, 'PHƯƠNG PHÁP ĐỐI CHỨNG')
         self.assertContains(page, 'data-series="forecast-point"')
         self.assertContains(page, 'không phải giá trị thực tế')
@@ -150,7 +150,7 @@ class DemoWebTests(FinanceCase):
         page = self.client.get(self.url)
         self.assertNotContains(page, 'Giao dịch riêng Alice')
         self.assertNotContains(page, 'Giao dịch bí mật Bob')
-        self.assertNotContains(page, '111.111 ₫')
+        self.assertNotContains(page, '111.111 VND')
         self.assertEqual(before, self.all_rows())
         self.assertEqual(page.context['source']['data_sha256'], demo.scenario()['data_sha256'])
 

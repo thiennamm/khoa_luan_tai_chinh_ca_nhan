@@ -11,7 +11,7 @@
 <p class="help">Đường liền xanh: tổng tháng mô phỏng. {% if result %}Đường đứt và vòng tròn cam: ước tính, không phải giá trị thực tế.{% else %}Chưa tính ước tính.{% endif %}</p>
 <div class="demo-chart-scroll"><svg class="demo-chart" viewBox="0 0 930 300" role="img" aria-labelledby="demo-chart-title demo-chart-description">
 <title id="demo-chart-title">48 tổng tháng mô phỏng{% if result %} và ước tính tháng 01/2026{% endif %}</title><desc id="demo-chart-description">Dữ liệu lịch sử từ 01/2022 đến 12/2025. Bảng bên dưới chứa các giá trị lịch sử. Ước tính nếu có được đánh dấu riêng bằng vòng tròn cam.</desc>
-<path d="M55 30 V245 H900" fill="none" stroke="#c4cec6"/><text x="55" y="20">{{ chart.top_vnd|vnd }}</text><text x="25" y="250">0</text>
+<path d="M55 30 V245 H900" fill="none" stroke="#c4cec6"/><text x="55" y="20">{{ chart.top_vnd|vnd }}</text><text x="4" y="250">{{ 0|vnd }}</text>
 <polyline data-series="synthetic-history" points="{{ chart.history }}" fill="none" stroke="#174c40" stroke-width="3"/>
 {% if result %}<polyline data-series="forecast" points="{{ chart.forecast }}" fill="none" stroke="#a35c12" stroke-width="3" stroke-dasharray="6 5"/><circle data-series="forecast-point" cx="{{ chart.predicted.x }}" cy="{{ chart.predicted.y }}" r="6" fill="white" stroke="#a35c12" stroke-width="3"><title>Ước tính 01/2026: {{ result.estimate|vnd }}; không phải thực tế</title></circle>{% endif %}
 <text x="55" y="275">01/2022</text><text x="465" y="275" text-anchor="middle">01/2024</text><text x="875" y="275" text-anchor="end">01/2026 · đích</text></svg></div>

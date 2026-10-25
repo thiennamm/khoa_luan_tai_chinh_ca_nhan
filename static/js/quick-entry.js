@@ -53,6 +53,7 @@
     discard(); filling = true;
     try {
       for (const name of ['amount', 'date', 'kind', 'description']) fields[name].value = data.fields[name];
+      globalThis.SoThuChiMoney.formatInputElement(fields.amount);
       fields.category.value = '';
       // Reuse existing category filtering and receipt revocation/invalidation listeners.
       fields.kind.dispatchEvent(new Event('change', {bubbles: true}));
@@ -86,7 +87,7 @@
       details.replaceChildren(); warnings.replaceChildren(); needed.replaceChildren();
       const kindLabel = {income: 'Thu nhập', expense: 'Chi tiêu'}[data.fields.kind] || 'Chưa chọn loại';
       // Display only: group the server's integer string without float conversion.
-      const amountLabel = data.fields.amount.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
+      const amountLabel = globalThis.SoThuChiMoney.formatVnd(data.fields.amount);
       summary.textContent = `${amountLabel} · ${data.fields.date.split('-').reverse().join('/')} · ${kindLabel}`;
       defaultDate.hidden = !data.date_defaulted;
       const notices = data.fields.kind ? ['Chọn danh mục.'] : ['Chọn loại thu/chi.', 'Chọn danh mục.'];
@@ -109,6 +110,7 @@
         const term = document.createElement('dt'); term.textContent = labels[name];
         const value = document.createElement('dd');
         value.textContent = name === 'kind' ? ({income: 'Thu nhập', expense: 'Chi tiêu'}[data.fields.kind] || 'Bạn cần chọn')
+          : name === 'amount' ? globalThis.SoThuChiMoney.formatVnd(data.fields.amount)
           : name === 'date' ? data.fields.date.split('-').reverse().join('/') : data.fields[name] || '(Trống)';
         row.append(term, value); details.append(row);
       }

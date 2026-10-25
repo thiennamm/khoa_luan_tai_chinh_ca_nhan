@@ -125,7 +125,7 @@ class MonthlyCoverageTests(FinanceCase):
         self.client.post(url, {'status':'incomplete','user_id':self.bob.pk})
         self.assertEqual(MonthlyCoverage.objects.get(user=self.bob, month=self.month).status, 'complete')
         page = self.client.get(reverse('finance:monthly_history'), {'year':2026})
-        self.assertContains(page, '123.456 ₫')
+        self.assertContains(page, '123.456 VND')
         self.assertNotContains(page, '987.654')
 
     def test_confirmation_token_cannot_cross_account_or_month(self):

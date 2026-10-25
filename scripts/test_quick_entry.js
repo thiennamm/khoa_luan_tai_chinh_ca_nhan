@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const quick = fs.readFileSync(path.join(__dirname, '../static/js/quick-entry.js'), 'utf8');
 const ml = fs.readFileSync(path.join(__dirname, '../static/js/transaction-form.js'), 'utf8');
+const money = fs.readFileSync(path.join(__dirname, '../static/js/money.js'), 'utf8');
 class Element {
   constructor(value='') {this.value=value;this.handlers={};this.hidden=false;this.disabled=false;this.children=[];this.options=[];this.dataset={};this.textContent='';}
   addEventListener(type,fn) {(this.handlers[type]??=[]).push(fn);}
@@ -37,6 +38,7 @@ function setup(fetcher=async()=>response(parsed()),withML=false) {
       requests.push({url,options});return fetcher(url,options);
     }};
   vm.createContext(sandbox);
+  vm.runInContext(money,sandbox);
   if(withML)vm.runInContext(ml,sandbox);
   vm.runInContext(quick,sandbox);
   return {n,requests};
@@ -45,7 +47,7 @@ test('explicit click prefills blank form, previews text, POST CSRF only, never s
   const {n,requests}=setup();
   assert.equal(requests.length,0);
   await n['quick-fill'].fire('click');
-  assert.equal(n.id_amount.value,'45000');assert.equal(n.id_date.value,'2026-10-25');
+  assert.equal(n.id_amount.value,'45.000');assert.equal(n.id_date.value,'2026-10-25');
   assert.equal(n.id_description.value,'Ăn trưa');assert.equal(n.id_category.value,'');
   assert.equal(n['quick-preview'].hidden,false);assert.equal(n['quick-confirmation'].hidden,true);
   assert.equal(requests.length,1);assert.equal(requests[0].url,'/quick/');
@@ -58,7 +60,7 @@ test('existing values require explicit replacement; cancel and later editing pre
   await n['quick-cancel'].fire('click');await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'99000');
   await n['quick-fill'].fire('click');n.id_amount.value='123000';await n.id_amount.fire('input');
   await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'123000');
-  await n['quick-fill'].fire('click');await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'45000');assert.equal(n.id_category.value,'');
+  await n['quick-fill'].fire('click');await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'45.000');assert.equal(n.id_category.value,'');
 });
 test('parser errors, offline, expired session keep all manual values',async()=>{
   for(const fetcher of [async()=>response({status:'invalid',errors:['Có nhiều số tiền']},false),
@@ -100,7 +102,7 @@ test('compact summary shows formatted integer, date and missing kind with visibl
     'Chưa xác định loại thu/chi. Hãy tự chọn.', 'Không có ngày: dùng hôm nay.',
     'Danh mục sẽ để trống để bạn tự chọn hoặc chủ động yêu cầu gợi ý ML.'];
   const {n}=setup(async()=>response(data));await n['quick-fill'].fire('click');
-  assert.equal(n['quick-summary'].textContent,'30.000đ · 25/10/2026 · Chưa chọn loại');
+  assert.equal(n['quick-summary'].textContent,'30.000 VND · 25/10/2026 · Chưa chọn loại');
   assert.equal(n['quick-status'].textContent,'Đã điền, chưa lưu.');
   assert.equal(n['quick-details'].open,false);
   assert.equal(n['quick-default-date'].hidden,false);
@@ -112,7 +114,7 @@ test('future/unknown warnings stay outside details; original warnings remain ava
   const data=parsed();data.fields.amount='999999999999999';data.date_defaulted=false;
   data.warnings=['Ngày đã nhận diện ở tương lai; hãy kiểm tra.', 'Cảnh báo mới cần xem lại'];
   const {n}=setup(async()=>response(data));await n['quick-fill'].fire('click');
-  assert.equal(n['quick-summary'].textContent,'999.999.999.999.999đ · 25/10/2026 · Chi tiêu');
+  assert.equal(n['quick-summary'].textContent,'999.999.999.999.999 VND · 25/10/2026 · Chi tiêu');
   assert.equal(n['quick-default-date'].hidden,true);
   assert.ok(n['quick-needed'].children.some(e=>e.textContent==='Ngày ở tương lai: kiểm tra trước khi lưu.'));
   assert.ok(n['quick-needed'].children.some(e=>e.textContent==='Cảnh báo mới cần xem lại'));

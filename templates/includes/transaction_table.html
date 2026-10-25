@@ -6,7 +6,7 @@
     <td data-label="Giao dịch" class="description transaction-description"><a href="{% url 'finance:transaction_detail' item.pk %}">{{ item.description|default:"Không có mô tả"|truncatechars:55 }}</a></td>
     <td data-label="Danh mục" class="transaction-category">{{ item.category.name }}</td>
     <td data-label="Loại" class="transaction-kind"><span class="badge {{ item.kind }}">{{ item.get_kind_display }}</span></td>
-    <td data-label="Số tiền" class="numeric amount transaction-amount {{ item.kind }}">{% if item.kind == 'income' %}+{% else %}−{% endif %}{{ item.amount|vnd }}</td>
+    <td data-label="Số tiền" class="numeric amount transaction-amount {{ item.kind }}">{% if item.kind == 'income' %}+{% else %}-{% endif %}{{ item.amount|vnd }}</td>
     <td class="row-action"><a href="{% url 'finance:transaction_detail' item.pk %}" aria-label="Xem giao dịch {{ item.pk }}">Xem {% include 'includes/icon.html' with name='arrow' %}</a></td>
   </tr>{% endfor %}</tbody>
 </table></div>

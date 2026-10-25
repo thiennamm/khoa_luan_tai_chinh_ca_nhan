@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import Category, Transaction, Kind
 from .classification_modes import MODES
+from .money_fields import amount_field
 
 
 class VietnameseAuthenticationForm(AuthenticationForm):
@@ -70,11 +71,11 @@ class CategoryForm(forms.ModelForm):
 
 
 class TransactionForm(forms.ModelForm):
+    amount = amount_field(Transaction)
     class Meta:
         model = Transaction
         fields = ["kind", "amount", "date", "category", "description"]
         widgets = {
-            "amount": forms.NumberInput(attrs={"min": "1", "step": "1", "inputmode": "numeric", "placeholder": "150000"}),
             "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "description": forms.Textarea(attrs={"rows": 3, "placeholder": "Ghi chú thêm về giao dịch (không bắt buộc)"}),
         }

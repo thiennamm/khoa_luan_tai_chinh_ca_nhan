@@ -201,8 +201,8 @@ class ForecastIntegrationTests(FinanceCase):
         self.assertEqual((alice.estimate_decimal,bob.estimate_decimal),(Decimal('111'),Decimal('999')))
         page=self.client.get(self.url)
         self.assertEqual(page.context['result'].user_id,self.alice.pk)
-        self.assertContains(page,'111 ₫')
-        self.assertNotContains(page,'999 ₫')
+        self.assertContains(page,'111 VND')
+        self.assertNotContains(page,'999 VND')
         self.assertIn('no-store',page.headers['Cache-Control'])
 
     def test_current_future_and_income_not_numeric_inputs_but_edits_invalidate(self):
@@ -282,7 +282,7 @@ class ForecastIntegrationTests(FinanceCase):
         saved.refresh_from_db()
         self.assertEqual(saved.estimate,'1999999999999998')
         self.assertEqual(saved.estimate_decimal,Decimal('1999999999999998'))
-        self.assertContains(self.client.get(self.url),'1.999.999.999.999.998 ₫')
+        self.assertContains(self.client.get(self.url),'1.999.999.999.999.998 VND')
 
     def test_ml_error_is_explicit_and_no_silent_baseline_result(self):
         self.seed(36,values=['0']*36)

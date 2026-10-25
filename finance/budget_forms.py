@@ -1,8 +1,10 @@
 from django import forms
 from .models import Budget, Category
+from .money_fields import amount_field
 
 
 class BudgetForm(forms.ModelForm):
+    amount = amount_field(Budget)
     month = forms.DateField(label='Tháng', input_formats=['%Y-%m'],
         widget=forms.DateInput(format='%Y-%m', attrs={'type': 'month'}),
         error_messages={'invalid': 'Tháng không hợp lệ. Vui lòng chọn lại.'})
@@ -10,7 +12,6 @@ class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
         fields = ['month', 'category', 'amount']
-        widgets = {'amount': forms.NumberInput(attrs={'min': 1, 'step': 1, 'inputmode': 'numeric'})}
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)

@@ -247,6 +247,9 @@ input,select,textarea{border:1px solid #bdcec3;border-radius:9px;padding:11px 12
 input:hover,select:hover,textarea:hover{border-color:#88a591}
 input:focus-visible,select:focus-visible,textarea:focus-visible{border-color:var(--green);outline:3px solid #b17720;outline-offset:3px}
 .field input,.field select,.field textarea{width:100%}
+.money-input{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
+.money-input input{border-radius:9px 0 0 9px;min-width:0;font-variant-numeric:tabular-nums}
+.money-input-unit{display:flex;align-items:center;padding:0 12px;background:#edf4ef;border:1px solid #bdcec3;border-left:0;border-radius:0 9px 9px 0;font-size:12px;font-weight:650;color:var(--muted)}
 textarea{resize:vertical}
 input[type=checkbox]{width:auto;min-height:20px;accent-color:var(--green)}
 .field-invalid input,.field-invalid select,.field-invalid textarea{border-color:var(--red);background:#fffafa}

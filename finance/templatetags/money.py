@@ -1,11 +1,9 @@
-from decimal import Decimal
 from django import template
+from finance.money import format_vnd
 
 register = template.Library()
 
 
 @register.filter
 def vnd(value):
-    if value is None:
-        value = Decimal("0")
-    return f"{value:,.0f}".replace(",", ".") + " ₫"
+    return format_vnd(value)
