@@ -1,0 +1,5 @@
+<details class="getting-started"><summary><span>Bắt đầu với Sổ Thu Chi</span><small>{{ getting_started.completed }}/2 bước chính · Ngân sách tùy chọn</small></summary>
+<ol class="start-steps"><li><strong>1. Thiết lập danh mục</strong><span>{% if getting_started.categories %}Đã có danh mục{% else %}Chưa thiết lập{% endif %}</span><a href="{% url 'finance:category_defaults' %}">{% if getting_started.categories %}Xem bộ danh mục mẫu{% else %}Chọn danh mục mẫu{% endif %}</a><a class="help" href="{% url 'finance:category_create' %}">Hoặc tự tạo danh mục</a></li>
+<li><strong>2. Ghi giao dịch đầu tiên</strong><span>{% if getting_started.transactions %}Đã có giao dịch{% else %}Chưa ghi giao dịch{% endif %}</span><a href="{% url 'finance:transaction_create' %}">Thêm giao dịch</a></li>
+<li><strong>3. Đặt ngân sách nếu muốn</strong><span>{% if getting_started.budget %}Đã có ngân sách{% else %}Có thể bỏ qua{% endif %}</span><a href="{% url 'finance:budget_list' %}">Xem Ngân sách</a></li></ol>
+<p class="help">Bạn có thể thu gọn và dùng website ngay. Không cần xác nhận lịch sử đầy đủ; thêm danh mục không bảo đảm mô hình gợi ý đúng.</p></details>

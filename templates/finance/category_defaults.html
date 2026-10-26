@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Thêm danh mục mẫu{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">THIẾT LẬP THEO LỰA CHỌN</p><h1>Thêm danh mục mẫu</h1><p class="muted">Xem phạm vi và chọn từng mục bạn muốn dùng.</p></div><a class="button secondary" href="{% url 'finance:category_list' %}">Về Danh mục</a></div>
+<p class="notice">Chỉ thêm cấu hình danh mục, không tạo giao dịch hoặc tiền demo. Gợi ý ML vẫn có thể sai; bạn cần kiểm tra trước khi áp dụng.</p>
+{% if result %}<section class="notice" role="status"><strong>Đã thêm {{ result.created|length }} danh mục; bỏ qua {{ result.skipped|length }} mục đã tồn tại.</strong>{% if result.created %}<p>Đã thêm: {% for item in result.created %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}{% if result.skipped %}<p>Đã có, giữ nguyên tên và ánh xạ: {% for item in result.skipped %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}</section>{% endif %}
+{% if not available_count %}<div class="notice"><strong>Tất cả danh mục mẫu đã tồn tại.</strong><p>Không thay đổi danh mục hay ánh xạ hiện có.</p><a class="button secondary" href="{% url 'finance:transaction_create' %}">Ghi giao dịch</a></div>{% else %}<p class="help">{{ available_count }} mục chưa có. Mục trùng loại và tên chuẩn hóa sẽ được kiểm lại khi xác nhận rồi bỏ qua, không gộp hoặc sửa mục cũ.</p>{% endif %}
+<form method="post">{% csrf_token %}
+{% if form.errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}{{ form.items.errors }}</div>{% endif %}
+<div class="defaults-grid">{% for row in rows %}<article class="card default-card"><label class="default-choice" for="default-{{ row.item.key }}"><input id="default-{{ row.item.key }}" type="checkbox" name="items" value="{{ row.item.key }}" {% if row.exists %}disabled{% endif %} {% if row.selected %}checked{% endif %}><span><strong>{{ row.item.name }}</strong><span class="badge {{ row.item.kind }}">{% if row.item.kind == 'income' %}Thu nhập{% else %}Chi tiêu{% endif %}</span></span></label>
+{% if row.exists %}<p class="help"><strong>Đã có — sẽ bỏ qua, giữ nguyên ánh xạ hiện tại.</strong></p>{% else %}<p class="help">Mẫu mới: {% if row.item.label %}ánh xạ <strong>{{ row.item.label }}</strong>{% else %}<strong>Chưa ánh xạ</strong>{% endif %}.</p>{% endif %}
+<p>{{ row.item.explanation }}</p></article>{% endfor %}</div>
+{% if available_count %}<div class="form-actions"><button class="button" type="submit">Xác nhận thêm mục đã chọn</button><a class="button secondary" href="{% url 'finance:category_list' %}">Hủy</a></div>{% endif %}
+</form>
+<details class="coverage-note"><summary>Ánh xạ nhãn và kiểm tra trùng</summary><p>Ánh xạ chỉ được đặt khi bạn chủ động thêm mẫu mới. Danh mục đã có luôn giữ nguyên. Nhóm rộng có thể chưa ánh xạ; bạn có thể sửa sau khi xác định rõ phạm vi. Không có Transfer trong bộ mẫu.</p><p>So theo loại thu/chi và tên NFC, không phân biệt hoa/thường, gộp khoảng trắng. Giữ dấu tiếng Việt và ký hiệu; không đoán “&amp;” là “và”. Đây không phải kiểm tra mọi tên gần nghĩa.</p></details>
+{% endblock %}

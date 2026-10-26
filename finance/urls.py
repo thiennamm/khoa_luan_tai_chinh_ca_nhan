@@ -10,9 +10,11 @@ from . import recurring_views
 from . import forecast_history_views
 from . import quick_entry_views
 from . import savings_views
+from . import category_defaults_views
 
 app_name = "finance"
 urlpatterns = [
+    path('danh-muc/mau/', category_defaults_views.category_defaults, name='category_defaults'),
     path('muc-tieu-tiet-kiem/', savings_views.goal_list, name='savings_list'),
     path('muc-tieu-tiet-kiem/them/', savings_views.goal_edit, name='savings_create'),
     path('muc-tieu-tiet-kiem/<int:pk>/', savings_views.detail, name='savings_detail'),

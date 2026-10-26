@@ -2,6 +2,7 @@
 {% block title %}Tổng quan{% endblock %}
 {% block content %}
 <div class="page-heading overview-heading"><div><p class="eyebrow">BỨC TRANH TÀI CHÍNH CỦA BẠN</p><h1>Tổng quan tháng {{ month_label }}</h1><p class="muted">Mọi khoản đã ghi, trong một góc nhìn.</p></div><a class="button" href="{% url 'finance:transaction_create' %}">{% include 'includes/icon.html' with name='plus' %}Thêm giao dịch</a></div>
+{% include 'finance/includes/getting_started.html' %}
 <div class="overview-toolbar">{% include 'includes/month_filter.html' %}<span class="recording-state">{% include 'includes/icon.html' with name='calendar' %}Lịch sử: <strong>{{ budget_coverage }}</strong></span></div>
 <section class="summary-grid" aria-label="Tổng hợp thu chi trong tháng">
   <article class="summary-card"><div class="summary-label"><span>Tổng thu</span><span class="metric-icon income">{% include 'includes/icon.html' with name='income' %}</span></div><p class="metric income">{{ income|vnd }}</p><span class="muted">Thu đã ghi nhận trong tháng</span></article>

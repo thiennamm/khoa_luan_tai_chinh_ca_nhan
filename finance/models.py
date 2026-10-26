@@ -12,6 +12,7 @@ from .coverage_state import lock_coverage_writes, reset_months
 from .transaction_queries import TransactionQuerySet
 from .forecast_state import bump_forecast_version
 from .savings_calendar import today as savings_today
+from .category_locks import lock_catalog
 
 
 class SavingsGoal(models.Model):
@@ -313,8 +314,12 @@ class Category(models.Model):
                 raise ValidationError({"kind": "Danh mục đã có giao dịch. Chỉ được đổi tên, không được đổi loại hoặc chủ sở hữu."})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        return super().save(*args, **kwargs)
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            if self.user_id:
+                lock_catalog(self.user_id, using)
+            self.full_clean()
+            return super().save(*args, **kwargs)
 
 
 class Budget(models.Model):

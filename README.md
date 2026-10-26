@@ -38,6 +38,14 @@ Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùn
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
+## Hướng dẫn bắt đầu và danh mục mẫu — TASK 18B
+
+Trên Tổng quan, mở **Bắt đầu với Sổ Thu Chi** để xem: thiết lập danh mục → ghi giao dịch đầu tiên → đặt ngân sách nếu muốn. Khối mặc định thu gọn, không chặn dùng website; hai bước chính dựa trên dữ liệu của chính tài khoản, ngân sách là tùy chọn và không cần xác nhận tháng đầy đủ.
+
+Trong **Danh mục → Thêm danh mục mẫu**, xem loại/phạm vi/ánh xạ và chọn từng mục rồi bấm **Xác nhận thêm mục đã chọn**. Chỉ tạo cấu hình danh mục, không tạo giao dịch/tiền demo khi đăng ký, mở trang hoặc thêm mẫu. Mục đã có theo loại + tên chuẩn hóa được bỏ qua, giữ nguyên tên, ID và ánh xạ. Có thể tự tạo/sửa danh mục theo nhu cầu như trước.
+
+11 mẫu gồm 7 ánh xạ rõ; **Ăn uống, Nhà ở, Hóa đơn, Thu nhập khác** để chưa ánh xạ vì phạm vi rộng. Không có Transfer. Thêm mẫu không bảo đảm mô hình gợi ý đúng; vẫn phải kiểm tra và chủ động Áp dụng/Lưu. Không cần migration mới. Quy tắc chuẩn hóa/khóa đồng thời, PostgreSQL QA, kiểm thử và ảnh: [docs/getting-started.md](docs/getting-started.md).
+
 ## Nhập nhanh và gợi ý gọn — TASK 17B
 
 Trong **Thêm giao dịch**, ô **Nhập nhanh** nhận một câu như `Ăn trưa 45k hôm nay`. Bấm **Điền vào biểu mẫu** mới phân tích theo quy tắc; không dùng chatbot/ML để đọc câu và không tự lưu hoặc yêu cầu gợi ý danh mục.
