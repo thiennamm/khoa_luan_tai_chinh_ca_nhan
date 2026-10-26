@@ -11,6 +11,78 @@ from .coverage_calendar import current_month
 from .coverage_state import lock_coverage_writes, reset_months
 from .transaction_queries import TransactionQuerySet
 from .forecast_state import bump_forecast_version
+from .savings_calendar import today as savings_today
+
+
+class SavingsGoal(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='savings_goals')
+    name = models.CharField('Tên mục tiêu', max_length=100)
+    amount = models.DecimalField('Số tiền cần đạt (VND)', max_digits=15, decimal_places=0,
+        validators=[MinValueValidator(Decimal('1'))])
+    start_date = models.DateField('Ngày bắt đầu', default=savings_today)
+    due_date = models.DateField('Hạn dự kiến', null=True, blank=True)
+    note = models.CharField('Ghi chú', max_length=300, blank=True)
+    archived_at = models.DateTimeField(null=True, blank=True, editable=False)
+    version = models.PositiveBigIntegerField(default=0, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [
+            models.CheckConstraint(condition=models.Q(amount__gt=0, amount__lte=999999999999999)
+                & models.Q(amount=Round('amount', precision=0)), name='savings_goal_integer_vnd'),
+            models.CheckConstraint(condition=models.Q(due_date__isnull=True)
+                | models.Q(due_date__gte=models.F('start_date')), name='savings_goal_date_range'),
+        ]
+
+    def clean(self):
+        super().clean()
+        self.name = self.name.strip()
+        if not self.name:
+            raise ValidationError({'name': 'Nhập tên mục tiêu.'})
+        if self.due_date and self.start_date and self.due_date < self.start_date:
+            raise ValidationError({'due_date': 'Hạn dự kiến không được trước ngày bắt đầu.'})
+
+
+class SavingsEntry(models.Model):
+    class Kind(models.TextChoices):
+        CONTRIBUTION = 'contribution', 'Đóng góp'
+        WITHDRAWAL = 'withdrawal', 'Rút khỏi mục tiêu'
+
+    # Ownership is inherited from goal, avoiding a second, possibly inconsistent user FK.
+    goal = models.ForeignKey(SavingsGoal, on_delete=models.CASCADE, related_name='entries')
+    kind = models.CharField('Thao tác', max_length=12, choices=Kind.choices)
+    amount = models.DecimalField('Số tiền (VND)', max_digits=15, decimal_places=0,
+        validators=[MinValueValidator(Decimal('1'))])
+    date = models.DateField('Ngày thực tế', default=savings_today)
+    note = models.CharField('Ghi chú', max_length=300, blank=True)
+    version = models.PositiveBigIntegerField(default=0, editable=False)
+
+    class Meta:
+        ordering = ['-date', '-pk']
+        indexes = [models.Index(fields=['goal', 'date', 'id'], name='savings_entry_goal_date')]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(kind__in=['contribution', 'withdrawal']), name='savings_entry_kind'),
+            models.CheckConstraint(condition=models.Q(amount__gt=0, amount__lte=999999999999999)
+                & models.Q(amount=Round('amount', precision=0)), name='savings_entry_integer_vnd'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.date and self.date > savings_today():
+            raise ValidationError({'date': 'Ngày thực tế không được ở tương lai theo giờ Việt Nam.'})
+        if self.date and self.goal_id and self.date < self.goal.start_date:
+            raise ValidationError({'date': 'Ngày thực tế không được trước ngày bắt đầu mục tiêu.'})
+
+
+class SavingsOperation(models.Model):
+    """Committed idempotency receipts; failed mutations roll back the receipt too."""
+    id = models.UUIDField(primary_key=True, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    goal = models.ForeignKey(SavingsGoal, null=True, on_delete=models.CASCADE, related_name='operations')
+    action = models.CharField(max_length=16)
+    digest = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Kind(models.TextChoices):

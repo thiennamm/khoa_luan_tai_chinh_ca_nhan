@@ -250,6 +250,25 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{border-color:var
 .money-input{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
 .money-input input{border-radius:9px 0 0 9px;min-width:0;font-variant-numeric:tabular-nums}
 .money-input-unit{display:flex;align-items:center;padding:0 12px;background:#edf4ef;border:1px solid #bdcec3;border-left:0;border-radius:0 9px 9px 0;font-size:12px;font-weight:650;color:var(--muted)}
+.savings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;margin:16px 0}
+.savings-card{min-width:0;margin:0;padding:20px;overflow-wrap:anywhere}
+.savings-grid>.card+.card{margin-top:0}
+.savings-card .section-heading{align-items:flex-start;flex-wrap:wrap;gap:8px;padding:0 0 14px;margin-bottom:14px}
+.savings-card>p.help{margin-left:0;margin-right:0}
+.savings-summary>.savings-grid{padding:0 20px 20px}
+.savings-ledger>p{margin-left:22px;margin-right:22px}
+.savings-card h3{margin:0;font-size:18px}
+.savings-amount{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.savings-amount strong{font-size:24px}
+.savings-amount span{font-size:14px;color:var(--muted)}
+.savings-progress{height:9px;border-radius:6px;background:#dfebe4;overflow:hidden}
+.savings-progress span{display:block;height:100%;background:var(--green)}
+.savings-note{overflow-wrap:anywhere;white-space:normal}
+.savings-actions{margin:18px 0}
+.savings-table{min-width:720px}
+.savings-table td{overflow-wrap:anywhere;max-width:330px}
+.savings-table td:first-child,.savings-table .numeric{white-space:nowrap}
+.danger-link{color:var(--red)}
 textarea{resize:vertical}
 input[type=checkbox]{width:auto;min-height:20px;accent-color:var(--green)}
 .field-invalid input,.field-invalid select,.field-invalid textarea{border-color:var(--red);background:#fffafa}

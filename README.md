@@ -240,6 +240,16 @@ templates/               Giao diện Django tiếng Việt
 static/                  CSS responsive và hỗ trợ chọn danh mục
 requirements.txt         Phiên bản thư viện được giữ nguyên
 ```
+## Mục tiêu tiết kiệm — TASK 18A
+
+Trong nhóm **Kế hoạch**, mở **Mục tiêu tiết kiệm** để tạo mục tiêu, nhập số tiền cần đạt, ngày bắt đầu, hạn dự kiến và ghi chú tùy chọn. Ghi nhận **Đóng góp** hoặc **Rút khỏi mục tiêu** bằng số tiền dương, ngày thực tế không ở tương lai hoặc trước ngày bắt đầu. Có thể nhập `50000` hoặc `50.000`; tiền hiển thị `50.000 VND`.
+
+Đây là **phân bổ do bạn tự ghi nhận**, không phải số dư ngân hàng hoặc tiền được hệ thống giữ hộ. Không tự tạo giao dịch thu/chi, lấy chênh lệch thu–chi làm tiết kiệm hoặc thay đổi ngân sách, coverage, dự báo và phản hồi ML. Chưa liên kết ngân hàng/giao dịch.
+
+Mục tiêu có trạng thái **Đang thực hiện / Đã đạt / Đã lưu trữ**. Quá hạn chỉ cảnh báo; đạt/vượt vẫn được đóng góp. Lưu trữ giữ lịch sử, phải mở lại trước khi sửa mục tiêu hoặc thêm/sửa/xóa khoản. Sửa khoản có ô xác nhận; xóa có trang xác nhận. Hệ thống kiểm lại toàn lịch sử theo ngày rồi ID, từ chối nếu âm tại bất kỳ thời điểm nào. Hai khoản hợp lệ cùng ngày/số tiền vẫn được ghi riêng; mã thao tác chặn gửi lại cùng POST. Tổng quan hiển thị tối đa 3 mục tiêu chưa đạt, chưa lưu trữ.
+
+**Migration `0013_savings_goals` đã áp dụng trên SQLite QA, PostgreSQL 18.6 QA localhost và SQLite local của dự án chính**. Bàn giao local ngày 26/10/2026 đã sao lưu bằng backup API, kiểm integrity/khóa ngoại/hash; dữ liệu nghiệp vụ cũ giữ nguyên, ba bảng tiết kiệm mới rỗng và system check đạt. Chưa kết nối hoặc chạy migration production trong bàn giao. Đã kiểm ba tình huống HTTP đồng thời trên PostgreSQL QA; không coi là kiểm tải hoặc mọi lịch tranh chấp. Chi tiết backup, quy tắc, triển khai, phạm vi PostgreSQL, kiểm thử và ảnh: [docs/savings-goals.md](docs/savings-goals.md).
+
 ## Ngân sách tháng (TASK 13A)
 
 Mở **Ngân sách** trên menu, chọn tháng và **Tạo ngân sách**. Để trống danh mục để đặt hạn mức tổng; chọn danh mục chi của chính bạn để đặt hạn mức riêng. Số tiền là số nguyên VND dương, tối đa 15 chữ số. Mỗi phạm vi/tháng chỉ có một ngân sách, có thể sửa hoặc mở trang xác nhận xóa.

@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}Mục tiêu tiết kiệm{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">KẾ HOẠCH CỦA BẠN</p><h1>Mục tiêu tiết kiệm</h1><p class="muted">Theo dõi phần tiền bạn chủ động dành riêng.</p></div><a class="button" href="{% url 'finance:savings_create' %}">{% include 'includes/icon.html' with name='plus' %}Tạo mục tiêu</a></div>
+{% include 'finance/includes/savings_notice.html' %}
+{% if page_obj %}<div class="savings-grid">{% for item in page_obj %}{% include 'finance/includes/savings_card.html' %}{% endfor %}</div>{% include 'finance/includes/savings_pagination.html' %}{% else %}<section class="card empty-state"><h2>Bạn chưa có mục tiêu tiết kiệm</h2><p>Tạo mục tiêu rồi ghi nhận các khoản phân bổ khi đã thực sự dành tiền.</p><a class="button" href="{% url 'finance:savings_create' %}">Tạo mục tiêu đầu tiên</a></section>{% endif %}
+{% endblock %}

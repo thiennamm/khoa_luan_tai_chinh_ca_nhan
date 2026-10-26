@@ -9,9 +9,18 @@ from . import budget_views
 from . import recurring_views
 from . import forecast_history_views
 from . import quick_entry_views
+from . import savings_views
 
 app_name = "finance"
 urlpatterns = [
+    path('muc-tieu-tiet-kiem/', savings_views.goal_list, name='savings_list'),
+    path('muc-tieu-tiet-kiem/them/', savings_views.goal_edit, name='savings_create'),
+    path('muc-tieu-tiet-kiem/<int:pk>/', savings_views.detail, name='savings_detail'),
+    path('muc-tieu-tiet-kiem/<int:pk>/sua/', savings_views.goal_edit, name='savings_edit'),
+    path('muc-tieu-tiet-kiem/<int:pk>/trang-thai/<str:action>/', savings_views.goal_status, name='savings_status'),
+    path('muc-tieu-tiet-kiem/<int:pk>/phan-bo/', savings_views.entry_edit, name='savings_entry_create'),
+    path('muc-tieu-tiet-kiem/<int:pk>/phan-bo/<int:entry_id>/sua/', savings_views.entry_edit, name='savings_entry_edit'),
+    path('muc-tieu-tiet-kiem/<int:pk>/phan-bo/<int:entry_id>/xoa/', savings_views.entry_delete, name='savings_entry_delete'),
     path('giao-dich-dinh-ky/', recurring_views.recurring_list, name='recurring_list'),
     path('giao-dich-dinh-ky/them/', recurring_views.rule_edit, name='recurring_create'),
     path('giao-dich-dinh-ky/<int:pk>/sua/', recurring_views.rule_edit, name='recurring_edit'),

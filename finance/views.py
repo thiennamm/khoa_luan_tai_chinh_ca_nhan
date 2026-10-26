@@ -23,6 +23,7 @@ from .budgets import monthly_budgets
 from . import classification_feedback as feedback_service
 from .recurring import dashboard_items
 from .models import ClassificationFeedback, ClassificationSuggestion
+from .savings import summaries as savings_summaries
 
 
 def suggestion_source(request):
@@ -149,6 +150,7 @@ def dashboard(request):
         context['transaction_count'] = rows.count()
     context.update(monthly_budgets(request.user, context['start']))
     context.update(dashboard_items(request.user))
+    context['savings_goals'] = [item for item in savings_summaries(request.user) if item['state'] == 'active'][:3]
     return render(request, "finance/dashboard.html", context)
 
 

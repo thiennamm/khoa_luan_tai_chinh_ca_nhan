@@ -1,0 +1,9 @@
+{% load money %}
+<article class="card savings-card">
+<div class="section-heading"><h3><a href="{% url 'finance:savings_detail' item.goal.pk %}">{{ item.goal.name }}</a></h3><span class="badge {% if item.state == 'reached' %}income{% endif %}">{{ item.state_label }}</span></div>
+<p class="savings-amount"><strong>{{ item.accumulated|vnd }}</strong><span> / {{ item.goal.amount|vnd }}</span></p>
+<div class="savings-progress" role="img" aria-label="Tiến độ {{ item.percent }} phần trăm, đã tích lũy {{ item.accumulated|vnd }}"><span style="width:{{ item.width }}%"></span></div>
+<p>Còn thiếu <strong>{{ item.remaining|vnd }}</strong> · {{ item.percent }}%</p>
+<p class="help">{% if item.goal.due_date %}Hạn dự kiến: {{ item.goal.due_date|date:'d/m/Y' }}{% else %}Chưa đặt hạn dự kiến{% endif %}</p>
+{% if item.overdue %}<p class="notice">Đã qua hạn dự kiến, chưa đủ tiền. Bạn vẫn có thể tiếp tục đóng góp.</p>{% endif %}
+</article>

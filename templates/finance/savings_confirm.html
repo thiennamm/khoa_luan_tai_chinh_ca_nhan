@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% load money %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">XÁC NHẬN THAO TÁC</p><h1>{{ title }}</h1></div></div>
+<section class="card form-card"><h2 class="savings-note">{{ goal.name }}</h2><p>{{ explanation }}</p>{% if entry %}<p>{{ entry.get_kind_display }} · {{ entry.amount|vnd }} · {{ entry.date|date:'d/m/Y' }}</p><p class="savings-note">{{ entry.note }}</p>{% endif %}<form method="post">{% csrf_token %}{% include 'finance/includes/savings_fields.html' %}<div class="form-actions"><button class="button {% if entry %}danger{% endif %}" type="submit">Xác nhận {{ title|lower }}</button><a class="button secondary" href="{% url 'finance:savings_detail' goal.pk %}">Hủy</a></div></form></section>
+{% endblock %}
