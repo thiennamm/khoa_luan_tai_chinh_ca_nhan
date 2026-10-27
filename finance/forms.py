@@ -92,3 +92,9 @@ class TransactionForm(forms.ModelForm):
             self.instance.user = user
         self.fields["category"].queryset = Category.objects.filter(user=user)
         self.fields["category"].empty_label = "Chọn danh mục phù hợp"
+
+
+class SimilarTransactionForm(TransactionForm):
+    similar_operation = forms.CharField(max_length=1000, widget=forms.HiddenInput,
+        error_messages={'required': 'Hãy mở lại biểu mẫu tạo giao dịch tương tự.',
+                        'max_length': 'Phiên biểu mẫu không hợp lệ. Hãy mở lại biểu mẫu.'})

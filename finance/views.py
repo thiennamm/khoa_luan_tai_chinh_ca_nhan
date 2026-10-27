@@ -26,6 +26,8 @@ from .models import ClassificationFeedback, ClassificationSuggestion
 from .savings import summaries as savings_summaries
 from .category_defaults import getting_started
 from .category_mapping_help import label_guide, mapping_peers, RENAME_HELP
+from . import similar_transactions
+from .forms import SimilarTransactionForm
 
 
 def suggestion_source(request):
@@ -186,21 +188,30 @@ def transaction_detail(request, pk):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def transaction_edit(request, pk=None):
+def transaction_edit(request, pk=None, *, similar=False, initial=None, category_needs_review=False):
     row = get_object_or_404(Transaction, pk=pk, user=request.user) if pk is not None else None
-    form = TransactionForm(request.POST if request.method == "POST" else None, instance=row, user=request.user)
+    form_class = SimilarTransactionForm if similar else TransactionForm
+    form = form_class(request.POST if request.method == "POST" else None, instance=row, user=request.user, initial=initial)
     suggestion_id = request.POST.get('suggestion_id', '') if request.method == 'POST' else ''
     suggestion_mode = request.POST.get('suggestion_mode', 'vi')
     if request.method == "POST" and form.is_valid():
         try:
-            saved = feedback_service.save_with_feedback(form, request.user, suggestion_id, suggestion_mode)
+            if similar:
+                saved, repeated = similar_transactions.save(form, request.user,
+                    form.cleaned_data['similar_operation'], suggestion_id, suggestion_mode)
+            else:
+                saved = feedback_service.save_with_feedback(form, request.user, suggestion_id, suggestion_mode)
+                repeated = False
+        except similar_transactions.SimilarConflict as exc:
+            form.add_error(None, str(exc))
         except feedback_service.InvalidSuggestion:
             suggestion_id = ''
             form.add_error(None, 'Gợi ý không còn hợp lệ. Hãy yêu cầu gợi ý lại, hoặc kiểm tra danh mục và bấm Lưu lần nữa để lưu thủ công không ghi phản hồi.')
         except (ValidationError, IntegrityError, Category.DoesNotExist):
             form.add_error(None, 'Không thể lưu giao dịch. Hãy kiểm tra lại danh mục và dữ liệu rồi thử lại.')
         else:
-            messages.success(request, "Đã cập nhật giao dịch." if row else "Đã thêm giao dịch.")
+            messages.success(request, 'Thao tác này đã được lưu trước đó; không tạo thêm giao dịch.' if repeated
+                else "Đã cập nhật giao dịch." if row else "Đã thêm giao dịch.")
             return redirect("finance:transaction_detail", pk=saved.pk)
     categories = Category.objects.filter(user=request.user)
     return render(request, "finance/transaction_form.html", {
@@ -208,7 +219,25 @@ def transaction_edit(request, pk=None):
         "category_kinds": {str(c.pk): c.kind for c in categories},
         'suggestion_id': suggestion_id, 'suggestion_mode': suggestion_mode,
         'source_transaction_id': pk or '',
+        'similar': similar, 'category_needs_review': category_needs_review,
     })
+
+
+@login_required
+@require_http_methods(['GET'])
+@never_cache
+def transaction_duplicate(request, pk):
+    source = get_object_or_404(Transaction, pk=pk, user=request.user)
+    initial, needs_review = similar_transactions.initial_data(source, request.user)
+    return transaction_edit(request, similar=True, initial=initial, category_needs_review=needs_review)
+
+
+@login_required
+@require_http_methods(['POST'])
+@never_cache
+def transaction_duplicate_save(request):
+    # No source lookup here: an open form remains independent of source edits/deletion.
+    return transaction_edit(request, similar=True)
 
 
 @login_required

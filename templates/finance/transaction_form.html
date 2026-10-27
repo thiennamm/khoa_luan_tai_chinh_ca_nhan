@@ -1,13 +1,15 @@
 {% extends 'base.html' %}{% load static %}
-{% block title %}{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch{% endblock %}
+{% block title %}{% if similar %}Tạo giao dịch tương tự{% elif editing %}Sửa giao dịch{% else %}Thêm giao dịch{% endif %}{% endblock %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} giao dịch</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
+<div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if similar %}Tạo giao dịch tương tự{% elif editing %}Sửa giao dịch{% else %}Thêm giao dịch{% endif %}</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
+{% if similar %}<p class="notice">Đã điền từ giao dịch trước. Chưa tạo giao dịch mới. Kiểm tra ngày, số tiền và danh mục rồi tự bấm Lưu.</p>{% endif %}
+{% if category_needs_review %}<p class="message error">Danh mục nguồn không còn phù hợp. Hãy chọn lại danh mục; hệ thống không tự thay thế.</p>{% endif %}
 {% if not editing %}{% include 'finance/includes/quick_entry.html' %}{% endif %}
 <section class="card form-card">
 {% if editing and form.instance.recurring_occurrence %}<p class="notice">Giao dịch thuộc kỳ định kỳ {{ form.instance.recurring_occurrence.month|date:'m/Y' }}. Sửa ngày, tiền hoặc danh mục không mở lại kỳ; ngày thực tế quyết định tháng báo cáo. Snapshot dự kiến của kỳ giữ nguyên.</p>{% endif %}
 {% if not has_categories %}<div class="notice"><strong>Bạn chưa có danh mục.</strong><p>Tạo ít nhất một danh mục thu hoặc chi trước khi thêm giao dịch.</p><a class="button secondary" href="{% url 'finance:category_create' %}">Tạo danh mục</a></div>{% endif %}
-<form method="post" id="transaction-form" data-pending-label="Đang lưu…">{% csrf_token %}{% include 'includes/form_error_summary.html' %}<section class="entry-step"><h2>Thông tin giao dịch</h2>
-{% for field in form %}<div class="field{% if field.errors %} field-invalid{% endif %}">
+<form method="post" {% if similar %}action="{% url 'finance:transaction_duplicate_save' %}"{% endif %} id="transaction-form" data-pending-label="Đang lưu…">{% csrf_token %}{% for field in form.hidden_fields %}{{ field }}{% endfor %}{% include 'includes/form_error_summary.html' %}<section class="entry-step"><h2>Thông tin giao dịch</h2>
+{% for field in form.visible_fields %}<div class="field{% if field.errors %} field-invalid{% endif %}">
 <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required" aria-hidden="true"> *</span>{% else %}<span class="optional"> (không bắt buộc)</span>{% endif %}</label>
 {{ field }}{% if field.help_text %}<div class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}{% if field.errors %}<div class="field-errors" id="{{ field.auto_id }}_error">{{ field.errors }}</div>{% endif %}
 {% if field.name == 'description' %}{% include 'finance/includes/compact_suggestion.html' %}{% endif %}

@@ -285,3 +285,11 @@ Bấm **In / Lưu PDF** và chọn **Save as PDF**, khổ **A4**; có thể tắ
 Khi gửi biểu mẫu hợp lệ, trang hiện trạng thái đang xử lý và chặn gửi lặp tại giao diện; kiểm tra phía server vẫn giữ nguyên. Sau lỗi server, tóm tắt lỗi nhận focus và có liên kết tới trường cần sửa. Có thể dùng Tab/Enter, liên kết **Đến nội dung chính** và menu/phần mở rộng gốc của trình duyệt.
 
 Nhập nhanh và gợi ý ML có thời gian chờ 20 giây, không tự retry; lỗi không làm mất dữ liệu nhập tay. Nếu mất kết nối sau thao tác tài chính, **chưa xác nhận được kết quả**: kiểm tra danh sách/trạng thái trước khi gửi lại, vì server có thể đã xử lý. Back/Forward khôi phục trạng thái giao diện. Khi tắt JavaScript vẫn dùng biểu mẫu nhập tay; nhập nhanh/ML vẫn cần JavaScript. Xem [docs/interaction-accessibility.md](docs/interaction-accessibility.md) về bằng chứng thật/giả lập, kiểm thử và giới hạn; không phải chứng nhận WCAG toàn diện.
+
+### Tạo giao dịch tương tự (TASK 20A)
+
+Ở **Chi tiết giao dịch**, bấm **Tạo giao dịch tương tự** (khác nút Sửa). Form điền mô tả, loại, số tiền và danh mục còn hợp lệ; ngày là **hôm nay theo giờ Việt Nam**. Mở form chưa tạo giao dịch. Kiểm tra/chỉnh rồi tự bấm **Lưu giao dịch**; giao dịch mới độc lập, không sửa nguồn hoặc nối vào kỳ định kỳ/lô CSV cũ. Không có phản hồi ML từ việc điền trước; muốn dùng ML phải yêu cầu gợi ý mới và chủ động Áp dụng như bình thường.
+
+Mỗi lần mở form có mã thao tác mới, hiệu lực **2 giờ**. Gửi lại cùng mã/cùng dữ liệu dẫn tới giao dịch đã lưu; đổi dữ liệu với mã đã dùng bị từ chối. Hai lần chủ động mở form có thể tạo hai khoản hợp lệ giống nhau. Nếu mất kết nối, kiểm danh sách trước khi gửi lại; hệ thống không tự retry.
+
+Cần migration **`0014_similar_transaction_operation`** để lưu receipt chống trùng bền vững. Giai đoạn QA đã kiểm trên SQLite/PostgreSQL riêng; bàn giao ngày **27/10/2026** đã sao lưu bằng SQLite backup API, kiểm bản sao và áp dụng vào **SQLite local thật**, system check đạt, dữ liệu nghiệp vụ cũ giữ nguyên. **Chưa áp dụng hoặc kiểm trên production.** Các máy/database khác vẫn cần sao lưu và migrate theo quy trình được duyệt. Xem [docs/duplicate-transaction.md](docs/duplicate-transaction.md) về bàn giao, triển khai, kiểm thử và ảnh QA.

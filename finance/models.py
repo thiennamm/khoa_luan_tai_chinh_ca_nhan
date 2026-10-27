@@ -505,3 +505,13 @@ class Transaction(models.Model):
             current = type(self).objects.using(using).filter(pk=self.pk).values_list('user_id', 'date').get()
             reset_months(([previous] if previous else []) + [current], using)
             return result
+
+
+class SimilarTransactionOperation(models.Model):
+    """Successful manual creations only; no source or description snapshot."""
+    id = models.UUIDField(primary_key=True, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    digest = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    saved_transaction = models.OneToOneField(Transaction, null=True, on_delete=models.SET_NULL,
+        related_name='similar_creation_operation')
