@@ -12,9 +12,12 @@ from . import quick_entry_views
 from . import savings_views
 from . import category_defaults_views
 from .monthly_report_views import monthly_report
+from .financial_calendar_views import calendar_month, calendar_day
 
 app_name = "finance"
 urlpatterns = [
+    path('lich-thu-chi/', calendar_month, name='financial_calendar'),
+    path('lich-thu-chi/ngay/<str:day>/', calendar_day, name='financial_calendar_day'),
     path('bao-cao-thang/', monthly_report, name='monthly_report'),
     path('danh-muc/mau/', category_defaults_views.category_defaults, name='category_defaults'),
     path('muc-tieu-tiet-kiem/', savings_views.goal_list, name='savings_list'),

@@ -21,7 +21,7 @@ from .transaction_filters import TransactionFilterForm, apply_filters, filtered_
 from .statistics import StatisticsSpanForm, financial_statistics
 from .budgets import monthly_budgets
 from . import classification_feedback as feedback_service
-from .recurring import dashboard_items
+from .recurring import dashboard_items, today as vietnam_today
 from .models import ClassificationFeedback, ClassificationSuggestion
 from .savings import summaries as savings_summaries
 from .category_defaults import getting_started
@@ -183,7 +183,7 @@ def transaction_list(request):
 @require_http_methods(["GET"])
 def transaction_detail(request, pk):
     row = get_object_or_404(Transaction.objects.select_related("category"), pk=pk, user=request.user)
-    return render(request, "finance/transaction_detail.html", {"transaction": row})
+    return render(request, "finance/transaction_detail.html", {"transaction": row, 'future_date': row.date > vietnam_today()})
 
 
 @login_required

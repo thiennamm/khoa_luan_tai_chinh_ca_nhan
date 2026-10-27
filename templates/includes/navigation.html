@@ -2,6 +2,7 @@
   <div class="nav-group"><a href="{% url 'finance:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='home' %}<span>Tổng quan</span></a></div>
   <div class="nav-group" role="group" aria-label="Ghi chép"><p class="nav-label">Ghi chép</p>
     <a href="{% url 'finance:transaction_list' %}" {% if 'transaction' in request.resolver_match.url_name or 'csv_' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='transactions' %}<span>Giao dịch</span></a>
+    <a href="{% url 'finance:financial_calendar' %}" {% if request.resolver_match.url_name == 'financial_calendar' or request.resolver_match.url_name == 'financial_calendar_day' %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='calendar' %}<span>Lịch thu–chi</span></a>
     <a href="{% url 'finance:recurring_list' %}" {% if 'recurring' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='repeat' %}<span>Giao dịch định kỳ</span></a>
     <a href="{% url 'finance:category_list' %}" {% if 'category' in request.resolver_match.url_name %}class="active" aria-current="page"{% endif %}>{% include 'includes/icon.html' with name='category' %}<span>Danh mục</span></a>
   </div>

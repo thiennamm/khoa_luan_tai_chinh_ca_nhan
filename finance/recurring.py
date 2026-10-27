@@ -5,7 +5,8 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Prefetch, Window
+from django.db.models.functions import RowNumber
 from django.utils import timezone
 
 from .models import Category, RecurringRule, RecurringRevision, RecurringOccurrence, RecurringEvent
@@ -146,7 +147,13 @@ def item(rule, month, occurrence=None):
 
 
 def monthly_items(user, month):
-    rules = RecurringRule.objects.filter(user=user).prefetch_related('revisions')
+    # A monthly view only needs the latest effective revision of each rule.
+    # Prefetch uses a per-rule SQL window, not one query per rule or the
+    # entire revision history. Processed occurrences still take precedence below.
+    revisions = RecurringRevision.objects.filter(effective_month__lte=month).annotate(
+        monthly_rank=Window(RowNumber(), partition_by=[F('rule_id')],
+            order_by=[F('effective_month').desc(), F('pk').desc()])).filter(monthly_rank=1).order_by('effective_month', 'pk')
+    rules = RecurringRule.objects.filter(user=user).prefetch_related(Prefetch('revisions', queryset=revisions))
     occurrences = {o.rule_id: o for o in RecurringOccurrence.objects.filter(user=user, month=month).select_related('transaction')}
     items = [item(rule, month, occurrences.get(rule.pk)) for rule in rules]
     return sorted((row for row in items if row), key=lambda row: (row['due_date'], row['rule'].pk))

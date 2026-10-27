@@ -293,3 +293,11 @@ Nhập nhanh và gợi ý ML có thời gian chờ 20 giây, không tự retry; 
 Mỗi lần mở form có mã thao tác mới, hiệu lực **2 giờ**. Gửi lại cùng mã/cùng dữ liệu dẫn tới giao dịch đã lưu; đổi dữ liệu với mã đã dùng bị từ chối. Hai lần chủ động mở form có thể tạo hai khoản hợp lệ giống nhau. Nếu mất kết nối, kiểm danh sách trước khi gửi lại; hệ thống không tự retry.
 
 Cần migration **`0014_similar_transaction_operation`** để lưu receipt chống trùng bền vững. Giai đoạn QA đã kiểm trên SQLite/PostgreSQL riêng; bàn giao ngày **27/10/2026** đã sao lưu bằng SQLite backup API, kiểm bản sao và áp dụng vào **SQLite local thật**, system check đạt, dữ liệu nghiệp vụ cũ giữ nguyên. **Chưa áp dụng hoặc kiểm trên production.** Các máy/database khác vẫn cần sao lưu và migrate theo quy trình được duyệt. Xem [docs/duplicate-transaction.md](docs/duplicate-transaction.md) về bàn giao, triển khai, kiểm thử và ảnh QA.
+
+### Lịch thu–chi (TASK 20B)
+
+Mở **Ghi chép → Lịch thu–chi**, chọn tháng hoặc dùng Tháng trước/sau/hiện tại. Desktop là lịch tuần bắt đầu thứ Hai; mobile là danh sách theo ngày. Mỗi ngày xem trước tối đa 3 mục; bấm ngày hoặc **Xem thêm** để xem đủ, phân trang 20 dòng. Ngày hôm nay theo giờ Việt Nam.
+
+Tổng thu/chi chỉ gồm giao dịch đã lưu, định dạng `50.000 VND`. Khoản định kỳ có nhãn **Dự kiến**, không cộng vào tổng; **Ghi nhận** chỉ mở biểu mẫu xác nhận hiện có. Kỳ đã ghi nhận không hiện tiếp như khoản chưa trả; giao dịch nằm ở ngày thực tế. Giao dịch ngày tương lai đã lưu vẫn có trong số đã ghi nhận và được đánh dấu rõ.
+
+Định kỳ giữ phạm vi 12 tháng đến tháng hiện tại và xem trước tháng sau; ngoài phạm vi có thông báo, không ngầm kết luận không có khoản đến hạn. Ngày/tháng trống không chứng minh không phát sinh thu/chi. Xem lịch không tạo kỳ/giao dịch, không xác nhận coverage hoặc tính dự báo. Không cần migration hoặc dependency mới. Xem [docs/financial-calendar.md](docs/financial-calendar.md) về truy vấn, kiểm thử, ảnh QA và giới hạn.
