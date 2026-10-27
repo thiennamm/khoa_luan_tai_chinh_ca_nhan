@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import Category, Transaction, Kind
 from .classification_modes import MODES
 from .money_fields import amount_field
+from .category_mapping_help import MAPPING_LABEL, MAPPING_HELP, SCOPES
 
 
 class VietnameseAuthenticationForm(AuthenticationForm):
@@ -66,6 +67,11 @@ class CategoryForm(forms.ModelForm):
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        field = self.fields['canonical_label']
+        field.label = MAPPING_LABEL
+        field.help_text = MAPPING_HELP
+        field.choices = [('', 'Chưa ánh xạ')] + [
+            (code, f'{SCOPES[code][0]} ({code})') for code, _ in Category._meta.get_field('canonical_label').choices]
         if self.instance._state.adding:
             self.instance.user = user
 

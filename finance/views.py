@@ -25,6 +25,7 @@ from .recurring import dashboard_items
 from .models import ClassificationFeedback, ClassificationSuggestion
 from .savings import summaries as savings_summaries
 from .category_defaults import getting_started
+from .category_mapping_help import label_guide, mapping_peers, RENAME_HELP
 
 
 def suggestion_source(request):
@@ -232,8 +233,16 @@ def category_list(request):
 @require_http_methods(["GET", "POST"])
 def category_edit(request, pk=None):
     category = get_object_or_404(Category, pk=pk, user=request.user) if pk is not None else None
+    has_transactions = category is not None and category.transactions.exists()
     form = CategoryForm(request.POST if request.method == "POST" else None, instance=category, user=request.user)
+    peers = mapping_peers(request.user, category.pk if category else None)
+    linked_names = peers.get(form['kind'].value(), {}).get(form['canonical_label'].value(), [])
     if request.method == "POST" and form.is_valid():
+        if request.POST.get('action') == 'preview_mapping':
+            return render(request, 'finance/category_form.html', {
+                'form': form, 'editing': category is not None, 'has_transactions': has_transactions,
+                'rename_help': RENAME_HELP, 'label_guide': label_guide(),
+                'mapping_peers': peers, 'linked_names': linked_names, 'mapping_preview': True})
         try:
             with transaction.atomic():
                 form.save()
@@ -241,8 +250,13 @@ def category_edit(request, pk=None):
             form.add_error(None, 'Không thể lưu danh mục. Kiểm tra ngân sách/giao dịch liên quan hoặc tên bị trùng rồi thử lại.')
         else:
             messages.success(request, "Đã lưu danh mục.")
+            if linked_names:
+                messages.info(request, 'Nhãn này đang liên kết với các danh mục: ' + ', '.join(linked_names))
             return redirect("finance:category_list")
-    return render(request, "finance/category_form.html", {"form": form, "editing": category is not None})
+    return render(request, "finance/category_form.html", {
+        'form': form, 'editing': category is not None, 'has_transactions': has_transactions,
+        'rename_help': RENAME_HELP, 'label_guide': label_guide(),
+        'mapping_peers': peers, 'linked_names': linked_names})
 
 
 @login_required

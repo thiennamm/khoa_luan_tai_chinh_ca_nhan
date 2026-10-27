@@ -46,6 +46,12 @@ class TransactionFilterTests(FinanceCase):
         self.assertEqual(response.context['expense'], Decimal('100'))
         self.assertEqual(self.get(kind='income', category=self.food.pk).context['result_count'], 0)
 
+    def test_full_unicode_casefold_keeps_accents_and_owner(self):
+        row = self.row('Thanh toán Straße ĐIỆN')
+        self.row('Thanh toán khác')
+        self.assertEqual([r.pk for r in self.get(q='STRASSE điện').context['page_obj']], [row.pk])
+        self.assertEqual(self.get(q='strasse dien').context['result_count'], 0)
+
     def test_inclusive_range_cross_year_and_leap_day(self):
         for day in [date(2024, 2, 28), date(2024, 2, 29), date(2024, 3, 1)]:
             self.row(day=day)

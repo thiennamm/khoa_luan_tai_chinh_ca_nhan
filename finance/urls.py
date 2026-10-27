@@ -11,9 +11,11 @@ from . import forecast_history_views
 from . import quick_entry_views
 from . import savings_views
 from . import category_defaults_views
+from .monthly_report_views import monthly_report
 
 app_name = "finance"
 urlpatterns = [
+    path('bao-cao-thang/', monthly_report, name='monthly_report'),
     path('danh-muc/mau/', category_defaults_views.category_defaults, name='category_defaults'),
     path('muc-tieu-tiet-kiem/', savings_views.goal_list, name='savings_list'),
     path('muc-tieu-tiet-kiem/them/', savings_views.goal_edit, name='savings_create'),

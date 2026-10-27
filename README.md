@@ -143,7 +143,7 @@ Không thêm launcher DLL vào máy chủ. Nếu thiếu thư viện, sai hash, 
 
 Cách thử bằng trình duyệt:
 
-1. Đăng nhập, vào **Danh mục → Thêm/Sửa**. Tự chọn **Nhãn gợi ý thử nghiệm** phù hợp: `Income` chỉ cho thu nhập, các nhãn còn lại cho chi tiêu. Có thể bỏ trống. Không có ánh xạ tự động từ tên danh mục; nhiều danh mục được phép cùng nhãn. `Transfer` không được ánh xạ vào thu/chi.
+1. Đăng nhập, vào **Danh mục → Thêm/Sửa**. Tự chọn **Liên kết với nhãn mô hình — tùy chọn** phù hợp: `Income` chỉ cho thu nhập, các nhãn còn lại cho chi tiêu. Có thể bỏ trống. Không có ánh xạ tự động từ tên danh mục; nhiều danh mục được phép cùng nhãn. `Transfer` không được ánh xạ vào thu/chi.
 2. Vào **Thêm/Sửa giao dịch**, chọn loại thu/chi và nhập mô tả. Bấm **Gợi ý danh mục**. Có thể thử một chuỗi mô tả tiếng Anh, nhưng cần tự kiểm tra kết quả.
 3. Nhãn dự đoán hiện ra; nếu có ánh xạ thuộc tài khoản và đúng loại thì chọn danh mục trong khung gợi ý, bấm **Áp dụng danh mục đã chọn**. Trước khi bấm, danh mục hiện tại giữ nguyên. Nếu không có ánh xạ, chỉ hiển thị nhãn; không tạo danh mục. `Transfer` hoặc nhãn khác loại luôn yêu cầu xem lại, không có nút áp dụng khả dụng.
 4. Xem lại số tiền, ngày và danh mục rồi tự bấm **Lưu giao dịch**. Gợi ý/Áp dụng không lưu giao dịch và không tự học. Đổi mô tả hoặc loại sẽ hủy gợi ý cũ để tránh áp dụng nhầm.
@@ -265,3 +265,23 @@ Mở **Ngân sách** trên menu, chọn tháng và **Tạo ngân sách**. Để 
 Số **Chi đã ghi nhận** lấy từ giao dịch chi của tháng; không dùng dự báo. Ngân sách tổng và danh mục không cộng thành một hạn mức. Cảnh báo theo các mốc 80%/100%/vượt; thanh vẽ tối đa 100%, số tiền/tỷ lệ vẫn hiển thị mức vượt thật. Tổng quan có tóm tắt cùng tháng và vẫn hiển thị trạng thái lịch sử ghi chép. Chưa có email hoặc thông báo đẩy.
 
 Danh mục có ngân sách bị chặn xóa/đổi loại/chủ sở hữu; có thể đổi tên, hoặc xử lý ngân sách trước. Lưu/xóa ngân sách không thay đổi giao dịch, coverage hoặc kết quả dự báo. Cần khởi động lại server sau cập nhật code và áp dụng `0007_budget`, `0008_budget_category_guards` bằng Python `.venv` của **dự án chính**, sau khi sao lưu SQLite bằng backup API. Hai migration đã áp dụng trên máy hiện tại; không cần chạy trên bản phục hồi cổng 8003. Xem [quy tắc, kiểm thử và ảnh QA](docs/monthly-budget.md).
+
+### Hướng dẫn liên kết danh mục với nhãn mô hình (TASK 19A)
+
+Trong **Danh mục → Thêm/Sửa**, mặc định **Chưa ánh xạ**. Danh mục vẫn ghi giao dịch bình thường khi để trống. Chỉ chọn nhãn khi phạm vi phù hợp; xem **Xem phạm vi 17 nhãn mô hình** để đọc tên tiếng Việt, mã gốc và ranh giới. Giải trí (`Entertainment`) khác ăn uống chế biến sẵn (`Restaurants`) và du lịch (`Travel`); hệ thống không tự sửa hoặc chặn theo tên danh mục.
+
+Thông báo các danh mục cùng nhãn chỉ thuộc tài khoản và loại đang chọn, không cấm lưu. Khi tắt JavaScript, điền biểu mẫu rồi bấm **Kiểm tra liên kết (chưa lưu)** để xem thông báo từ server, sau đó tự bấm **Lưu danh mục**. Đổi tên giữ ID/liên kết giao dịch; tên mới cũng xuất hiện trên giao dịch hiện có. Snapshot phản hồi ML đã lưu được giữ nguyên. Không cần migration cho TASK 19A. Xem [docs/category-mapping-help.md](docs/category-mapping-help.md) về quy tắc, kiểm thử và ảnh QA.
+
+### Báo cáo thu–chi tháng và in PDF (TASK 19B)
+
+Từ **Tổng quan**, chọn tháng rồi bấm **Báo cáo tháng**. Báo cáo gồm tổng thu/chi/chênh lệch, số giao dịch, cơ cấu chi và đối chiếu số đã ghi với tháng trước; hiển thị trạng thái ghi chép của cả hai tháng. Chọn **Bao gồm toàn bộ giao dịch trong tháng** rồi bấm **Xem báo cáo** nếu muốn in chi tiết (mặc định không chọn, không giới hạn 20 dòng).
+
+Bấm **In / Lưu PDF** và chọn **Save as PDF**, khổ **A4**; có thể tắt header/footer do trình duyệt thêm nếu không muốn in URL. Khi JavaScript tắt, biểu mẫu vẫn hoạt động và có thể dùng Ctrl+P/menu In. Website không tự tạo/lưu/gửi PDF. Hãy lưu bản in chứa dữ liệu tài chính ở nơi riêng tư.
+
+Đây là số đang ghi trong website, không phải chứng từ ngân hàng hay snapshot bất biến. Tháng trống không chứng minh không phát sinh thu/chi; tháng chưa đầy đủ không cho phép diễn giải chênh lệch là xu hướng thực tế. Khoản định kỳ chưa ghi nhận và tiền phân bổ mục tiêu không cộng vào thu–chi. Không tự xác nhận coverage hoặc tạo dự báo. Xem [docs/monthly-report.md](docs/monthly-report.md) về phạm vi, kiểm thử, PDF QA và giới hạn. Không cần migration.
+
+### Phản hồi thao tác và bàn phím (TASK 19C)
+
+Khi gửi biểu mẫu hợp lệ, trang hiện trạng thái đang xử lý và chặn gửi lặp tại giao diện; kiểm tra phía server vẫn giữ nguyên. Sau lỗi server, tóm tắt lỗi nhận focus và có liên kết tới trường cần sửa. Có thể dùng Tab/Enter, liên kết **Đến nội dung chính** và menu/phần mở rộng gốc của trình duyệt.
+
+Nhập nhanh và gợi ý ML có thời gian chờ 20 giây, không tự retry; lỗi không làm mất dữ liệu nhập tay. Nếu mất kết nối sau thao tác tài chính, **chưa xác nhận được kết quả**: kiểm tra danh sách/trạng thái trước khi gửi lại, vì server có thể đã xử lý. Back/Forward khôi phục trạng thái giao diện. Khi tắt JavaScript vẫn dùng biểu mẫu nhập tay; nhập nhanh/ML vẫn cần JavaScript. Xem [docs/interaction-accessibility.md](docs/interaction-accessibility.md) về bằng chứng thật/giả lập, kiểm thử và giới hạn; không phải chứng nhận WCAG toàn diện.

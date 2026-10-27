@@ -3,7 +3,7 @@ from decimal import Decimal
 from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, DataError, connection, transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -92,7 +92,18 @@ class BudgetTests(TestCase):
         for cat,amount,month in [(None,'100',self.month),(self.food,'100',self.month),
                 (self.other,'0',self.month),(self.other,'-1',self.month),(self.other,'1.5',self.month),
                 (self.other,'1000000000000000',self.month),(self.other,'2',date(2026,9,2))]:
-            with self.subTest(cat=cat,amount=amount,month=month),self.assertRaises(IntegrityError),transaction.atomic():
+            if amount == '1.5' and connection.vendor == 'postgresql':
+                # NUMERIC(15,0) coerces before CHECK constraints. The supported
+                # save/form path must reject fractions before reaching the DB.
+                with self.assertRaises(ValidationError):
+                    Budget(user=self.a,category=cat,amount=Decimal(amount),month=month).save()
+                with transaction.atomic():
+                    raw = Budget.objects.bulk_create([Budget(user=self.a,category=cat,amount=Decimal(amount),month=month)])[0]
+                    raw.refresh_from_db()
+                    self.assertEqual(raw.amount, Decimal('2'))
+                    transaction.set_rollback(True)
+                continue
+            with self.subTest(cat=cat,amount=amount,month=month),self.assertRaises((IntegrityError, DataError)),transaction.atomic():
                 Budget.objects.bulk_create([Budget(user=self.a,category=cat,amount=Decimal(amount),month=month)])
         Budget.objects.create(user=self.b,month=self.month,amount=100)
 

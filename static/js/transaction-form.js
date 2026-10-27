@@ -34,12 +34,15 @@ if (kindInput && categoryInput && kindsNode) {
   let generation = 0;
   let offered = new Set();
   let snapshot = null;
+  let applyVersion = 0;
+  const interaction = globalThis.SoThuChiInteraction;
+  function message(text, error = false) { interaction.announce(result, text, error); }
 
   function clear() {
     const oldReceipt = receiptInput.value;
     receiptInput.value = '';
     if (oldReceipt) {
-      fetch(panel.dataset.actionUrl, {
+      interaction.requestJson(panel.dataset.actionUrl, {
         method: 'POST', credentials: 'same-origin', mode: 'same-origin',
         headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
         body: new URLSearchParams({action: 'revoke', suggestion_id: oldReceipt}),
@@ -52,7 +55,7 @@ if (kindInput && categoryInput && kindsNode) {
     actions.hidden = true;
     apply.disabled = true;
     button.disabled = false;
-    result.textContent = '';
+    message('');
   }
   description.addEventListener('input', clear);
   kindInput.addEventListener('change', clear);
@@ -60,36 +63,35 @@ if (kindInput && categoryInput && kindsNode) {
   form.addEventListener('submit', event => {
     if (applying) {
       event.preventDefault();
-      result.textContent = 'Đang xác nhận áp dụng. Vui lòng chờ rồi bấm Lưu giao dịch.';
+      message('Đang xác nhận áp dụng. Vui lòng chờ rồi bấm Lưu giao dịch.');
     }
   });
-  choices.addEventListener('change', () => { apply.disabled = !offered.has(choices.value); });
+  choices.addEventListener('change', () => { apply.disabled = applying || !offered.has(choices.value); });
 
   button.addEventListener('click', async () => {
+    if (button.disabled || applying) return;
     clear();
     if (description.value.length > 500) {
-      result.textContent = 'Mô tả tối đa 500 ký tự.';
+      message('Mô tả tối đa 500 ký tự.', true);
       return;
     }
     const current = generation;
     snapshot = {description: description.value, kind: kindInput.value, mode: modeInput.value};
     button.disabled = true;
-    result.textContent = 'Đang tìm gợi ý…';
+    message('Đang lấy gợi ý…');
     try {
-      const response = await fetch(panel.dataset.url, {
+      const {response, data} = await interaction.requestJson(panel.dataset.url, {
         method: 'POST', credentials: 'same-origin', mode: 'same-origin',
         headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
         body: new URLSearchParams({...snapshot, transaction_id: panel.dataset.transactionId || ''}),
       });
       if (current !== generation) return;
-      if (response.redirected) throw new Error('Phiên đăng nhập đã hết hạn.');
-      const data = await response.json();
-      if (current !== generation) return;
       if (!snapshot || snapshot.description !== description.value || snapshot.kind !== kindInput.value
           || snapshot.mode !== modeInput.value) { clear(); return; }
       if (!response.ok && !['unavailable', 'invalid'].includes(data.status)) throw new Error('Gợi ý không sẵn sàng.');
       receiptInput.value = data.suggestion_id || '';
-      result.textContent = (data.label ? `Nhãn dự đoán: ${data.label_display} (${data.label}). ` : '') + data.message;
+      message((data.label ? `Nhãn dự đoán: ${data.label_display} (${data.label}). ` : '') + data.message,
+        !response.ok);
       if (data.status !== 'suggestion' || !data.categories?.length) return;
       const placeholder = document.createElement('option');
       placeholder.value = '';
@@ -107,7 +109,7 @@ if (kindInput && categoryInput && kindsNode) {
       }
       actions.hidden = offered.size === 0;
     } catch (_) {
-      if (current === generation) result.textContent = 'Gợi ý tạm không sẵn sàng hoặc phiên đăng nhập hết hạn. Bạn vẫn có thể nhập thủ công; đăng nhập lại nếu cần.';
+      if (current === generation) message('Chưa nhận được kết quả gợi ý do kết nối, thời gian chờ hoặc phiên đăng nhập. Bạn vẫn có thể nhập và lưu giao dịch thủ công; không tự đổi mô hình.', true);
     } finally {
       if (current === generation) button.disabled = false;
     }
@@ -121,15 +123,16 @@ if (kindInput && categoryInput && kindsNode) {
     const current = generation;
     const chosen = option.value;
     applying = true;
+    const version = ++applyVersion;
     apply.disabled = true;
+    message('Đang xác nhận áp dụng…');
     try {
-      const response = await fetch(panel.dataset.actionUrl, {
+      const {response, data} = await interaction.requestJson(panel.dataset.actionUrl, {
         method: 'POST', credentials: 'same-origin', mode: 'same-origin',
         headers: {'X-CSRFToken': token.value, 'Accept': 'application/json'},
         body: new URLSearchParams({...snapshot, transaction_id: panel.dataset.transactionId || '',
           action: 'apply', suggestion_id: receiptInput.value, category: chosen}),
       });
-      const data = await response.json();
       if (current !== generation) return;
       if (response.redirected || !response.ok || data.status !== 'applied' || String(data.category_id) !== chosen) {
         throw new Error('Invalid receipt');
@@ -138,14 +141,19 @@ if (kindInput && categoryInput && kindsNode) {
           || snapshot.mode !== modeInput.value) { clear(); return; }
       categoryInput.value = chosen;
       categoryInput.dispatchEvent(new Event('change', {bubbles: true}));
-      result.textContent = 'Đã áp dụng danh mục vào biểu mẫu. Kiểm tra các thông tin và bấm Lưu giao dịch khi bạn muốn lưu.';
+      message('Đã áp dụng danh mục vào biểu mẫu. Kiểm tra các thông tin và bấm Lưu giao dịch khi bạn muốn lưu.');
     } catch (_) {
       if (current === generation) {
-        result.textContent = 'Chưa xác nhận được áp dụng. Hãy yêu cầu gợi ý lại hoặc chọn danh mục thủ công.';
-        receiptInput.value = '';
+        clear();
+        message('Chưa xác nhận được áp dụng. Hãy yêu cầu gợi ý lại hoặc chọn danh mục thủ công. Thao tác Áp dụng không tự lưu giao dịch.', true);
       }
     } finally {
-      applying = false;
+      if (version === applyVersion) applying = false;
     }
+  });
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    applyVersion += 1; applying = false; clear();
+    message('Đã trở lại biểu mẫu. Kiểm tra dữ liệu và yêu cầu gợi ý mới nếu cần.');
   });
 })();

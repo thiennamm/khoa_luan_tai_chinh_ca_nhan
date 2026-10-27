@@ -7,18 +7,20 @@ const path = require('node:path');
 const quick = fs.readFileSync(path.join(__dirname, '../static/js/quick-entry.js'), 'utf8');
 const ml = fs.readFileSync(path.join(__dirname, '../static/js/transaction-form.js'), 'utf8');
 const money = fs.readFileSync(path.join(__dirname, '../static/js/money.js'), 'utf8');
+const shared = fs.readFileSync(path.join(__dirname, '../static/js/form-feedback.js'), 'utf8');
 class Element {
   constructor(value='') {this.value=value;this.handlers={};this.hidden=false;this.disabled=false;this.children=[];this.options=[];this.dataset={};this.textContent='';}
   addEventListener(type,fn) {(this.handlers[type]??=[]).push(fn);}
   async fire(type,event={}) {for(const fn of this.handlers[type]??[]) await fn(event);}
   dispatchEvent(event) {this.fire(event.type);}
   setAttribute(name,value) {this[name]=value;}
+  focus(){this.focused=true;}
   querySelector() {return {value:'qa-csrf'};}
   append(...items) {this.children.push(...items);this.options.push(...items);}
   replaceChildren() {this.children=[];this.options=[];this.value='';}
   get selectedOptions() {return this.options.filter(o=>o.value===this.value);}
 }
-const response = (data,ok=true) => ({ok,redirected:false,json:async()=>data});
+const response = (data,ok=true) => ({ok,status:ok?200:400,redirected:false,json:async()=>data});
 const parsed = () => ({status:'ok',fields:{amount:'45000',date:'2026-10-25',kind:'expense',description:'Ăn trưa'},
   date_defaulted:true,warnings:['Kiểm tra; chưa lưu.']});
 function setup(fetcher=async()=>response(parsed()),withML=false) {
@@ -33,15 +35,17 @@ function setup(fetcher=async()=>response(parsed()),withML=false) {
   n['category-kinds'].textContent='{"1":"expense","2":"income"}';
   n.id_category.options=[new Element(''),new Element('1'),new Element('2')];n['suggestion-mode'].value='vi';
   const requests=[];
-  const sandbox={document:{getElementById:id=>n[id],createElement:()=>new Element(),querySelector:()=>({value:'qa-csrf'})},
+  const windowHandlers={};
+  const sandbox={window:{addEventListener:(name,fn)=>{windowHandlers[name]=fn;}},AbortController,setTimeout,clearTimeout,document:{addEventListener(){},getElementById:id=>n[id],createElement:()=>new Element(),querySelector:selector=>selector==='[data-error-summary]'?null:({value:'qa-csrf'})},
     URLSearchParams,Event:class{constructor(type){this.type=type;}},fetch:async(url,options)=>{
       requests.push({url,options});return fetcher(url,options);
     }};
   vm.createContext(sandbox);
+  vm.runInContext(shared,sandbox);
   vm.runInContext(money,sandbox);
   if(withML)vm.runInContext(ml,sandbox);
   vm.runInContext(quick,sandbox);
-  return {n,requests};
+  return {n,requests,windowHandlers};
 }
 test('explicit click prefills blank form, previews text, POST CSRF only, never saves/requests ML',async()=>{
   const {n,requests}=setup();
@@ -67,7 +71,7 @@ test('parser errors, offline, expired session keep all manual values',async()=>{
     async()=>{throw Error('offline');},async()=>({redirected:true})]){
     const {n}=setup(fetcher);n.id_amount.value='99000';n.id_description.value='Cũ';
     await n['quick-fill'].fire('click');assert.equal(n.id_amount.value,'99000');assert.equal(n.id_description.value,'Cũ');
-    assert.equal(n['quick-status'].role,'alert');assert.equal(n['quick-fill'].disabled,false);
+    assert.equal(n['quick-status'].role,'status');assert.equal(n['quick-status']['data-state'],'error');assert.equal(n['quick-status'].focused,true);assert.equal(n['quick-fill'].disabled,false);
   }
 });
 test('late response after input change is ignored; input while fetching requires replacement',async()=>{
@@ -119,4 +123,12 @@ test('future/unknown warnings stay outside details; original warnings remain ava
   assert.ok(n['quick-needed'].children.some(e=>e.textContent==='Ngày ở tương lai: kiểm tra trước khi lưu.'));
   assert.ok(n['quick-needed'].children.some(e=>e.textContent==='Cảnh báo mới cần xem lại'));
   assert.equal(n['quick-warnings'].children[0].textContent,data.warnings[0]);
+});
+
+test('rapid quick clicks do not duplicate requests; Back restores control and rejects late result',async()=>{
+  let finish;const {n,requests,windowHandlers}=setup(()=>new Promise(resolve=>{finish=resolve;}));
+  const pending=n['quick-fill'].fire('click');await n['quick-fill'].fire('click');
+  assert.equal(requests.length,1);windowHandlers.pageshow({persisted:true});
+  assert.equal(n['quick-fill'].disabled,false);finish(response(parsed()));await pending;
+  assert.equal(n.id_amount.value,'');assert.equal(n['quick-preview'].hidden,true);
 });

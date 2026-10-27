@@ -1,0 +1,11 @@
+{% if form.errors %}
+<section class="form-errors error-summary" tabindex="-1" data-error-summary aria-labelledby="form-error-title">
+  <h2 id="form-error-title">Có thông tin cần kiểm tra</h2>
+  <p>Dữ liệu chưa hợp lệ. Chọn lỗi bên dưới để sửa, rồi kiểm tra trước khi gửi lại.</p>
+  <ul>
+    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+    {% for field in form.hidden_fields %}{% if field.errors %}<li>Phiên biểu mẫu không hợp lệ. Hãy mở lại biểu mẫu trước khi tiếp tục.</li>{% endif %}{% endfor %}
+    {% for field in form.visible_fields %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}
+  </ul>
+</section>
+{% endif %}

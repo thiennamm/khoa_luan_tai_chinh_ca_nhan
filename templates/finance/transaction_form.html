@@ -6,11 +6,10 @@
 <section class="card form-card">
 {% if editing and form.instance.recurring_occurrence %}<p class="notice">Giao dịch thuộc kỳ định kỳ {{ form.instance.recurring_occurrence.month|date:'m/Y' }}. Sửa ngày, tiền hoặc danh mục không mở lại kỳ; ngày thực tế quyết định tháng báo cáo. Snapshot dự kiến của kỳ giữ nguyên.</p>{% endif %}
 {% if not has_categories %}<div class="notice"><strong>Bạn chưa có danh mục.</strong><p>Tạo ít nhất một danh mục thu hoặc chi trước khi thêm giao dịch.</p><a class="button secondary" href="{% url 'finance:category_create' %}">Tạo danh mục</a></div>{% endif %}
-<form method="post" id="transaction-form">{% csrf_token %}<section class="entry-step"><h2>Thông tin giao dịch</h2>
-{% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<form method="post" id="transaction-form" data-pending-label="Đang lưu…">{% csrf_token %}{% include 'includes/form_error_summary.html' %}<section class="entry-step"><h2>Thông tin giao dịch</h2>
 {% for field in form %}<div class="field{% if field.errors %} field-invalid{% endif %}">
 <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required" aria-hidden="true"> *</span>{% else %}<span class="optional"> (không bắt buộc)</span>{% endif %}</label>
-{{ field }}{% if field.help_text %}<div class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}{% if field.errors %}<div class="field-errors" id="{{ field.auto_id }}_error" role="alert">{{ field.errors }}</div>{% endif %}
+{{ field }}{% if field.help_text %}<div class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}{% if field.errors %}<div class="field-errors" id="{{ field.auto_id }}_error">{{ field.errors }}</div>{% endif %}
 {% if field.name == 'description' %}{% include 'finance/includes/compact_suggestion.html' %}{% endif %}
 </div>{% endfor %}</section>
 <input type="hidden" id="suggestion-id" name="suggestion_id" value="{{ suggestion_id }}">

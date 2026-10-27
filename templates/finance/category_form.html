@@ -1,4 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load static %}
 {% block title %}{% if editing %}Sửa{% else %}Thêm{% endif %} danh mục{% endblock %}
-{% block content %}<div class="page-heading"><div><p class="eyebrow">SẮP XẾP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} danh mục</h1><p class="muted">Tên ngắn gọn giúp bạn ghi chép nhanh hơn.</p></div></div>
-<section class="card form-card"><form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}{% if editing %}<p class="help">Nếu đã có giao dịch, bạn được đổi tên và nhãn gợi ý; không đổi loại thu/chi. Thay đổi nhãn gợi ý không sửa giao dịch đã lưu.</p>{% endif %}<div class="form-actions"><button class="button" type="submit">Lưu danh mục</button><a class="button secondary" href="{% url 'finance:category_list' %}">Hủy</a></div></form></section>{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">SẮP XẾP THU CHI</p><h1>{% if editing %}Sửa{% else %}Thêm{% endif %} danh mục</h1><p class="muted">Bạn tự đặt tên danh mục theo cách ghi chép của mình.</p></div></div>
+<section class="card form-card"><form method="post">
+{% csrf_token %}{% include 'includes/form_fields.html' %}
+<p id="mapping-peers" class="help" role="status"{% if not linked_names %} hidden{% endif %}>Nhãn này đang liên kết với các danh mục: {{ linked_names|join:', ' }}</p>
+<button class="button secondary" type="submit" name="action" value="preview_mapping">Kiểm tra liên kết (chưa lưu)</button>
+{% if mapping_preview %}<p class="help" role="status">Đã kiểm tra, chưa lưu danh mục.{% if not linked_names %} Không có danh mục khác cùng loại đang liên kết với nhãn đã chọn.{% endif %}</p>{% endif %}
+<details class="help-details"><summary>Xem phạm vi 17 nhãn mô hình</summary>
+<p class="help">Đây là hướng dẫn theo quy tắc dữ liệu tiếng Việt v1 do dự án biên soạn, chưa được duyệt độc lập. Nguồn tiếng Anh còn ranh giới nhãn chưa rõ; mô hình có thể dự đoán khác hướng dẫn. Không cần chọn một nhãn để dùng danh mục.</p>
+<p class="help">Income chỉ liên kết với thu; các nhãn chi chỉ liên kết với chi. Transfer luôn cần xem lại, không có trong lựa chọn thu/chi. Không tự suy nhãn từ tên danh mục.</p>
+<dl>{% for item in label_guide %}<dt><strong>{{ item.name }} ({{ item.code }})</strong></dt><dd>{{ item.scope }}</dd>{% endfor %}</dl>
+</details>
+{% if has_transactions %}<p class="message info">{{ rename_help }}</p>{% endif %}
+{% if editing %}<p class="help">Danh mục có giao dịch không được đổi loại thu/chi. Đổi liên kết nhãn không sửa giao dịch hoặc snapshot phản hồi đã lưu; gợi ý mới được áp dụng vẫn phải kiểm tra liên kết hiện tại.</p>{% endif %}
+<div class="form-actions"><button class="button" type="submit">Lưu danh mục</button><a class="button secondary" href="{% url 'finance:category_list' %}">Hủy</a></div>
+</form></section>
+{{ mapping_peers|json_script:'category-mapping-peers' }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/category-mapping.js' %}" defer></script>{% endblock %}

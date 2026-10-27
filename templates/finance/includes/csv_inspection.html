@@ -4,7 +4,7 @@
   <p>Đã đọc {{ inspection.count }} bản ghi · {{ inspection.rows|length }} giao dịch hợp lệ · {{ inspection.error_count }} dòng/lỗi kiểm tra.</p>
   <p><strong>Tổng thu: {{ inspection.income|vnd }}</strong> · <strong>Tổng chi: {{ inspection.expense|vnd }}</strong></p>
   <p class="help">Tổng chỉ tính các dòng hợp lệ trong tệp, chưa phải tổng đã lưu vào website. Mẫu dưới đây tối đa 20 giao dịch hợp lệ.</p>
-  {% if inspection.error_count %}<div role="alert"><h3>Cần sửa trước khi nhập</h3><p>Có lỗi nên chưa cho xác nhận. Hiển thị tối đa 100 thông báo; không nhập một phần.</p><ul>{% for error in inspection.errors %}<li>Dòng {{ error.line }}: {{ error.message }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if inspection.error_count %}<div class="error-summary form-errors" tabindex="-1" data-error-summary aria-label="Cần sửa tệp CSV trước khi nhập"><h3>Cần sửa trước khi nhập</h3><p>Có lỗi nên chưa cho xác nhận. Hiển thị tối đa 100 thông báo; không nhập một phần.</p><ul>{% for error in inspection.errors %}<li>Dòng {{ error.line }}: {{ error.message }}</li>{% endfor %}</ul></div>{% endif %}
   {% if inspection.warning_count %}<div class="notice"><h3>Cảnh báo trùng — {{ inspection.warning_count }} thông báo</h3><p>Dòng giống nhau vẫn có thể hợp lệ; không tự xóa hoặc gộp. Hiển thị tối đa 100 cảnh báo.</p><ul>{% for warning in inspection.warnings %}<li>Dòng {{ warning.line }}: {{ warning.message }}</li>{% endfor %}</ul></div>{% endif %}
 </section>
 {% if inspection.sample %}<section class="card activity"><div class="section-heading"><h2>Mẫu xem trước</h2></div><div class="csv-table"><table><thead><tr><th>Dòng</th><th>Ngày</th><th>Loại</th><th>Số tiền</th><th>Danh mục</th><th>Mô tả</th></tr></thead><tbody>

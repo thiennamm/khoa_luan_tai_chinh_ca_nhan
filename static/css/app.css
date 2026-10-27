@@ -498,3 +498,10 @@ dd{margin:0}
   .footer{padding:14px 18px 24px;flex-direction:column;gap:4px;font-size:10px}.tip{font-size:11px;line-height:1.8}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* TASK 19C: feedback and error focus, without changing financial rules. */
+.error-summary:focus{outline:3px solid #ad6b06;outline-offset:4px}
+.error-summary h2{font-size:18px}.error-summary a{color:inherit;text-decoration:underline;font-weight:650}
+.submit-feedback{font-weight:700}.submit-feedback-help{font-size:13px;line-height:1.6;color:var(--ink)}
+form[aria-busy="true"] button[type="submit"],form[aria-busy="true"] input[type="submit"]{cursor:progress}
+[data-state="error"]{border-left:3px solid var(--red);padding:9px 12px;background:var(--red-light);color:var(--ink)}

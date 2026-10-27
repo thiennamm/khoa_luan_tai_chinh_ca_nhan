@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const shared = fs.readFileSync(path.join(__dirname, '../static/js/form-feedback.js'), 'utf8');
 const {test} = require('node:test');
 const source = fs.readFileSync(path.join(__dirname, '../static/js/transaction-form.js'), 'utf8');
 
@@ -14,8 +15,10 @@ class Element {
     this.handlers = {};
     this.disabled = false;
     this.hidden = false;
-    this.textContent = '';
+    this.textContent = '';this.dataset={};
   }
+  setAttribute(name,value){this[name]=value;}
+  focus(){this.focused=true;}
   get selectedOptions() { return this.options.filter(option => option.value === this.value); }
   addEventListener(name, handler) { (this.handlers[name] ??= []).push(handler); }
   async fire(name, event = {}) { for (const handler of this.handlers[name] ?? []) await handler(event); }
@@ -38,9 +41,11 @@ function setup(fetchImpl, actionImpl) {
   nodes['suggestion-actions'].hidden = true;
   nodes['apply-suggestion'].disabled = true;
   const requests = [];
-  vm.runInNewContext(source, {
-    document: {getElementById: id => nodes[id], createElement: () => new Element(),
-      querySelector: () => ({value: 'test-csrf'})},
+  const windowHandlers={};
+  const sandbox={
+    window:{addEventListener:(name,fn)=>{windowHandlers[name]=fn;}},AbortController,setTimeout,clearTimeout,
+    document: {addEventListener(){},getElementById: id => nodes[id], createElement: () => new Element(),
+      querySelector: selector => selector==='[data-error-summary]'?null:({value: 'test-csrf'})},
     Event: class { constructor(type) { this.type = type; } }, URLSearchParams,
     fetch: async (url, options) => {
       requests.push({url, options});
@@ -52,8 +57,9 @@ function setup(fetchImpl, actionImpl) {
       }
       return fetchImpl();
     },
-  });
-  return {nodes, requests};
+  };
+  vm.createContext(sandbox);vm.runInContext(shared,sandbox);vm.runInContext(source,sandbox);
+  return {nodes, requests, windowHandlers};
 }
 const response = data => ({ok: true, redirected: false, json: async () => data});
 const suggestion = {status: 'suggestion', suggestion_id: 'server-receipt', label: 'Groceries', label_display: 'Thực phẩm', message: 'Chọn danh mục',
@@ -239,4 +245,21 @@ test('không lưu khi Apply đang chờ; kết quả Apply đến muộn không 
   await pending;
   assert.equal(n.id_category.value, '1');
   assert.equal(n['suggestion-id'].value, '');
+});
+
+test('two rapid suggestion clicks start one request; failure restores manual input',async()=>{
+  let finish;const {nodes:n,requests}=setup(()=>new Promise(resolve=>{finish=resolve;}));
+  const pending=n['suggest-category'].fire('click');await n['suggest-category'].fire('click');
+  assert.equal(requests.length,1);assert.equal(n['suggest-category'].disabled,true);
+  finish({ok:false,status:500,json:async()=>({status:'error',message:'private trace must not display'})});await pending;
+  assert.equal(n['suggest-category'].disabled,false);assert.equal(n.id_category.value,'1');
+  assert.equal(n['suggestion-result'].focused,true);assert.doesNotMatch(n['suggestion-result'].textContent,/private trace/);
+});
+test('Back/Forward restores fetch controls, invalidates old receipt and ignores late reply',async()=>{
+  let finish;const {nodes:n,windowHandlers}=setup(()=>new Promise(resolve=>{finish=resolve;}));
+  const pending=n['suggest-category'].fire('click');
+  windowHandlers.pageshow({persisted:true});
+  assert.equal(n['suggest-category'].disabled,false);assert.equal(n['suggestion-id'].value,'');
+  finish(response(suggestion));await pending;assert.equal(n['suggestion-id'].value,'');
+  assert.equal(n['suggestion-actions'].hidden,true);assert.equal(n.id_category.value,'1');
 });

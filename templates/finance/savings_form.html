@@ -4,7 +4,7 @@
 <div class="page-heading"><div><p class="eyebrow">MỤC TIÊU TIẾT KIỆM</p><h1>{{ title }}</h1>{% if goal %}<p class="muted savings-note">{{ goal.name }}</p>{% endif %}</div></div>
 {% include 'finance/includes/savings_notice.html' %}
 {% if goal.archived_at %}<p class="notice">Mục tiêu đã lưu trữ. <a href="{% url 'finance:savings_status' goal.pk 'reopen' %}">Mở lại mục tiêu</a> trước khi sửa.</p>{% endif %}
-<section class="card form-card"><form method="post">{% csrf_token %}{% include 'finance/includes/savings_fields.html' %}
+<section class="card form-card"><form method="post" data-pending-label="Đang lưu…">{% csrf_token %}{% include 'finance/includes/savings_fields.html' %}
 {% if entry_form %}<p class="help">Số tiền luôn dương; thao tác Đóng góp/Rút quyết định cộng/trừ. Chỉ ghi nhận khoản đã thực sự phân bổ, không dùng ngày tương lai.</p>{% else %}<p class="help">Đạt hoặc vượt mục tiêu vẫn được đóng góp. Đổi số tiền cần đạt cập nhật trạng thái, không thay lịch sử phân bổ.</p>{% endif %}
 <div class="form-actions"><button class="button" type="submit" {% if goal.archived_at %}disabled{% endif %}>{% if entry_form %}Xác nhận ghi nhận{% else %}Lưu mục tiêu{% endif %}</button>{% if goal %}<a class="button secondary" href="{% url 'finance:savings_detail' goal.pk %}">Hủy</a>{% else %}<a class="button secondary" href="{% url 'finance:savings_list' %}">Hủy</a>{% endif %}</div></form></section>
 {% endblock %}

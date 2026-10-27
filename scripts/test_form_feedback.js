@@ -9,15 +9,18 @@ function fixture(method = 'post') {
   const handlers = {};
   const attributes = new Map();
   const children = [];
+  const buttonAttributes = new Map();
+  const button = {name:'action', value:'preview_mapping', disabled:false, dataset:{},
+    getAttribute:key=>buttonAttributes.get(key)??null, setAttribute:(key,value)=>buttonAttributes.set(key,value), removeAttribute:key=>buttonAttributes.delete(key)};
   const form = {
-    method,
+    method, dataset: {}, querySelectorAll:()=>[button],
     getAttribute: key => attributes.get(key) ?? null,
     setAttribute: (key, value) => attributes.set(key, value),
     removeAttribute: key => attributes.delete(key),
     appendChild: child => children.push(child),
   };
   const document = {
-    addEventListener: (name, fn) => { handlers[name] = fn; },
+    addEventListener: (name, fn) => { handlers[name] = fn; }, querySelector:()=>null,
     createElement: () => ({ setAttribute() {}, remove() { children.splice(children.indexOf(this), 1); } }),
   };
   const window = { addEventListener: (name, fn) => { handlers[name] = fn; } };
@@ -27,7 +30,7 @@ function fixture(method = 'post') {
     handlers.submit(event);
     return event;
   };
-  return { form, children, handlers, submit };
+  return { form, button, children, handlers, submit };
 }
 
 test('POST giữ lần gửi đầu, phản hồi chờ, chặn lần gửi lặp', () => {
@@ -36,7 +39,7 @@ test('POST giữ lần gửi đầu, phản hồi chờ, chặn lần gửi lặ
   assert.equal(f.form.getAttribute('aria-busy'), 'true');
   assert.match(f.children[0].textContent, /Đang xử lý/);
   assert.equal(f.submit().defaultPrevented, true);
-  assert.equal(f.children.length, 1);
+  assert.equal(f.children.length, 2);
 });
 test('GET và submit đã bị hủy không bị can thiệp', () => {
   const get = fixture('get');
@@ -60,4 +63,18 @@ test('khôi phục aria-busy có trước mà không đổi thuộc tính khác'
   f.submit(); f.handlers.pageshow();
   assert.equal(f.form.getAttribute('aria-busy'), 'false');
   assert.equal(f.form.getAttribute('data-test'), 'giữ nguyên');
+});
+
+test('submitter name/value and enabled state remain intact; aria-disabled is restored',()=>{
+  const f=fixture();f.submit();
+  assert.equal(f.button.name,'action');assert.equal(f.button.value,'preview_mapping');
+  assert.equal(f.button.disabled,false);assert.equal(f.button.getAttribute('aria-disabled'),'true');
+  assert.match(f.children[1].textContent,/chưa xác nhận được kết quả/);
+  assert.match(f.children[1].textContent,/Kiểm tra danh sách/);
+  f.handlers.pageshow();assert.equal(f.button.getAttribute('aria-disabled'),null);
+});
+test('pending label is per form and canceled validation never locks',()=>{
+  const f=fixture();f.form.dataset.pendingLabel='Đang lưu…';
+  f.submit(true);assert.equal(f.children.length,0);
+  f.submit();assert.match(f.children[0].textContent,/Đang lưu/);
 });

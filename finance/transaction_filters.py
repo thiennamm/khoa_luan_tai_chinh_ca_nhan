@@ -4,7 +4,8 @@ from decimal import Decimal
 import re
 from django import forms
 from django.db import connection
-from django.db.models import CharField, F, Func
+from django.db.models import CharField, F, Func, Value
+from django.db.models.functions import Collate
 from django.utils import timezone
 from .models import Category, Kind
 
@@ -72,6 +73,14 @@ def apply_filters(rows, data):
             rows = rows.alias(description_fold=Func(F('description'),
                 function='finance_casefold', output_field=CharField()))
             rows = rows.filter(description_fold__contains=data['q'].casefold())
+        elif connection.vendor == 'postgresql' and connection.pg_version >= 180000:
+            # Render/QA PostgreSQL 18: default C collation only folds ASCII.
+            # Built-in deterministic Unicode folding, on both operands; contains
+            # still escapes literal SQL wildcards. No schema/extension changes.
+            def fold(expression):
+                return Func(Collate(expression, 'pg_unicode_fast'), function='CASEFOLD', output_field=CharField())
+            rows = rows.alias(description_fold=fold(F('description')))
+            rows = rows.filter(description_fold__contains=fold(Value(data['q'])))
         else:
             rows = rows.filter(description__icontains=data['q'])
     return rows.order_by('-date', '-id')

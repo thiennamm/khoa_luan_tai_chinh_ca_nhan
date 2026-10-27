@@ -6,6 +6,7 @@
   <title>{% block title %}Sổ Thu Chi{% endblock %} · Tài chính cá nhân</title>
   <link rel="icon" href="{% static 'img/brand.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/app.css' %}?v=18b.1">
+  {% block styles %}{% endblock %}
 </head>
 <body>
 <a class="skip-link" href="#main">Đến nội dung chính</a>
@@ -22,7 +23,7 @@
 {% else %}
 <div class="auth-shell"><header class="auth-header"><a class="brand" href="{% url 'login' %}"><span class="brand-icon">{% include 'includes/icon.html' with name='wallet' %}</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a><span class="muted">Ghi chép rõ ràng. Chủ động mỗi ngày.</span></header>
 {% endif %}
-    <main id="main" {% if not user.is_authenticated %}class="auth-main"{% endif %}>
+    <main id="main" tabindex="-1" {% if not user.is_authenticated %}class="auth-main"{% endif %}>
       {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}" role="{% if 'error' in message.tags %}alert{% else %}status{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
       {% block content %}{% endblock %}
     </main>

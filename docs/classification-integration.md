@@ -61,3 +61,7 @@ Cập nhật:
 - `README.md`: cấu hình artifact và hướng dẫn sử dụng/kiểm thử bằng PowerShell.
 
 `.gitignore` không cần sửa. Dữ liệu, backup SQLite, ảnh kiểm tra, log cục bộ và mô hình tiếp tục nằm ngoài Git. Không commit/push trong TASK 08A.
+
+## Hướng dẫn ánh xạ trên giao diện — TASK 19A
+
+Tên trường hiện tại là **Liên kết với nhãn mô hình — tùy chọn**; mặc định **Chưa ánh xạ**. Phần mở rộng giải thích 17 mã theo quy tắc vận hành VI v1 và ghi giới hạn nguồn EN; không thay mô hình hay quy tắc tương thích thu/chi. Nhiều danh mục cùng nhãn vẫn hợp lệ. Đổi tên hoặc liên kết không sửa snapshot phản hồi cũ; Apply và Lưu vẫn xác minh receipt/liên kết theo cơ chế TASK 15A. Xem [category-mapping-help.md](category-mapping-help.md).

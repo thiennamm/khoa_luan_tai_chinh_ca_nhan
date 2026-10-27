@@ -163,3 +163,7 @@ Kết quả: **7 static files copied, 14 post-processed**, system check không l
 CSS SHA-256: `2c05d6cd3a380be066b15968a8611e66d746f1d7255a428047974f46a93d2302`. Bằng chứng ngoài Git: `handoff-collectstatic.log`, `handoff-static-report.json`, script/settings QA và các tệp audit trong thư mục handoff. Đây là kiểm production static trên **Windows**, chưa phải build Linux hoặc kiểm UI online sau push.
 
 Đã xác minh GitHub đúng tài khoản **thiennamm**, repository **thiennamm/khoa_luan_tai_chinh_ca_nhan** vẫn **Private**, giữ main/remote/quyền truy cập và không force-push. Commit chỉ gồm 15 tệp TASK 18B, không chứa cấu hình/dữ liệu QA. Kết quả commit, SHA local/remote và working tree được kiểm sau push, báo trong tin nhắn cuối; không nhúng SHA của chính commit vào nội dung tệp. Push main có thể kích hoạt auto-deploy theo cấu hình hosting, nhưng task không kết nối hoặc kiểm chứng production.
+
+## Liên kết nhãn sau khi thêm mẫu — TASK 19A
+
+Bộ 11 mẫu và 4 mục chưa ánh xạ giữ nguyên. Trang Thêm/Sửa danh mục nay dùng nhãn **Liên kết với nhãn mô hình — tùy chọn**, lựa chọn **Chưa ánh xạ** rõ ràng, hướng dẫn phạm vi đủ 17 mã và thông báo trung tính nếu có danh mục cùng loại/cùng nhãn. Không ánh xạ lại danh mục cũ. Hướng dẫn và bằng chứng mới tại [category-mapping-help.md](category-mapping-help.md).

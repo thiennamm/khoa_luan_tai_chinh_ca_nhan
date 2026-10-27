@@ -25,10 +25,10 @@
   let generation = 0;
   let pending = null;
   let filling = false;
+  const interaction = globalThis.SoThuChiInteraction;
   button.disabled = false;
   function message(text, error = false, filled = false) {
-    status.textContent = text;
-    status.setAttribute('role', error ? 'alert' : 'status');
+    interaction.announce(status, text, error);
     status.setAttribute('data-filled', filled ? 'true' : 'false');
   }
   function discard() { pending = null; confirmation.hidden = true; }
@@ -71,17 +71,15 @@
     button.disabled = true;
     message('Đang phân tích theo quy tắc…');
     try {
-      const response = await fetch(panel.dataset.url, {
+      const {response, data} = await interaction.requestJson(panel.dataset.url, {
         method: 'POST', credentials: 'same-origin', mode: 'same-origin',
         headers: {'X-CSRFToken': csrf.value, 'Accept': 'application/json'},
         body: new URLSearchParams({text: input.value}),
       });
       if (current !== generation) return;
-      if (response.redirected) throw new Error('Session expired');
-      const data = await response.json();
-      if (current !== generation) return;
       if (!response.ok || data.status !== 'ok') {
-        message(Array.isArray(data.errors) ? data.errors.join(' ') : 'Chưa phân tích được. Hãy nhập bằng biểu mẫu thường.', true);
+        message(response.status === 400 && data.status === 'invalid' && Array.isArray(data.errors)
+          ? data.errors.join(' ') : 'Chưa nhận được kết quả phân tích hợp lệ. Dữ liệu biểu mẫu được giữ; bạn có thể nhập thủ công. Nhập nhanh không tự lưu giao dịch.', true);
         return;
       }
       details.replaceChildren(); warnings.replaceChildren(); needed.replaceChildren();
@@ -124,9 +122,15 @@
         message('Đã phân tích, chưa thay đổi biểu mẫu. Xem kết quả và xác nhận nếu muốn thay thế.');
       } else fill(data);
     } catch (_) {
-      if (current === generation) message('Nhập nhanh tạm không sẵn sàng hoặc phiên đã hết hạn. Dữ liệu biểu mẫu được giữ; bạn vẫn có thể nhập thủ công.', true);
+      if (current === generation) message('Chưa nhận được kết quả phân tích do kết nối, thời gian chờ hoặc phiên đăng nhập. Dữ liệu biểu mẫu được giữ; bạn vẫn có thể nhập thủ công. Nhập nhanh không tự lưu giao dịch.', true);
     } finally {
       if (current === generation) button.disabled = false;
     }
+  });
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    generation += 1; button.disabled = false; discard();
+    preview.hidden = true; detailResult.hidden = true;
+    message('Đã trở lại biểu mẫu. Dữ liệu nhập tay được giữ; hãy phân tích lại nếu cần.');
   });
 })();
