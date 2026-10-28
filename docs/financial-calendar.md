@@ -1,23 +1,25 @@
-# TASK 20B — Lịch thu–chi theo tháng
+# TASK 20B/20C — Lịch thu–chi theo tháng
 
 Ngày thực hiện **27/10/2026**, dự án chính `D:\KHÓA LUẬN TỐT NGHIỆP`. Đã đọc giao dịch, dịch vụ tổng hợp Decimal, định kỳ/hiệu lực, quyền và template dùng chung. Không có AGENTS.md trong repository. **Không thay schema, model ML, dependency hoặc dữ liệu thật.** Giai đoạn QA chưa commit/push/deploy; phần chốt mã theo yêu cầu tiếp theo ở mục cuối.
+
+Hướng dẫn dưới đây đã cập nhật TASK 20C; các mục kiểm thử/QA và bàn giao TASK 20B giữ nguyên làm bằng chứng lịch sử. Kết quả riêng TASK 20C (27–28/10/2026) và bước chốt mã theo yêu cầu tiếp theo ở cuối.
 
 ## Cách dùng và ý nghĩa dữ liệu
 
 1. Vào **Ghi chép → Lịch thu–chi**. Mặc định tháng hiện tại theo Asia/Ho_Chi_Minh; chọn tháng hoặc dùng Tháng trước/sau/hiện tại. Chuyển năm, tháng 2 và năm nhuận được xử lý bằng ngày lịch.
-2. Desktop: bảng 7 cột bắt đầu **Thứ Hai**; ngày ngoài tháng làm nhạt, không lấy dữ liệu tháng bên cạnh vào tổng. Hôm nay có nhãn chữ và viền. Mobile ≤760px mặc định danh sách ngày, không ép 7 cột.
-3. Tổng ngày/tháng là **thu/chi đã ghi nhận** từ Transaction, tiền Decimal và filter VND dùng chung. Không phải số dư ngân hàng hoặc lịch sử đã được chứng minh đầy đủ. Ngày trống hiển thị số đã ghi là 0, không biến thành xác nhận không có chi hoặc zero hợp lệ cho dự báo.
+2. Desktop: bảng 7 cột bắt đầu **Thứ Hai**; ngày ngoài tháng làm nhạt, không lấy dữ liệu tháng bên cạnh vào tổng. Hôm nay có nhãn chữ và viền. Mobile ≤760px mặc định danh sách **ngày có giao dịch hoặc dự kiến đang hiển thị trong phạm vi**, không ép 7 cột. Chọn **Hiện cả ngày trống → Xem lịch** để hiện đủ ngày; desktop luôn giữ đủ ngày. Đây là form GET, hoạt động khi tắt JavaScript.
+3. Tổng ngày/tháng là **thu/chi đã ghi nhận** từ Transaction, tiền Decimal và filter VND dùng chung. Không phải số dư ngân hàng hoặc lịch sử đã được chứng minh đầy đủ. Ô lịch trống giữ số ngày/liên kết và **Chưa có giao dịch**, không lặp Thu 0/Chi 0 hoặc số đếm 0. Ngày có dữ liệu chỉ hiện tổng loại có giao dịch; kiểm sự hiện diện bằng `has_income`/`has_expense`, không kiểm truthy số tiền: tổng 0 vẫn hiện nếu có giao dịch loại đó. Tổng ở đầu trang và trang ngày giữ cách tính/hiển thị cũ; không biến thiếu bản ghi thành xác nhận không chi hoặc zero hợp lệ cho dự báo.
 4. Giao dịch **ngày tương lai đã lưu** vẫn được tính trong tổng đã ghi, có nhãn tại ô/ngày/chi tiết; không tự sửa ngày, loại bỏ hoặc đổi chính sách ngày của CRUD/CSV.
-5. Mỗi ngày có tối đa **3 mục xem trước**, ưu tiên giao dịch mới nhất theo ID rồi khoản dự kiến. Số đếm thu/chi và số khoản dự kiến vẫn tính đầy đủ; một khoản dự kiến có thể nằm trong **Xem thêm**. Bấm ngày để xem đủ, không cắt thiếu giao dịch.
-6. Trang ngày có hai danh sách riêng: giao dịch đã ghi và định kỳ dự kiến, mỗi danh sách **20 dòng/trang**. Chuyển trang giữ trang của danh sách còn lại. Tổng thu/chi luôn tính toàn bộ giao dịch ngày, không chỉ trang đang xem. Mô tả đầy đủ xuống dòng/escape; xem trước chỉ giới hạn hiển thị bằng CSS.
-7. Ngày/tháng không có bản ghi ghi rõ **Không có giao dịch được ghi nhận**, không khẳng định không phát sinh thu/chi. Coverage của chính tài khoản vẫn hiển thị; không tự xác nhận tháng.
+5. Mỗi ngày có tối đa **2 mục xem trước**, ưu tiên giao dịch mới nhất theo ID rồi khoản dự kiến. Nhãn chữ phân biệt **Đã ghi nhận · Thu/Chi** và **Dự kiến · Thu/Chi**. Chỉ hiện số đếm không rỗng, tính đầy đủ cả mục chưa hiện. **Xem thêm N mục** đếm phần còn lại, mở trang ngày đầy đủ (gồm cả các mục đã xem trước). Không đặt chiều cao cố định ô lịch; tên/mô tả dài rút gọn bằng CSS riêng phần xem trước.
+6. Trang ngày có hai danh sách riêng: giao dịch đã ghi và định kỳ dự kiến, mỗi danh sách **20 dòng/trang**. Chuyển trang giữ trang của danh sách còn lại, ngày và lựa chọn hiện ngày trống. Điều hướng tháng/ngày/quay lại cũng giữ chế độ. Tổng thu/chi luôn tính toàn bộ giao dịch ngày, không chỉ trang đang xem. Mô tả đầy đủ xuống dòng/escape; xem trước chỉ giới hạn hiển thị bằng CSS.
+7. Ô ngày trống ghi **Chưa có giao dịch**; trang ngày/tháng trống ghi **Không có giao dịch được ghi nhận**, không khẳng định không phát sinh thu/chi. Tháng không có mục hiện nút **Thêm giao dịch**. Coverage của chính tài khoản vẫn hiển thị; không tự xác nhận tháng. Ngoài phạm vi định kỳ vẫn có cảnh báo, không suy ra không có khoản dự kiến từ danh sách ngày trống.
 
 ## URL, phân quyền và cache
 
 | URL | Hành vi |
 |---|---|
-| GET `/lich-thu-chi/?month=YYYY-MM` | Thiếu month dùng tháng Việt Nam hiện tại; có month rỗng/sai trả **400**, giữ lỗi, không trả tổng/lịch tháng khác |
-| GET `/lich-thu-chi/ngay/YYYY-MM-DD/?page=1&plans_page=1` | Ngày lịch hợp lệ đúng định dạng; sai ngày trả **404**; tháng được suy từ ngày trên URL |
+| GET `/lich-thu-chi/?month=YYYY-MM&show_empty=1` | Thiếu month dùng tháng Việt Nam hiện tại; có month rỗng/sai trả **400**, giữ lỗi, không trả tổng/lịch tháng khác. Chỉ `show_empty=1` bật tất cả ngày mobile; thiếu, `0` hoặc giá trị khác dùng chế độ ưu tiên ngày có mục |
+| GET `/lich-thu-chi/ngay/YYYY-MM-DD/?page=1&plans_page=1&show_empty=1` | Ngày lịch hợp lệ đúng định dạng; sai ngày trả **404**; tháng được suy từ ngày trên URL. Phân trang và về lịch tháng giữ `show_empty` |
 
 Cả hai chỉ GET, yêu cầu đăng nhập; POST trả 405, không có nhánh ghi dữ liệu. Mọi queryset giao dịch lọc `user=request.user` và category cùng tài khoản; định kỳ/coverage cũng theo request.user. Không nhận user_id từ query làm chủ dữ liệu. Các URL chi tiết giao dịch/định kỳ tiếp tục kiểm quyền bằng luồng hiện có. Header phản hồi có **private/no-store** qua `never_cache`, không có cache dữ liệu riêng dùng chung.
 
@@ -38,7 +40,7 @@ Khoản tiết kiệm không thuộc Transaction nên không cộng; không suy 
 ## Truy vấn và độ chính xác
 
 - Tách phép cộng Decimal hiện có thành `services.recorded_totals`, `monthly_totals` dùng lại helper này. Lịch nhóm các tuple ngày/kind/amount của **đúng tháng đang xem**, cộng bằng Decimal; không dùng SUM NUMERIC/float trên SQLite để tránh làm tròn tổng lớn. Tổng tháng tính từ cùng tổng ngày, không có nguồn số liệu biểu đồ/bảng khác nhau.
-- Xem trước dùng SQL **ROW_NUMBER partition theo ngày, ID giảm dần, rank ≤3**, join category và OneToOne occurrence trước; tối đa 93 bản ghi mô tả trong một tháng 31 ngày. Không tải toàn bộ mô tả của tháng rồi cắt bằng Python, không tải lịch sử giao dịch toàn tài khoản.
+- Xem trước dùng SQL **ROW_NUMBER partition theo ngày, ID giảm dần, rank ≤2** (TASK 20C; trước đây ≤3), join category và OneToOne occurrence trước; tối đa 62 bản ghi mô tả trong một tháng 31 ngày. Không tải toàn bộ mô tả của tháng rồi cắt bằng Python, không tải lịch sử giao dịch toàn tài khoản. Lọc ngày mobile chỉ lọc DTO đã có, không thêm truy vấn cho từng ngày/mục.
 - `recurring.monthly_items` nay prefetch **một revision có hiệu lực gần nhất cho mỗi rule**, dùng ROW_NUMBER theo rule, lọc effective_month ≤ tháng xem. Vẫn để hàm `planned` cũ quyết định nội dung; occurrence vẫn ưu tiên snapshot. Không lấy toàn bộ lịch sử revision hoặc một truy vấn cho mỗi rule. Các view định kỳ dùng `monthly_items` cũng nhận tối ưu này; dashboard/quy tắc/lịch sử khác giữ truy vấn riêng như trước.
 - Trang ngày chỉ lấy tuple số tiền của ngày, COUNT phân trang và tối đa 20 Transaction có join; định kỳ dùng cùng dịch vụ. Các DTO đưa cho template đã có thông tin cần dùng, không dereference category/rule trong từng ô để gây N+1.
 - Không nhận đường dẫn, ghi file dữ liệu, tạo kỳ chờ hay dùng session để lưu bản sao giao dịch. Không thêm log mô tả hoặc dữ liệu cá nhân.
@@ -54,7 +56,7 @@ Một SELECT trang dữ liệu được thêm khi ngày có giao dịch; không 
 
 Số truy vấn ổn định **không phải** bằng chứng thời gian xử lý cố định: vẫn quét tuple của tháng và các rule của tài khoản, tính toàn bộ kế hoạch tháng để đếm/phân trang trong bộ nhớ. Chưa benchmark tập rất lớn, nhiều worker hoặc mọi trường hợp ghi đồng thời. Báo cáo gồm nhiều lần đọc, không phải snapshot bất biến; dữ liệu thay đổi trong lúc duyệt thì tải lại.
 
-## Kiểm thử sau thay đổi cuối
+## Kiểm thử sau thay đổi cuối TASK 20B — bằng chứng lịch sử
 
 | Kiểm tra | Kết quả | Bằng chứng ngoài Git |
 |---|---|---|
@@ -75,7 +77,7 @@ Trong QA đã xử lý:
 - Thử prefetch có slice ban đầu gây `Cannot filter a query once a slice has been taken` trong Django. Sửa bằng prefetch queryset window/rank không slice; nhóm 55 và toàn suite 435 sau sửa đạt. Đây là lỗi phát hiện trong phát triển QA, chưa phát hành.
 - CSS dl dùng chung làm ô lịch thừa khoảng trống; giới hạn padding/border riêng trong CSS lịch, chỉnh thẻ tổng mobile thành hai cột và thẻ số mục hàng riêng; không đổi tổng tiền. Kiểm lại UI/ảnh cuối sau sửa.
 
-## QA giao diện và bảo toàn dữ liệu
+## QA giao diện và bảo toàn dữ liệu TASK 20B — bằng chứng lịch sử
 
 Thư mục riêng: **`D:\POSTGRESQL QA\task20b-20261027`**. Website QA **127.0.0.1:8022**, SQLite mới **`qa.sqlite3`**, hai tài khoản ngẫu nhiên, dữ liệu mô phỏng và banner QA. PostgreSQL dùng cluster localhost TASK 16 `D:\POSTGRESQL QA\rehearsal-20261023\data-attempt2`, system identifier **7699798773140758112**, chỉ **127.0.0.1:55432**; app DB mới `qa_task20b_20261027`, test DB `qa_task20b_suite`. Kiểm identity trước kết nối, không dùng database đã phục hồi chứa dữ liệu cũ hoặc URL Render. Test DB đã được xóa sau suite.
 
@@ -126,3 +128,68 @@ Theo yêu cầu bàn giao tiếp theo, rà đủ **16 tệp** mới/sửa của 
 - Xác minh đúng tài khoản **thiennamm**, repository **thiennamm/khoa_luan_tai_chinh_ca_nhan** vẫn **Private**, giữ remote/main. Commit và push bình thường theo yêu cầu, không force-push. SHA local/remote và working tree được kiểm sau push và báo trong tin nhắn bàn giao, không nhúng SHA của chính commit vào tài liệu.
 
 Bằng chứng chốt mã ngoài Git: `handover-offline-check.log`, `handover-github-identity.json`, `handover-security-review.json`, `handover-push-verification.json` trong thư mục QA nêu trên. Không truy cập production; push có thể kích hoạt auto-deploy đã cấu hình ở hosting, nhưng chưa xác minh kết quả triển khai/hoạt động online của commit này. Các giới hạn QA ở trên vẫn giữ nguyên.
+
+## TASK 20C — Thu gọn lịch, QA 27–28/10/2026
+
+Đọc lại mã và tài liệu trước khi sửa. Chỉ chỉnh DTO trình bày, view chọn chế độ, template/CSS, kiểm thử và hướng dẫn. Không sửa `services.recorded_totals`, `monthly_totals`, dịch vụ định kỳ, coverage, dự báo, schema, model hoặc dependency. Không có JS mới; không ghi nhớ chế độ bằng cookie/session/localStorage.
+
+### Thay đổi và bằng chứng
+
+SQLite mới **`D:\POSTGRESQL QA\task20c-20261027\qa.sqlite3`**, hai tài khoản ngẫu nhiên và dữ liệu mô phỏng; website chỉ **127.0.0.1:8023**. Không dùng database phục hồi hoặc PostgreSQL/Render. Chạy migration có sẵn trên QA mới đến 0014; **không cần migration mới**, không migrate SQLite thật.
+
+Ảnh trước/sau dùng cùng fixture: **36 giao dịch**, thu **17.500.000 VND**, chi **7.120.000 VND**, **5 khoản dự kiến** tháng 10/2026. So với fixture TASK 20B có thêm một quy tắc mô phỏng chỉ có dự kiến ngày 14, không thêm giao dịch thực tế. Không dùng số đếm của hai fixture khác nhau để kết luận sai lệch.
+
+| Tình huống QA | Kết quả quan sát |
+|---|---|
+| Ngày 01 trống | Giữ liên kết ngày; chỉ “Chưa có giao dịch”, không lặp Thu/Chi 0 hoặc số đếm 0 |
+| Ngày 05 chỉ thu, ngày 07 chỉ chi | Chỉ hiện tổng đúng loại có giao dịch; không có dòng loại còn lại |
+| Ngày 14 chỉ có dự kiến | Hiện “1 dự kiến”, nhãn “Dự kiến · Chi” và tiền dự kiến; không có tổng thực tế giả |
+| Ngày 10 nhiều mục | **25 giao dịch + 1 dự kiến**, xem trước **2**, **Xem thêm 24 mục**; trang ngày vẫn đủ 20+5 giao dịch và dự kiến riêng, tổng **550.000 VND** không đổi |
+| Kỳ đã ghi nhận khác ngày/tháng đến hạn | Chỉ có giao dịch theo ngày thực tế; không hiện lại thành chưa trả ngày 31. Bỏ qua/pause/resume vẫn theo dịch vụ cũ |
+| Mobile mặc định / hiện ngày trống | **13 / 31 ngày**. Checkbox GET, tháng trước/sau, mở ngày, phân trang và quay lại giữ tháng/ngày/chế độ |
+| Tháng trống / ngoài cửa sổ định kỳ | Có nút Thêm giao dịch; ngoài phạm vi giữ cảnh báo rõ và không hiện “0 dự kiến” ở ô ngày |
+| Tắt JavaScript và bàn phím | Mobile dùng Space bật checkbox, Enter gửi GET/mở liên kết ngày/quay lại; không mất chế độ |
+| Phân quyền | B thêm `user_id=A` vẫn chỉ thấy dữ liệu B; mở giao dịch A trả 404 |
+
+Điều khiển Edge Chromium **headless**, viewport **1280×900** và **390×844**, locale vi-VN/múi giờ Việt Nam, có context tắt JavaScript. Đã xem trực quan ảnh trước/sau: không tràn ngang toàn trang; tên dài giới hạn ở xem trước, trang ngày giữ đầy đủ. Chiều cao phần lưới desktop của cùng fixture giảm **1.799,06 → 1.412,06 px**; đây là số đo fixture, không cam kết chiều cao cho mọi dữ liệu. Hôm nay giữ nhãn và viền nhẹ; ô tự cao theo nội dung.
+
+6 nhóm browser check đạt, không page error, không có POST tài chính khi xem lịch; đăng nhập B là POST xác thực riêng. Không coi HTTP 200 là bằng chứng kiểm giao diện: đã thao tác checkbox/liên kết/phân trang và chụp trang thực bằng trình duyệt.
+
+### Kiểm tra kỹ thuật riêng TASK 20C
+
+| Kiểm tra | Kết quả | Bằng chứng ngoài Git |
+|---|---|---|
+| Lịch + định kỳ + nghiệp vụ cơ bản trên SQLite test memory | **95/95**, 22,420 giây, không skip | `regression-initial.log` |
+| System check, migration đã áp dụng trên QA, makemigrations check/dry-run | **0 issues**, không migration chờ; **No changes detected** | `system-check.log`, `applied-check.log`, `migration-check.log` |
+| Production QA collectstatic | **11 copied, 22 postprocessed**; manifest, URL hash và gzip đủ CSS/JS/icon; chặn mọi kết nối database | `handoff-static-report.json`, `handoff-collectstatic.log` |
+| Truy vấn SQLite QA qua Client (gồm session/auth) | Tháng mặc định/tất cả: **8/8**; ngày trống/nhiều mục: **8/9**; không lệnh ghi | `sqlite-query-check.json` |
+| Bảo toàn dữ liệu | Hash/số dòng **19 bảng finance** không đổi trước/sau duyệt; tổng ngày/tháng/dịch vụ cũ/SQL khớp; integrity=ok, không lỗi khóa ngoại | `final-verification.json` |
+
+95 gồm **25 bài lịch + 36 định kỳ + 34 nghiệp vụ cơ bản**. 25 bài lịch đã gồm 6 bài mới về hiển thị rỗng, sự hiện diện từng loại, chế độ mobile/GET, phân trang giữ chế độ, số mục còn lại và phạm vi định kỳ. Kiểm tổng 0 là hợp đồng trình bày bằng DTO có `has_income=True`, `income=Decimal(0)`, không lưu Transaction 0 trái validation. Bài tăng dữ liệu 1→41 giao dịch và 1→16 quy tắc giữ số truy vấn tháng; chế độ tất cả không tăng truy vấn. Không cộng 95 với các nhóm 55/435 của TASK 20B thành tổng mới. Không sửa JS nên không chạy lại suite JS hoặc thí nghiệm ML; thao tác giao diện có/không JS được kiểm bằng browser ở trên.
+
+SHA-256 của **SQLite thật, hai artifact EN/VI, requirements**, cùng các tệp nghiệp vụ được bảo vệ (`models.py`, `services.py`, định kỳ/coverage/forecast/classification/CSV) giữ nguyên. Khoản tiết kiệm mô phỏng **20.000.000 VND** không đổi tổng thực tế. Chỉ đọc file SQLite thật để so hash, không mở bằng Django/SQLite hoặc ghi dữ liệu thật trong task.
+
+### Ảnh và tệp bàn giao
+
+Ảnh chỉ chứa tài khoản/dữ liệu QA mô phỏng, **ngoài repository**, thư mục **`D:\POSTGRESQL QA\task20c-20261027`**:
+
+- Trước: `before-desktop-calendar.png` (full page), `before-desktop-viewport.png` (1280×900), `before-mobile-list.png` (390×844), `before-mobile-plan-only.png`.
+- Sau: `after-desktop-calendar.png`, `after-desktop-viewport.png`, `after-mobile-top.png`, `after-mobile-list.png`, `after-mobile-plan-only.png`.
+- Chế độ/biên: `after-mobile-all-days.png`, `after-mobile-empty-month.png`, `after-mobile-outside-scope.png`, `after-mobile-no-javascript.png`.
+- Kết quả browser: `before-ui.json`, `after-ui.json`, `after-browser-checks.json`. Kết quả rà/bảo toàn: `diff-secret-review.json`, `evidence-manifest.json`, `shutdown-report.json`.
+
+**9 tệp sửa:** `finance/financial_calendar.py`, `finance/financial_calendar_views.py`, `finance/test_financial_calendar.py`, `static/css/financial-calendar.css`, `templates/finance/financial_calendar.html`, `templates/finance/financial_calendar_day.html`, `templates/finance/includes/calendar_cell.html`, README và tài liệu này. Không thêm database, ảnh, credential, cấu hình QA hoặc artifact vào Git; rà diff/secret và `git diff --check`. Tại thời điểm kết thúc QA chưa stage/commit/push/deploy; bước chốt mã theo yêu cầu sau đó ở bên dưới.
+
+Đã dừng website QA 8023, xác minh cổng 8023 và 55432 đóng; PostgreSQL không được khởi động trong TASK 20C. Đã xóa credential, cookie session và secret QA tạm. SQLite/bằng chứng mô phỏng giữ riêng để đối chiếu, không dùng cho sản phẩm.
+
+**Giới hạn:** chưa chạy lại PostgreSQL hoặc toàn suite ở TASK 20C; giữ cơ chế join, tổng hợp và khóa nghiệp vụ, chỉ giảm ngưỡng rank xem trước. Bằng chứng PostgreSQL TASK 20B vẫn là lịch sử. Chưa thử browser khác, điện thoại vật lý, screen reader, zoom/font lớn, Linux/Render, tải lớn hoặc cập nhật đồng thời. Viewport headless không thay thế kiểm thiết bị thật; số truy vấn ổn định không có nghĩa chi phí xử lý cố định. Không suy luận ngày ngoài cửa sổ định kỳ là không có khoản đến hạn, hoặc ngày thiếu bản ghi là không phát sinh tiền thực tế.
+
+### Chốt mã TASK 20C — 28/10/2026
+
+Theo yêu cầu bàn giao tiếp theo, rà đủ **9 tệp** và đối chiếu SHA-256 với manifest QA cuối: toàn bộ mã, kiểm thử, CSS/template cùng bằng chứng QA giữ nguyên; bước này chỉ bổ sung biên bản trong tài liệu. Không sửa thuật toán/tổng Decimal, phạm vi định kỳ, coverage, dự báo, schema, quyền sở hữu hoặc dependency. Hai endpoint vẫn yêu cầu đăng nhập, chỉ GET, private/no-store; tham số `show_empty` chỉ chọn cách trình bày và giữ điều hướng, không chọn chủ tài khoản hoặc ghi dữ liệu.
+
+Giữ kết quả **95/95**, system check **0 issues**, **No changes detected** và collectstatic **11 copied/22 postprocessed** từ lượt QA nêu trên; không chạy lại toàn bộ kiểm thử vì mã không đổi. Giữ nguyên tất cả giới hạn QA ở trên, không suy diễn push hoặc trạng thái Deploy Live thành bằng chứng hoạt động online.
+
+Rà cả danh sách tệp đang theo dõi và nội dung chuẩn bị commit: không có database, credential, cấu hình QA, ảnh/log riêng, dữ liệu hoặc model trong thay đổi. Kiểm `git diff --check`, hash **30 tệp được bảo vệ** (gồm SQLite thật, hai artifact, requirements và mã nghiệp vụ) giữ nguyên; không mở database thật/production. Xác minh tài khoản **thiennamm**, repository **thiennamm/khoa_luan_tai_chinh_ca_nhan** vẫn **Private**, nhánh **main**; commit/push thường theo yêu cầu, không đổi remote/quyền hoặc force-push. SHA local/remote và working tree được kiểm sau push, báo trong tin nhắn bàn giao.
+
+Bằng chứng chốt mã ngoài Git trong thư mục QA TASK 20C: `handover-before-review.json`, `handover-github-identity.json`, `handover-security-review.json`, `handover-push-verification.json`. Không truy cập Render hoặc database production; push có thể kích hoạt auto-deploy đã cấu hình, kết quả online chưa được xác minh trong bước này.

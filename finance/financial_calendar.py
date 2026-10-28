@@ -13,7 +13,7 @@ from .forms import MonthForm
 from .models import Transaction, MonthlyCoverage
 from .services import recorded_totals
 
-PREVIEW_LIMIT = 3
+PREVIEW_LIMIT = 2
 
 
 class CalendarMonthForm(MonthForm):
@@ -75,10 +75,12 @@ def month_data(user, month):
     # Only the selected month, no descriptions/models loaded for the full scan.
     for day, values in groupby(rows.order_by('date').values_list('date', 'kind', 'amount').iterator(), key=lambda r:r[0]):
         entries = list(values)
-        days[day] = {**recorded_totals((kind, amount) for _, kind, amount in entries), 'actual_count': len(entries)}
+        days[day] = {**recorded_totals((kind, amount) for _, kind, amount in entries), 'actual_count': len(entries),
+            'has_income': any(kind == 'income' for _, kind, _ in entries),
+            'has_expense': any(kind == 'expense' for _, kind, _ in entries)}
     totals = recorded_totals((kind, data[kind]) for data in days.values() for kind in ('income', 'expense'))
     actual_count = sum(data['actual_count'] for data in days.values())
-    # Limit in SQL to <= 3 per date, not all monthly descriptions then Python slice.
+    # Limit in SQL to <= 2 per date, not all monthly descriptions then Python slice.
     previews = rows.annotate(calendar_rank=Window(RowNumber(), partition_by=[F('date')],
         order_by=F('id').desc())).filter(calendar_rank__lte=PREVIEW_LIMIT)
     previews = previews.select_related('category', 'recurring_occurrence').order_by('date', '-id')
@@ -98,11 +100,12 @@ def month_data(user, month):
         inside = day is not None and start <= day <= end
         cell = {'day': day, 'inside': inside, 'today': day == today, 'future': day is not None and day > today}
         if inside:
-            data = days.get(day, {**recorded_totals([]), 'actual_count': 0})
+            data = days.get(day, {**recorded_totals([]), 'actual_count': 0, 'has_income': False, 'has_expense': False})
             estimated = planned_by_day.get(day, [])
             items = (preview_by_day.get(day, []) + estimated[:PREVIEW_LIMIT])[:PREVIEW_LIMIT]
             count = data['actual_count'] + len(estimated)
-            cell.update(data, items=items, plan_count=len(estimated), item_count=count, more=count > len(items))
+            cell.update(data, items=items, plan_count=len(estimated), item_count=count,
+                more=count > len(items), more_count=count - len(items))
         cells.append(cell)
     context = {**totals, **plans, 'actual_count': actual_count, 'plan_count': len(plans['pending_plans']),
         'weeks': [cells[i:i+7] for i in range(0, len(cells), 7)], 'days': [c for c in cells if c['inside']],

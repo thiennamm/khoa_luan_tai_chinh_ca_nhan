@@ -19,10 +19,12 @@ from .services import recorded_totals
 @never_cache
 def calendar_month(request):
     form = CalendarMonthForm({'month': request.GET.get('month', recurring.today().strftime('%Y-%m'))})
-    context = {'month_form': form, 'current_month': recurring.today().replace(day=1)}
+    show_empty = request.GET.get('show_empty') == '1'
+    context = {'month_form': form, 'current_month': recurring.today().replace(day=1), 'show_empty': show_empty}
     valid = form.is_valid()
     if valid:
         context.update(month_data(request.user, form.cleaned_data['month']))
+        context['mobile_days'] = [cell for cell in context['days'] if show_empty or cell['item_count'] > 0]
     return render(request, 'finance/financial_calendar.html', context, status=200 if valid else 400)
 
 
@@ -47,4 +49,5 @@ def calendar_day(request, day):
     plans_page = Paginator(planned, 20).get_page(request.GET.get('plans_page'))
     return render(request, 'finance/financial_calendar_day.html', {
         **totals, **plans, 'day': selected, 'month': month, 'today': today, 'future': selected > today,
+        'show_empty': request.GET.get('show_empty') == '1',
         'page_obj': page, 'plans_page': plans_page, 'coverage': coverage_label(request.user, month)})

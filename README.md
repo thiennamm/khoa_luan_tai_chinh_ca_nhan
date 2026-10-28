@@ -294,9 +294,9 @@ Mỗi lần mở form có mã thao tác mới, hiệu lực **2 giờ**. Gửi l
 
 Cần migration **`0014_similar_transaction_operation`** để lưu receipt chống trùng bền vững. Giai đoạn QA đã kiểm trên SQLite/PostgreSQL riêng; bàn giao ngày **27/10/2026** đã sao lưu bằng SQLite backup API, kiểm bản sao và áp dụng vào **SQLite local thật**, system check đạt, dữ liệu nghiệp vụ cũ giữ nguyên. **Chưa áp dụng hoặc kiểm trên production.** Các máy/database khác vẫn cần sao lưu và migrate theo quy trình được duyệt. Xem [docs/duplicate-transaction.md](docs/duplicate-transaction.md) về bàn giao, triển khai, kiểm thử và ảnh QA.
 
-### Lịch thu–chi (TASK 20B)
+### Lịch thu–chi (TASK 20B/20C)
 
-Mở **Ghi chép → Lịch thu–chi**, chọn tháng hoặc dùng Tháng trước/sau/hiện tại. Desktop là lịch tuần bắt đầu thứ Hai; mobile là danh sách theo ngày. Mỗi ngày xem trước tối đa 3 mục; bấm ngày hoặc **Xem thêm** để xem đủ, phân trang 20 dòng. Ngày hôm nay theo giờ Việt Nam.
+Mở **Ghi chép → Lịch thu–chi**, chọn tháng hoặc dùng Tháng trước/sau/hiện tại. Desktop là lịch tuần bắt đầu thứ Hai; mobile ưu tiên danh sách ngày có giao dịch/dự kiến. Chọn **Hiện cả ngày trống → Xem lịch** để xem đủ ngày, kể cả khi tắt JavaScript. Mỗi ngày xem trước tối đa 2 mục; **Xem thêm N mục** đếm số mục chưa hiện, mở danh sách đầy đủ với phân trang 20 dòng. Ngày trống chỉ ghi **Chưa có giao dịch**; ngày có dữ liệu hiện tổng đúng loại đã ghi. Ngày hôm nay theo giờ Việt Nam. Chuyển tháng, mở ngày và phân trang giữ lựa chọn hiển thị.
 
 Tổng thu/chi chỉ gồm giao dịch đã lưu, định dạng `50.000 VND`. Khoản định kỳ có nhãn **Dự kiến**, không cộng vào tổng; **Ghi nhận** chỉ mở biểu mẫu xác nhận hiện có. Kỳ đã ghi nhận không hiện tiếp như khoản chưa trả; giao dịch nằm ở ngày thực tế. Giao dịch ngày tương lai đã lưu vẫn có trong số đã ghi nhận và được đánh dấu rõ.
 

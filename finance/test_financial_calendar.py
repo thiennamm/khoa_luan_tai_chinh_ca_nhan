@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
@@ -202,7 +203,7 @@ class FinancialCalendarTests(TestCase):
         for i in range(45):self.row(amount=str(i+1),description=f'QA {i}')
         dangerous=self.row(description='<script>alert(1)</script>\n'+'dài'*120)
         page=self.month();cell=next(d for d in page.context['days'] if d['day']==date(2026,10,10))
-        self.assertEqual(len(cell['items']),3);self.assertTrue(cell['more']);self.assertEqual(cell['actual_count'],46)
+        self.assertEqual(len(cell['items']),2);self.assertTrue(cell['more']);self.assertEqual(cell['actual_count'],46)
         seen=[]
         for p,count in [(1,20),(2,20),(3,6)]:
             detail=self.day('2026-10-10',page=p)
@@ -218,7 +219,7 @@ class FinancialCalendarTests(TestCase):
     def test_planned_pagination_full_and_estimates_not_in_totals(self):
         for i in range(25):self.rule(name=f'QA dự kiến {i}',due_day=10)
         page=self.month();cell=next(d for d in page.context['days'] if d['day']==date(2026,10,10))
-        self.assertEqual(len(cell['items']),3);self.assertEqual(cell['plan_count'],25)
+        self.assertEqual(len(cell['items']),2);self.assertEqual(cell['plan_count'],25)
         self.assertEqual(cell['expense'],Decimal(0));self.assertEqual(page.context['expense'],Decimal('125000'))
         first=self.day('2026-10-10');second=self.day('2026-10-10',plans_page=2)
         self.assertEqual(len(first.context['plans_page']),20);self.assertEqual(len(second.context['plans_page']),5)
@@ -244,6 +245,7 @@ class FinancialCalendarTests(TestCase):
         with patch('finance.forecasting.compute_and_store') as forecast,patch('finance.views.suggest_label') as inference:
             self.assertEqual(self.month().context['expense'],Decimal('125000'))
             self.day();self.day('2026-10-31');self.month('2015-01')
+            self.month(show_empty='1');self.day(show_empty='1')
         forecast.assert_not_called();inference.assert_not_called()
         self.assertEqual(before,{m.__name__:list(m.objects.order_by('pk').values()) for m in models})
 
@@ -255,7 +257,84 @@ class FinancialCalendarTests(TestCase):
         for i in range(15):self.rule(name=f'QA nhiều {i}',due_day=10)
         with CaptureQueriesContext(connection) as large:self.month()
         with CaptureQueriesContext(connection) as day_large:self.day('2026-10-10')
+        with CaptureQueriesContext(connection) as show_all:self.month(show_empty='1')
         self.assertEqual(len(small),len(large))
+        self.assertEqual(len(show_all),len(large))
         # Empty vs nonempty actual day may add one paginated SELECT, never N+1.
         self.assertLessEqual(len(day_large),len(day_small)+1)
         self.assertLessEqual(len(large),8);self.assertLessEqual(len(day_large),9)
+
+    def cell_html(self, cell, **extra):
+        return render_to_string('finance/includes/calendar_cell.html',
+            {'cell':cell,'plans_available':True,'show_empty':False,**extra})
+
+    def test_compact_empty_day_keeps_date_link_without_repeated_zero_lines(self):
+        cell=next(c for c in self.month().context['days'] if c['day']==date(2026,10,2))
+        html=self.cell_html(cell)
+        self.assertIn('Chưa có giao dịch',html)
+        self.assertIn('/lich-thu-chi/ngay/2026-10-02/?show_empty=0',html)
+        self.assertNotIn('0 VND',html)
+        self.assertNotIn('0 giao dịch',html);self.assertNotIn('0 dự kiến',html)
+
+    def test_kind_presence_controls_totals_even_when_presented_aggregate_is_zero(self):
+        self.row(day=date(2026,10,5),kind='income')
+        days=self.month().context['days']
+        income=next(c for c in days if c['day']==date(2026,10,5))
+        expense=next(c for c in days if c['day']==date(2026,10,1))
+        self.assertTrue(income['has_income']);self.assertFalse(income['has_expense'])
+        self.assertTrue(expense['has_expense']);self.assertFalse(expense['has_income'])
+        # Presentation contract only: no zero/invalid Transaction is persisted.
+        html=self.cell_html({**income,'income':Decimal(0)})
+        self.assertIn('Thu đã ghi',html);self.assertIn('0 VND',html);self.assertNotIn('Chi đã ghi',html)
+        expense_html=self.cell_html(expense)
+        self.assertIn('Chi đã ghi',expense_html);self.assertNotIn('Thu đã ghi',expense_html)
+
+    def test_mobile_default_includes_actual_and_planned_days_and_get_can_show_all(self):
+        self.row(day=date(2026,10,5),kind='income')
+        self.rule(due_day=10)
+        default=self.month()
+        self.assertEqual([c['day'].day for c in default.context['mobile_days']],[1,5,10])
+        self.assertEqual(len(default.context['days']),31)
+        self.assertEqual(len(self.month(show_empty='1').context['mobile_days']),31)
+        self.assertEqual(len(self.month(show_empty='0').context['mobile_days']),3)
+        planned=next(c for c in default.context['mobile_days'] if c['day'].day==10)
+        html=self.cell_html(planned)
+        self.assertIn('Dự kiến · Chi',html);self.assertIn('1 dự kiến',html)
+        self.assertNotIn('Thu đã ghi',html);self.assertNotIn('Chi đã ghi',html)
+        self.assertNotIn('0 giao dịch',html)
+
+    def test_get_mode_keeps_selected_month_day_and_both_pagination_states(self):
+        for _ in range(22):self.row()
+        for i in range(25):self.rule(name=f'QA chế độ {i}',due_day=10)
+        month=self.month(show_empty='1')
+        self.assertContains(month,'?month=2026-09&amp;show_empty=1')
+        self.assertContains(month,'/lich-thu-chi/ngay/2026-10-10/?show_empty=1')
+        day=self.day('2026-10-10',show_empty='1')
+        self.assertContains(day,'?page=2&amp;plans_page=1&amp;show_empty=1')
+        second=self.day('2026-10-10',show_empty='1',page=2,plans_page=1)
+        self.assertEqual(second.context['day'],date(2026,10,10))
+        self.assertContains(second,'?plans_page=2&amp;page=2&amp;show_empty=1')
+        self.assertContains(second,'/lich-thu-chi/?month=2026-10&amp;show_empty=1')
+
+    def test_two_preview_items_and_more_count_represent_remaining_not_truncated_data(self):
+        for i in range(4):self.row(description=f'QA phần xem trước {i}')
+        self.rule(due_day=10)
+        cell=next(c for c in self.month().context['days'] if c['day'].day==10)
+        self.assertEqual(cell['item_count'],5);self.assertEqual(len(cell['items']),2)
+        self.assertEqual(cell['more_count'],3)
+        self.assertIn('Xem thêm 3 mục',self.cell_html(cell))
+        self.assertIn('Đã ghi nhận · Chi',self.cell_html(cell))
+        day=self.day('2026-10-10')
+        self.assertEqual(day.context['page_obj'].paginator.count,4)
+        self.assertEqual(day.context['plans_page'].paginator.count,1)
+
+    def test_outside_recurring_window_and_empty_mobile_month_keep_scope_and_action(self):
+        page=self.month('2015-01',show_empty='1')
+        self.assertFalse(page.context['plans_available'])
+        self.assertContains(page,'Ngoài phạm vi không có nghĩa là không có khoản đến hạn')
+        self.assertContains(page,'Không có giao dịch được ghi nhận')
+        self.assertContains(page,reverse('finance:transaction_create'))
+        self.assertEqual(len(page.context['mobile_days']),31)
+        self.assertEqual(self.month('2015-01').context['mobile_days'],[])
+        html=self.cell_html(page.context['days'][0],plans_available=False)
+        self.assertIn('Chưa có giao dịch',html);self.assertNotIn('0 dự kiến',html)
