@@ -1,6 +1,8 @@
 # Sổ Thu Chi — website tài chính cá nhân
 
-Bản chạy trên máy, dùng Python 3.13, Django 5.2, SQLite và Django templates; có gợi ý phân loại thử nghiệm, nhập CSV có xem trước, xác nhận lịch sử tháng và ước tính tổng chi theo từng tài khoản. Chưa triển khai lên Internet.
+Website dùng Python 3.13, Django 5.2 và Django templates; có gợi ý phân loại thử nghiệm, nhập CSV có xem trước, xác nhận lịch sử tháng và ước tính tổng chi theo từng tài khoản. Hướng dẫn chạy dưới đây dành cho bản local dùng SQLite. Cấu hình triển khai và bằng chứng kiểm chứng online được ghi riêng trong [docs/render-deployment.md](docs/render-deployment.md) và [docs/production-verification.md](docs/production-verification.md); không suy ra trạng thái online từ việc chạy được trên máy.
+
+**Dùng thử lần đầu:** [Hướng dẫn 10–15 phút](docs/user-trial-guide.md). Kết quả kiểm hành trình bằng dữ liệu mô phỏng và các giới hạn: [docs/user-journey-qa.md](docs/user-journey-qa.md).
 
 ## Chạy bằng PowerShell
 
@@ -13,7 +15,7 @@ Set-Location -LiteralPath 'D:\KHÓA LUẬN TỐT NGHIỆP'
 & '.\.venv\Scripts\python.exe' -X utf8 manage.py runserver 127.0.0.1:8001
 ```
 
-Truy cập <http://127.0.0.1:8001/>. Trong phiên chuẩn bị này, máy chủ đã được mở tại cổng 8001, bạn có thể truy cập ngay. Dừng máy chủ chạy trong PowerShell bằng **Ctrl+C**. Nếu cổng 8001 đang được sử dụng khi tự chạy lại, đổi thành `127.0.0.1:8002` và truy cập cổng tương ứng. Máy chủ chỉ nghe trên máy hiện tại; bố cục hỗ trợ màn hình điện thoại khi thu nhỏ trình duyệt.
+Sau khi lệnh `runserver` khởi động thành công, truy cập <http://127.0.0.1:8001/>. Dừng máy chủ chạy trong PowerShell bằng **Ctrl+C**. Nếu cổng 8001 đang được sử dụng khi tự chạy lại, đổi thành `127.0.0.1:8002` và truy cập cổng tương ứng. Máy chủ chỉ nghe trên máy hiện tại; bố cục hỗ trợ màn hình điện thoại khi thu nhỏ trình duyệt. Kịch bản dùng thử nên chạy trên bản QA riêng, không nhập dữ liệu thử vào tài khoản thật.
 
 Môi trường `.venv` và `requirements.txt` hiện có được giữ nguyên. Nếu cần tạo lại môi trường sau này:
 
