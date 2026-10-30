@@ -4,6 +4,8 @@ Website dùng Python 3.13, Django 5.2 và Django templates; có gợi ý phân l
 
 **Dùng thử lần đầu:** [Hướng dẫn 10–15 phút](docs/user-trial-guide.md). Kết quả kiểm hành trình bằng dữ liệu mô phỏng và các giới hạn: [docs/user-journey-qa.md](docs/user-journey-qa.md).
 
+**Tài liệu khóa luận — TASK 21B:** [Kiến trúc hệ thống](docs/system-architecture.md), [Luồng nghiệp vụ và ML](docs/ml-data-flows.md), [Tổng hợp bằng chứng ML](docs/ml-evidence-summary.md), [Kịch bản bảo vệ 7–10 phút](docs/thesis-demo-script.md). Các tài liệu đối chiếu mã/artifact hiện có; không xác nhận trạng thái online hoặc hiệu quả với giao dịch thật.
+
 ## Chạy bằng PowerShell
 
 Mở PowerShell tại thư mục dự án. Không cần kích hoạt môi trường ảo hoặc đổi Execution Policy; gọi trực tiếp Python trong `.venv`:
