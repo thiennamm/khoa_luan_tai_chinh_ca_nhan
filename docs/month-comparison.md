@@ -252,3 +252,13 @@ Người dùng đã chấp nhận bàn giao theo các bằng chứng hiện có 
 Lượt chốt chỉ rà diff/bí mật và cập nhật tài liệu quyết định bàn giao; không sửa mã ứng dụng hoặc chạy lại suite. Kết quả vẫn là **458 bài PostgreSQL duy nhất: 451 đạt lượt đầu, 7 lỗi cookie QA rồi chạy lại đúng 7 đều đạt**. Nhóm 58 PostgreSQL thuộc 458; lượt 58 SQLite được ghi riêng, không cộng thành tổng bài duy nhất mới; JavaScript **43/43**. Con số **2 truy vấn** chỉ thuộc phần tổng hợp đã đo, không phải toàn trang.
 
 Chỉ đưa 15 tệp mã/kiểm thử/tài liệu TASK 22A vào commit. Không đưa database, model/dataset, credential, cấu hình hoặc bằng chứng QA riêng tư vào Git; không đổi schema, dependency hoặc quyền repository. Push có thể kích hoạt Render auto-deploy theo cấu hình đã có; không thao tác trực tiếp production, không chạy migration hoặc coi auto-deploy là bằng chứng online mới. Server/credential QA đã dọn theo biên bản trước.
+
+## TASK 22B — Xác nhận thủ công bổ sung cho mốc demo, 01/11/2026
+
+Người dùng xác nhận đã kiểm luồng **Báo cáo tháng A=09/2026, B=10/2026 → mở danh mục Ăn uống → quay về giữ đúng A/B**. Tổng tháng 10 được người dùng xác nhận qua ảnh: **thu 500.000 VND, chi 750.000 VND, chênh lệch thu–chi −250.000 VND**.
+
+Đây là **xác nhận thủ công qua ảnh do người dùng cung cấp thông tin**, không phải kiểm thử tự động hoặc lượt trợ lý kiểm lại runtime. Lượt TASK 22B không mở website/database, không có tệp ảnh mới để trợ lý đối chiếu độc lập, không xác minh môi trường hay tài khoản của ảnh. Không suy ra đây là bằng chứng online mới hoặc số liệu thuộc fixture QA cũ có 31 giao dịch. Giữ nguyên tổng QA cũ 13.000.000/2.770.000 VND ở các biên bản trước; hai bộ số liệu không được thay thế hoặc gộp thành một phép kiểm.
+
+Xác nhận này bổ sung bằng chứng cho luồng mở danh mục/quay về và các số hiển thị nêu trên; **không khép** các mục viewport nội dung, overflow, focus/Tab, phân trang tại đúng hai kích thước hoặc phạm vi tắt JavaScript còn thiếu. Các mục đó vẫn **Chưa xác minh** như bảng QA phía trên. Không ghi QA hoàn tất toàn bộ hoặc gọi thiếu API công cụ là lỗi ứng dụng.
+
+Checklist chuẩn bị mốc demo và danh sách dữ liệu mô phỏng cần chuẩn bị được bổ sung ngay trong [kịch bản bảo vệ hiện có, mục 6](thesis-demo-script.md#6-checklist-chuẩn-bị-mốc-demo--task-22b), không tạo tài liệu demo trùng. TASK 22B chỉ sửa tài liệu trên nhánh main, từ commit nền `c16457fd2bbc707aa2ccdf1d15a700bcff5675f6`, working tree sạch lúc bắt đầu; không chạy lại suite ứng dụng, không tạo dữ liệu/tài khoản hoặc khởi động server. Chưa commit/push/deploy TASK 22B.
