@@ -2,10 +2,12 @@
 
 Kiểm chứng ngày 27/10/2026, giờ Việt Nam. Làm trên dự án chính. Giữ nguyên thay đổi TASK 19A chưa commit; chưa commit/push/deploy cả hai task.
 
+**Cập nhật TASK 22A, 30/10/2026:** phần so sánh được mở rộng ngay trên trang này thành hai tháng A/B tùy chọn, không tạo trang báo cáo thứ hai. Hướng dẫn/nguồn số liệu bên dưới đã cập nhật; các số kiểm thử và PDF ở phần QA vẫn là bằng chứng lịch sử TASK 19B, không phải kiểm lại TASK 22A. Xem [month-comparison.md](month-comparison.md) cho kết quả và giới hạn mới.
+
 ## Cách dùng
 
 1. Đăng nhập, ở **Tổng quan** chọn tháng rồi bấm **Báo cáo tháng**. Liên kết giữ tháng đang chọn.
-2. Ở `/bao-cao-thang/?month=YYYY-MM`, kiểm tra tháng và trạng thái ghi chép. Mặc định không đưa danh sách giao dịch vào báo cáo.
+2. Ở `/bao-cao-thang/?month=YYYY-MM`, tháng báo cáo là B; chọn thêm Tháng gốc A nếu cần đối chiếu khác tháng trước. GET `base_month=YYYY-MM&month=YYYY-MM` giữ hai lựa chọn. Mặc định không đưa danh sách giao dịch vào báo cáo.
 3. Muốn có chi tiết: chọn **Bao gồm toàn bộ giao dịch trong tháng**, bấm **Xem báo cáo**. Bao gồm tất cả kết quả tháng, không chỉ trang 20 dòng; ngày và ID giảm dần.
 4. Bấm **In / Lưu PDF** để gọi chức năng in sau thao tác của bạn, chọn **Save as PDF / Lưu dưới dạng PDF**, A4 dọc. Có thể tắt header/footer của trình duyệt nếu không muốn in URL/ngày do trình duyệt thêm. Không cần bật in màu nền để đọc số liệu.
 5. Tắt JavaScript: biểu mẫu GET vẫn hoạt động; dùng Ctrl+P/menu In. Nút in được ẩn khi không có JavaScript. Chọn nơi lưu riêng tư, kiểm tra preview trước khi lưu/chia sẻ.
@@ -14,10 +16,10 @@ Website không cung cấp endpoint xuất PDF, không tự tải PDF, không g�
 
 ## Nguồn số liệu và ý nghĩa
 
-- `financial_statistics(user, selected, 6)` là dịch vụ Tổng quan hiện có. Báo cáo lấy tháng cuối và tháng liền trước từ cùng kết quả tổng hợp, dùng lại cơ cấu chi theo ID danh mục, sắp xếp số tiền giảm dần. Không gộp theo tên hoặc viết bản sao phép cộng thu/chi.
+- Báo cáo và Tổng quan dùng chung `recorded_month_statistics`; `recorded_month_groups` GROUP BY tại database, trả tổng Decimal chính xác theo tháng/loại/ID danh mục. Báo cáo chỉ đọc hai tháng được chọn, không lấy sáu tháng không cần thiết. Dùng lại cơ cấu chi theo ID, sắp số tiền giảm dần; bảng so sánh danh mục sắp theo mức tăng B − A.
 - Tiền cộng bằng Decimal; dùng filter `vnd` chung, ví dụ `50.000 VND`, giá trị âm khi chênh lệch âm. Không đổi giá trị database, rounding tiền, CSV hoặc parser nhập nhanh.
 - Tỷ trọng chi: số chi danh mục / tổng chi, làm tròn HALF_UP đến 2 số thập phân theo dịch vụ cũ. Tổng số tiền danh mục phải khớp tổng chi; tổng tỷ trọng đã làm tròn có thể lệch nhẹ 100%. Tổng chi bằng 0 không tạo bảng/tỷ trọng giả.
-- So sánh từng tổng đã ghi: tháng báo cáo trừ tháng trước. Thu/chi chỉ tính phần trăm nếu tháng trước khác 0; không tính phần trăm cho chênh lệch thu–chi. Không tính bằng mẫu số 0.
+- So sánh từng tổng đã ghi: B − A. Tỷ lệ chỉ khi A > 0, kể cả hiệu thu trừ chi có A dương; A bằng 0 hoặc âm được giải thích và không tính tỷ lệ. Không gọi thay đổi của hiệu thu trừ chi là tăng trưởng số dư ngân hàng. Đây là mở rộng TASK 22A so với quy tắc hiển thị tỷ lệ ban đầu.
 - Hiện coverage và ghi chú tháng hiện tại/tương lai cho cả hai tháng. Nếu một tháng chưa được xác nhận đầy đủ hoặc chưa kết thúc, giữ cảnh báo không diễn giải chênh lệch số đã ghi là xu hướng chi tiêu thực tế. Coverage đầy đủ vẫn chỉ là xác nhận của người dùng.
 - Tháng trống: **Không có giao dịch được ghi nhận**; không khẳng định không phát sinh thu/chi. Không tự đổi coverage từ unknown sang complete hoặc coi số 0 này là đầu vào hợp lệ cho dự báo.
 - Chênh lệch thu–chi không phải số dư ngân hàng hoặc tiền tiết kiệm. Chỉ lấy Transaction đã lưu; SavingsEntry và khoản định kỳ chưa được ghi nhận không cộng vào thu/chi. Không gọi dịch vụ dự báo, fit ML hoặc tạo ForecastHistory.
@@ -25,7 +27,7 @@ Website không cung cấp endpoint xuất PDF, không tự tải PDF, không g�
 
 ## Tham số, phân quyền và quyền riêng tư
 
-Chỉ GET, yêu cầu đăng nhập. `month` phải có dạng YYYY-MM và là tháng lịch hợp lệ. Không truyền month thì mặc định tháng hiện tại theo giờ Việt Nam; truyền rỗng/sai trả **HTTP 400**, hiển thị lỗi và không tự hiển thị báo cáo tháng khác. Tháng 01/0001 không có tháng trước trong phạm vi ngày được hỗ trợ nên không có bảng so sánh; 12/9999 vẫn xem được.
+Chỉ GET, yêu cầu đăng nhập. `month` (B) và `base_month` (A) nếu truyền phải có dạng YYYY-MM, là tháng lịch hợp lệ; rỗng/sai trả **HTTP 400**, không tự đổi tháng. Không truyền B thì mặc định tháng hiện tại Việt Nam; không truyền A thì lấy tháng liền trước B. Tháng 01/0001 không có tháng trước mặc định, nhưng được chọn A tường minh (kể cả A=B); 12/9999 vẫn xem được.
 
 Các truy vấn giao dịch và coverage đều theo tài khoản đăng nhập; giao dịch còn kiểm category thuộc cùng tài khoản như dịch vụ thống kê hiện có. Không dùng user_id từ query, không truy vấn tài khoản đích tùy ý. Chi tiết lấy đủ tháng bằng queryset riêng, không Paginator/slice/hạn mức ngầm. Danh mục và mô tả được autoescape, xuống dòng và wrap chuỗi dài; không ghép nội dung người dùng vào JavaScript.
 

@@ -1,10 +1,12 @@
 """Thống kê đã ghi, chỉ đọc; không dùng zero này làm đầu vào dự báo."""
 from datetime import date
-from calendar import monthrange
 from decimal import Decimal, ROUND_HALF_UP
 from django import forms
+from django.utils import timezone
+from zoneinfo import ZoneInfo
 from .coverage_calendar import current_month
-from .models import Transaction, MonthlyCoverage
+from .models import MonthlyCoverage
+from .services import recorded_month_groups
 
 
 class StatisticsSpanForm(forms.Form):
@@ -33,41 +35,48 @@ def chart_axis(maximum):
     return {'chart_axis_unit': unit, 'chart_axis_ticks': ticks}
 
 
+def recorded_month_statistics(user, months, *, today=None):
+    """Same recorded-money/coverage definitions for dashboard and month report."""
+    months = sorted(set(months))
+    reference_month = current_month() if today is None else today.replace(day=1)
+    today = today or timezone.localdate(timezone=ZoneInfo('Asia/Ho_Chi_Minh'))
+    series = {m: {'month': m, 'income': Decimal('0'), 'expense': Decimal('0'), 'count': 0,
+                  'future_count': 0, 'status': MonthlyCoverage.Status.UNKNOWN} for m in months}
+    categories = {m: [] for m in months}
+    for group in recorded_month_groups(user, months, today):
+        item = series[group['month']]
+        item[group['kind']] += group['total']
+        item['count'] += group['count']
+        item['future_count'] += group['future_count']
+        if group['kind'] == 'expense':
+            categories[group['month']].append({'id': group['category_id'],
+                'name': group['category__name'], 'amount': group['total']})
+    for coverage in MonthlyCoverage.objects.filter(user=user, month__in=months):
+        series[coverage.month]['status'] = coverage.status
+    for item in series.values():
+        item['balance'] = item['income'] - item['expense']
+        item['status_display'] = MonthlyCoverage.Status(item['status']).label
+        item['period_note'] = ('Tháng chưa kết thúc' if item['month'] == reference_month else
+                               'Tháng tương lai' if item['month'] > reference_month else '')
+        item['is_current'] = item['month'] == reference_month
+        for category in categories[item['month']]:
+            category['share'] = percent(category['amount'], item['expense'])
+            category['width'] = format(category['share'], 'f')
+        categories[item['month']].sort(key=lambda row: (-row['amount'], row['id']))
+        assert sum((c['amount'] for c in categories[item['month']]), Decimal('0')) == item['expense']
+    return series, categories
+
+
 def financial_statistics(user, selected, span):
     if span not in (6, 12) or selected.day != 1:
         raise ValueError('Khoảng thống kê không hợp lệ')
     last = (selected.year - 1) * 12 + selected.month - 1
     months = [date(i // 12 + 1, i % 12 + 1, 1) for i in range(max(0, last - span + 1), last + 1)]
-    series = {m: {'month': m, 'income': Decimal('0'), 'expense': Decimal('0'), 'count': 0,
-                  'status': MonthlyCoverage.Status.UNKNOWN} for m in months}
-    categories = {}
-    # Cả transaction và danh mục phải thuộc chủ tài khoản; nhóm theo ID, không tên.
-    rows = Transaction.objects.filter(user=user, category__user=user, date__gte=months[0],
-        date__lte=date(selected.year, selected.month, monthrange(selected.year, selected.month)[1])).order_by()
-    for day, kind, amount, category_id, name in rows.values_list('date', 'kind', 'amount', 'category_id', 'category__name').iterator():
-        month = day.replace(day=1)
-        item = series[month]
-        item[kind] += amount
-        item['count'] += 1
-        if month == selected and kind == 'expense':
-            category = categories.setdefault(category_id, {'id': category_id, 'name': name, 'amount': Decimal('0')})
-            category['amount'] += amount
-    for coverage in MonthlyCoverage.objects.filter(user=user, month__gte=months[0], month__lte=selected):
-        series[coverage.month]['status'] = coverage.status
-    today = current_month()
+    series, categories = recorded_month_statistics(user, months)
     maximum = max((max(m['income'], m['expense']) for m in series.values()), default=Decimal('0'))
     for item in series.values():
-        item['balance'] = item['income'] - item['expense']
-        item['status_display'] = MonthlyCoverage.Status(item['status']).label
-        item['period_note'] = ('Tháng chưa kết thúc' if item['month'] == today else
-                               'Tháng tương lai' if item['month'] > today else '')
         item['income_height'] = format(percent(item['income'], maximum), 'f')
         item['expense_height'] = format(percent(item['expense'], maximum), 'f')
     expense = series[selected]['expense']
-    category_rows = sorted(categories.values(), key=lambda r: (-r['amount'], r['id']))
-    for item in category_rows:
-        item['share'] = percent(item['amount'], expense)
-        item['width'] = format(item['share'], 'f')
-    assert sum((c['amount'] for c in category_rows), Decimal('0')) == expense
-    return {**chart_axis(maximum), 'category_statistics': category_rows, 'monthly_statistics': list(series.values()),
+    return {**chart_axis(maximum), 'category_statistics': categories[selected], 'monthly_statistics': list(series.values()),
             'statistics_expense': expense, 'statistics_span': span, 'statistics_actual_months': len(months)}

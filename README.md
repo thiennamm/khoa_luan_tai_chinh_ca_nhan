@@ -38,7 +38,7 @@ Số tiền là **VND nguyên đồng**, từ `1` đến `999999999999999`. Trư
 
 Tiền trên trang được hiển thị thống nhất như `0 VND`, `50.000 VND`, `1.250.000 VND`, `-50.000 VND`; giá trị chưa biết không được đổi thành 0. Biểu đồ có thể dùng đơn vị rút gọn đã ghi rõ. Chi tiết, các tệp thay đổi và bằng chứng QA TASK 17C: [docs/money-formatting.md](docs/money-formatting.md).
 
-Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùng `Decimal`. Tổng được cộng theo từng dòng Decimal để tránh làm tròn khi tổng lớn trên SQLite. Riêng đại số ML của Ridge chuyển tổng tháng sang float64 tại ranh giới mô hình; không dùng float để lưu giao dịch hoặc cộng tổng tài chính. TASK 17C giữ nguyên phép tính và quy tắc làm tròn hiển thị.
+Nhập/lưu giao dịch, cộng tổng thu/chi và ước tính trung bình dùng `Decimal`. Các luồng cộng theo dòng vẫn giữ nguyên; từ TASK 22A, Tổng quan/báo cáo tổng hợp tại database bằng SUM numeric trên PostgreSQL hoặc aggregate Decimal riêng trên kết nối SQLite để giữ chính xác tiền lớn, không dùng SUM float. Riêng đại số ML của Ridge chuyển tổng tháng sang float64 tại ranh giới mô hình; không dùng float để lưu giao dịch hoặc cộng tổng tài chính. Định dạng và quy tắc làm tròn hiển thị tiền giữ nguyên.
 
 Chênh lệch là **tổng thu trừ tổng chi của phạm vi đang xem**, có thể âm: Tổng quan dùng tháng được chọn, danh sách Giao dịch dùng toàn bộ kết quả lọc. Đây không phải số dư tài khoản ngân hàng hay số dư tích lũy của ví. Ngôn ngữ: tiếng Việt; múi giờ: `Asia/Ho_Chi_Minh`.
 
@@ -95,6 +95,12 @@ Vào **Tài khoản** trong menu để xem tên đăng nhập hiện tại. Hai 
 Trang **Tổng quan** có **Cơ cấu chi theo danh mục** của tháng được chọn, biểu đồ thanh ngang và bảng số tiền/tỷ trọng. Chọn **So sánh 6 tháng/12 tháng** để xem thu, chi và chênh lệch từng tháng, kết thúc ở tháng đang xem. Biểu đồ cột và bảng dùng chung số liệu, chạy ngoại tuyến và không cần JavaScript. Trên màn hình nhỏ, kéo ngang riêng vùng biểu đồ để xem các tháng còn lại; bảng chuyển thành từng khối có nhãn.
 
 Tháng hiện tại ghi **Tháng chưa kết thúc**. Tháng không có giao dịch hiện tổng đã ghi là 0 và trạng thái lịch sử riêng; số 0 thống kê không làm tháng đó thành dữ liệu đầy đủ để dự báo. Không có chi thì không hiển thị tỷ trọng giả. Chi tiết: [docs/financial-statistics.md](docs/financial-statistics.md).
+
+## So sánh hai tháng — TASK 22A
+
+Từ Tổng quan chọn **Báo cáo & so sánh tháng**. Tại trang Báo cáo tháng, chọn **Tháng gốc A** và **Tháng đối chiếu B**, rồi bấm **Xem báo cáo**; mặc định là tháng trước và tháng hiện tại theo giờ Việt Nam. Có thể chọn cùng tháng hoặc hai tháng không liền nhau. Tổng, biểu đồ và bảng danh mục dùng số liệu **đã ghi nhận**, giữ riêng coverage và cảnh báo tháng đang diễn ra/ngày tương lai.
+
+Chênh lệch là B − A; chỉ tính tỷ lệ khi A > 0, không chia cho 0 hoặc dùng mẫu số âm. Bảng chi ghép theo ID danh mục; bấm số tiền để mở giao dịch đúng tháng/danh mục, phân trang giữ cặp A/B và có liên kết trở lại. Báo cáo chi tiết nếu chọn vẫn thuộc tháng B. Không tự ghi giao dịch, xác nhận coverage hoặc tính ML/dự báo. Quy tắc, kiểm thử, số truy vấn và giới hạn QA: [docs/month-comparison.md](docs/month-comparison.md).
 
 ## Tìm kiếm, lọc và xuất CSV — TASK 11B/11E
 
@@ -278,7 +284,7 @@ Thông báo các danh mục cùng nhãn chỉ thuộc tài khoản và loại đ
 
 ### Báo cáo thu–chi tháng và in PDF (TASK 19B)
 
-Từ **Tổng quan**, chọn tháng rồi bấm **Báo cáo tháng**. Báo cáo gồm tổng thu/chi/chênh lệch, số giao dịch, cơ cấu chi và đối chiếu số đã ghi với tháng trước; hiển thị trạng thái ghi chép của cả hai tháng. Chọn **Bao gồm toàn bộ giao dịch trong tháng** rồi bấm **Xem báo cáo** nếu muốn in chi tiết (mặc định không chọn, không giới hạn 20 dòng).
+Từ **Tổng quan**, chọn tháng rồi bấm **Báo cáo & so sánh tháng**. Báo cáo gồm tổng thu/chi/chênh lệch, số giao dịch, cơ cấu chi và đối chiếu số đã ghi với tháng A (mặc định tháng trước, có thể chọn lại từ TASK 22A); hiển thị trạng thái ghi chép của cả hai tháng. Chọn **Bao gồm toàn bộ giao dịch trong tháng (tháng B)** rồi bấm **Xem báo cáo** nếu muốn in chi tiết (mặc định không chọn, không giới hạn 20 dòng).
 
 Bấm **In / Lưu PDF** và chọn **Save as PDF**, khổ **A4**; có thể tắt header/footer do trình duyệt thêm nếu không muốn in URL. Khi JavaScript tắt, biểu mẫu vẫn hoạt động và có thể dùng Ctrl+P/menu In. Website không tự tạo/lưu/gửi PDF. Hãy lưu bản in chứa dữ liệu tài chính ở nơi riêng tư.
 

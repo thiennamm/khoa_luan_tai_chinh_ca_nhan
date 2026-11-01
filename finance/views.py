@@ -13,6 +13,7 @@ from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from .forms import CategoryForm, MonthForm, SignUpForm, TransactionForm
 from .models import Category, Transaction
@@ -172,7 +173,19 @@ def transaction_list(request):
     for name in list(params):
         if name not in form.fields or name in inactive:
             params.pop(name, None)
+    comparison_url = ''
+    if 'comparison_a' in request.GET and 'comparison_b' in request.GET:
+        from .monthly_report import MonthlyReportForm
+        from urllib.parse import urlencode
+        selection = MonthlyReportForm({'base_month': request.GET['comparison_a'], 'month': request.GET['comparison_b']})
+        if selection.is_valid():
+            params['comparison_a'] = request.GET['comparison_a']
+            params['comparison_b'] = request.GET['comparison_b']
+            comparison_url = reverse('finance:monthly_report') + '?' + urlencode({
+                'base_month': params['comparison_a'], 'month': params['comparison_b']})
     context = {'filter_form': form, 'filters_valid': valid, 'filter_query': params.urlencode(),
+               'comparison_url': comparison_url, 'comparison_a': params.get('comparison_a', ''),
+               'comparison_b': params.get('comparison_b', ''),
                'has_transactions': has_transactions,
                'page_obj': Paginator(rows.select_related('category'), 20).get_page(request.GET.get('page'))}
     context.update(filtered_totals(rows))

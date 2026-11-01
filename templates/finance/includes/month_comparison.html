@@ -1,0 +1,32 @@
+{% load money tz %}
+<section aria-labelledby="report-comparison">
+<h2 id="report-comparison">So sánh thu–chi giữa hai tháng</h2>
+{% if previous %}
+<p>Chênh lệch = tháng B − tháng A. Cập nhật lúc {% timezone 'Asia/Ho_Chi_Minh' %}{{ generated_at|date:'d/m/Y H:i:s' }}{% endtimezone %} (giờ Việt Nam).</p>
+<div class="comparison-periods">
+  <div><h3>A · {{ previous.month|date:'m/Y' }}</h3><p>{{ previous.count }} giao dịch đã ghi nhận</p><p>Lịch sử: <strong>{{ previous.status_display }}</strong></p>{% if previous.is_current %}<p><strong>Tháng đang diễn ra</strong></p>{% elif previous.period_note %}<p><strong>{{ previous.period_note }}</strong></p>{% endif %}{% if previous.future_count %}<p>{{ previous.future_count }} giao dịch có ngày tương lai trong tháng A; vẫn tính theo quy tắc báo cáo đã lưu.</p>{% endif %}</div>
+  <div><h3>B · {{ current.month|date:'m/Y' }}</h3><p>{{ current.count }} giao dịch đã ghi nhận</p><p>Lịch sử: <strong>{{ current.status_display }}</strong></p>{% if current.is_current %}<p><strong>Tháng đang diễn ra</strong></p>{% elif current.period_note %}<p><strong>{{ current.period_note }}</strong></p>{% endif %}{% if current.future_count %}<p>{{ current.future_count }} giao dịch có ngày tương lai trong tháng B; vẫn tính theo quy tắc báo cáo đã lưu.</p>{% endif %}</div>
+</div>
+{% if not both_complete %}<p class="report-notice">Một hoặc cả hai tháng chưa kết thúc/chưa xác nhận đầy đủ; số liệu có thể thiếu. Không diễn giải chênh lệch số đã ghi là xu hướng chi tiêu thực tế.</p>{% endif %}
+<p class="help">Không có bản ghi không khẳng định không phát sinh thu/chi. Coverage là xác nhận của người dùng, không phải hệ thống chứng minh.</p>
+<div class="comparison-plot" role="img" aria-label="Thu và chi đã ghi nhận của A và B, đơn vị {{ chart_axis_unit }}. Số liệu đầy đủ trong bảng ngay dưới.">
+  <p class="chart-legend"><span><i class="legend-dot legend-income" aria-hidden="true"></i>Thu đã ghi nhận</span><span><i class="legend-dot legend-expense" aria-hidden="true"></i>Chi đã ghi nhận</span><span>Đơn vị: {{ chart_axis_unit }}</span></p>
+  <div class="comparison-chart" aria-hidden="true"><div class="comparison-axis">{% for tick in chart_axis_ticks %}<span style="bottom:{{ tick.position }}%">{{ tick.label }}</span>{% endfor %}</div><div class="comparison-columns">
+  {% for item in comparison_chart %}<div class="comparison-column"><div class="comparison-pair"><div class="comparison-income" style="height:{{ item.income_height }}%"></div><div class="comparison-expense" style="height:{{ item.expense_height }}%"></div></div><span>{{ item.code }} · {{ item.month|date:'m/Y' }}</span></div>{% endfor %}
+  </div></div>
+</div>
+<div class="report-table-wrap" tabindex="0" role="region" aria-label="Bảng so sánh tổng thu chi; có thể cuộn ngang">
+<table class="report-table report-comparison-table"><caption class="sr-only">Tổng hợp đã ghi nhận giữa hai tháng</caption><thead><tr><th scope="col">Chỉ tiêu</th><th scope="col">A · {{ previous.month|date:'m/Y' }}</th><th scope="col">B · {{ current.month|date:'m/Y' }}</th><th scope="col">Chênh lệch B − A</th></tr></thead><tbody>
+{% for item in comparisons %}<tr><th scope="row">{{ item.label }}</th><td class="report-number">{{ item.previous|vnd }}</td><td class="report-number">{{ item.current|vnd }}</td><td class="report-number"><strong>{{ item.direction }}</strong><br>{{ item.difference|vnd }}<br><small>{% if item.percentage is not None %}{{ item.percentage|floatformat:2 }}%{% else %}{{ item.ratio_note }}{% endif %}</small></td></tr>{% endfor %}
+</tbody></table></div>
+<p class="help">Tỷ lệ = (B − A) / A × 100 chỉ khi A &gt; 0, làm tròn 2 chữ số. Với chênh lệch thu–chi, tỷ lệ chỉ mô tả thay đổi của hiệu thu trừ chi; không phải tăng trưởng số dư ngân hàng.</p>
+<h3>Chi đã ghi nhận theo danh mục</h3>
+{% if category_comparisons %}
+<div class="report-table-wrap" tabindex="0" role="region" aria-label="Chi theo danh mục của hai tháng; có thể cuộn ngang"><table class="report-table comparison-category-table"><caption class="sr-only">Danh mục xếp theo mức tăng chi giảm dần; liên kết mở giao dịch đúng tháng và danh mục</caption><thead><tr><th scope="col">Danh mục</th><th scope="col">A · {{ previous.month|date:'m/Y' }}</th><th scope="col">B · {{ current.month|date:'m/Y' }}</th><th scope="col">Chênh lệch B − A</th><th scope="col">Tỷ lệ</th></tr></thead><tbody>
+{% for item in category_comparisons %}<tr><th scope="row">{{ item.name }}</th><td class="report-number"><a href="{{ item.a_url }}" aria-label="Xem chi {{ item.name }} tháng A {{ previous.month|date:'m/Y' }}: {{ item.a|vnd }}">{{ item.a|vnd }}</a></td><td class="report-number"><a href="{{ item.b_url }}" aria-label="Xem chi {{ item.name }} tháng B {{ current.month|date:'m/Y' }}: {{ item.b|vnd }}">{{ item.b|vnd }}</a></td><td class="report-number"><strong>{{ item.direction }}</strong><br>{{ item.difference|vnd }}</td><td class="report-number">{% if item.percentage is not None %}{{ item.percentage|floatformat:2 }}%{% else %}{{ item.ratio_note }}{% endif %}</td></tr>{% endfor %}
+</tbody><tfoot><tr><th scope="row">Tổng chi đã ghi nhận</th><td class="report-number">{{ previous.expense|vnd }}</td><td class="report-number">{{ current.expense|vnd }}</td><td class="report-number">{{ comparisons.1.difference|vnd }}</td><td>—</td></tr></tfoot></table></div>
+<p class="help">Bấm số tiền để xem giao dịch liên quan. Ghép theo ID danh mục; tên hiện tại có thể đã được người dùng đổi. Danh mục chỉ có ở một tháng vẫn hiển thị; số 0 ở đây chỉ là tổng đã ghi nhận.</p>
+{% else %}<p>Chưa có khoản chi được ghi nhận ở cả hai tháng để so sánh danh mục.</p>{% endif %}
+<p class="report-notice">Nhận xét tăng/giảm chỉ từ phép tính, không phải kết quả ML hoặc suy đoán nguyên nhân. Chi giảm không tự chứng minh quản lý tài chính tốt hơn. Khoản định kỳ dự kiến và phân bổ tiết kiệm không được cộng vào các tổng.</p>
+{% else %}<p>Không có tháng trước trong phạm vi ngày được hỗ trợ để đối chiếu. Bạn có thể chọn tháng gốc A ngay cả khi trùng tháng B.</p>{% endif %}
+</section>

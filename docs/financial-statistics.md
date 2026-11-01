@@ -24,7 +24,7 @@ Giới hạn lịch đặc biệt: nếu chọn những tháng đầu năm 0001,
 
 ## Dữ liệu, biểu đồ và bảo mật
 
-`finance/statistics.py:financial_statistics` đọc một queryset giao dịch đã giới hạn `user` và `category__user`, từ tháng đầu đến ngày cuối tháng chọn. Đọc date/kind/amount/category_id/name; tiền được cộng từng dòng bằng **Decimal**, không dùng SQLite SUM/float. Khởi tạo trước toàn bộ lịch tháng rồi cộng khoản thu/chi. Query MonthlyCoverage cũng giới hạn đúng chủ tài khoản và khoảng tháng.
+**Cập nhật TASK 22A:** `finance/statistics.py:financial_statistics` dùng chung `recorded_month_statistics` với báo cáo hai tháng. Queryset đã giới hạn `user` và `category__user`, chỉ các tháng được chọn; GROUP BY tháng/loại/category ID/tên ở database. PostgreSQL SUM numeric; SQLite aggregate Decimal riêng trên kết nối (`finance_vnd_sum`, không SUM float), trả các nhóm đã cộng chính xác. Khởi tạo trước lịch tháng rồi ghép tổng/coverage theo tài khoản; định nghĩa số đã ghi và zero/chưa biết không đổi. Xem [month-comparison.md](month-comparison.md) cho kiểm thử/query count mới; số QA TASK 11C bên dưới là bằng chứng lịch sử.
 
 Kết quả trả hai danh sách dùng chung: `category_statistics` cho cả thanh ngang/bảng danh mục, `monthly_statistics` cho cột/bảng nhiều tháng. Các thẻ tổng thu/chi/chênh lệch và số giao dịch của tháng đang chọn trên Tổng quan cũng lấy từ cùng hàng tổng hợp đó, tránh tính lại từ một truy vấn khác rồi lệch cơ cấu nếu có cập nhật giữa các lần đọc. Giao dịch gần đây vẫn là queryset chỉ đọc riêng; đây không phải snapshot bất biến trước thao tác đồng thời khác.
 

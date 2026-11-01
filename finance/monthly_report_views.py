@@ -18,5 +18,6 @@ def monthly_report(request):
     context = {'report_form': form}
     valid = form.is_valid()
     if valid:
-        context.update(report_data(request.user, form.cleaned_data['month'], form.cleaned_data['include_details']))
+        context.update(report_data(request.user, form.cleaned_data['month'], form.cleaned_data['include_details'],
+                                   form.cleaned_data['base_month']))
     return render(request, 'finance/monthly_report.html', context, status=200 if valid else 400)
