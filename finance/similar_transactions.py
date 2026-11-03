@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
 
 from . import classification_feedback
-from .models import Category, SimilarTransactionOperation
+from .models import Category, Wallet, SimilarTransactionOperation
 
 SALT = 'finance.similar-transaction.v1'
 TOKEN_AGE = 7200
@@ -19,37 +19,43 @@ class SimilarConflict(Exception):
     pass
 
 
-def issue(user):
+def issue(user, wallet_review=False):
     # No pending row, session snapshot or source ID; safe to open more than one tab.
-    return signing.dumps({'key': str(uuid4()), 'user': user.pk, 'action': 'similar_create'}, salt=SALT)
+    return signing.dumps({'key': str(uuid4()), 'user': user.pk, 'action': 'similar_create', 'wallet_review':wallet_review}, salt=SALT)
 
 
-def verify(user, token):
+def verify(user, token, details=False):
     try:
         claim = signing.loads(token, salt=SALT, max_age=TOKEN_AGE)
         if claim['user'] != user.pk or claim['action'] != 'similar_create':
             raise ValueError
-        return UUID(claim['key'])
+        key = UUID(claim['key'])
+        return (key,claim) if details else key
     except (signing.BadSignature, ValueError, TypeError, KeyError, AttributeError):
         raise SimilarConflict('Phiên tạo giao dịch tương tự không hợp lệ hoặc đã hết hạn. Hãy mở biểu mẫu mới.') from None
 
 
 def initial_data(source, user):
     valid = Category.objects.filter(pk=source.category_id, user=user, kind=source.kind).exists()
+    wallet_valid = not source.wallet_id or Wallet.objects.filter(pk=source.wallet_id, user=user, archived=False).exists()
     return {'description': source.description, 'kind': source.kind, 'amount': source.amount,
         'category': source.category_id if valid else None,
+        'wallet': source.wallet_id if wallet_valid else None,
         'date': timezone.localdate(timezone=ZoneInfo('Asia/Ho_Chi_Minh')),
-        'similar_operation': issue(user)}, not valid
+        'similar_operation': issue(user,not wallet_valid)}, not valid or not wallet_valid
 
 
 @transaction.atomic
 def save(form, user, token, suggestion_id='', mode='vi'):
-    key = verify(user, token)
+    key, claim = verify(user, token, details=True)
     if not form.instance._state.adding or form.instance.user_id != user.pk:
         raise SimilarConflict('Biểu mẫu tạo mới không hợp lệ.')
     data = form.cleaned_data
+    if claim.get('wallet_review') and not data.get('wallet') and not data.get('confirm_unknown_wallet'):
+        raise SimilarConflict('Ví nguồn không còn hoạt động. Chọn ví khác hoặc xác nhận rõ Chưa xác định ví.')
     payload = [data['kind'], format(data['amount'], 'f'), data['date'].isoformat(),
-        data['category'].pk, data['description'], suggestion_id, mode if suggestion_id else '']
+        data['category'].pk, data['description'], suggestion_id, mode if suggestion_id else '',
+        data['wallet'].pk if data.get('wallet') else None]
     digest = salted_hmac(SALT + '.payload', json.dumps(payload, ensure_ascii=False), algorithm='sha256').hexdigest()
     # First statement in this transaction is INSERT. A unique PK serializes two
     # claims on PostgreSQL; SQLite takes its write lock without read->write upgrade.

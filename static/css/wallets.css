@@ -1,0 +1,6 @@
+/* Local wallet pages; long names/notes must not widen the whole page. */
+#main{min-width:0;overflow-wrap:anywhere}
+#main .page-heading>div{min-width:0}
+#main .card{padding:20px}
+#main article+article{border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
+@media(max-width:600px){#main .card{padding:16px}}

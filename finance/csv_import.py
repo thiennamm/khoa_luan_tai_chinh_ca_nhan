@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Category, CsvImportBatch, CsvImportReceipt, Kind, Transaction
+from .models import Category, CsvImportBatch, CsvImportReceipt, Kind, Transaction, Wallet
 
 HEADER = ['date', 'kind', 'amount', 'category', 'description']
 MAX_BYTES = 2 * 1024 * 1024
@@ -56,8 +56,11 @@ def row_key(row):
     return (row['date'], row['kind'], row['amount'], row['category_id'], row['description'])
 
 
-def inspect_csv(raw, user):
+def inspect_csv(raw, user, wallet=None):
     result = Inspection()
+    if wallet is not None and (wallet.user_id != user.pk or wallet.archived):
+        result.error(1, 'Ví đích không còn hoạt động hoặc không thuộc tài khoản của bạn.')
+        return result
     if len(raw) > MAX_BYTES:
         result.error(1, 'Tệp vượt giới hạn 2 MiB (2.097.152 byte).')
         return result
@@ -116,15 +119,17 @@ def inspect_csv(raw, user):
                 problems.append('Tên danh mục không xác định duy nhất; hãy đổi tên danh mục/CSV để phân biệt, không chọn ngầm.')
             if len(description) > Transaction._meta.get_field('description').max_length:
                 problems.append('Mô tả vượt giới hạn 500 ký tự.')
+            if wallet is not None and parsed_date and parsed_date < wallet.start_date:
+                problems.append('Ngày giao dịch trước mốc theo dõi ví đích; hãy chọn ví khác hoặc sửa ngày trong tệp.')
             if problems:
                 result.error(line, ' '.join(problems))
                 continue
             category = matches[0]
-            record = Transaction(user=user, category=category, date=parsed_date, kind=kind,
+            record = Transaction(user=user, wallet=wallet, category=category, date=parsed_date, kind=kind,
                                  amount=parsed_amount, description=description)
             try:
                 # FK đã được đối chiếu theo user ở trên; không truy vấn 5.000 lần.
-                record.clean_fields(exclude=['user', 'category'])
+                record.clean_fields(exclude=['user', 'category', 'wallet'])
                 record.clean()
             except ValidationError:
                 result.error(line, 'Giao dịch không đáp ứng quy tắc dữ liệu của website.')
@@ -169,13 +174,17 @@ def cleanup_batches(user=None):
     return query.delete()[1].get('finance.CsvImportBatch', 0)
 
 
-def stage_csv(raw, user, inspection):
+def stage_csv(raw, user, inspection, wallet=None):
+    if wallet is not None:
+        wallet = Wallet.objects.filter(pk=wallet.pk, user=user, archived=False).first()
+        if wallet is None or not inspect_csv(raw, user, wallet).valid:
+            raise ImportProblem('Ví hoặc ngày giao dịch không hợp lệ. Hãy kiểm tra lại.')
     if not inspection.valid:
         raise ImportProblem('Tệp còn lỗi; chưa thể tạo bản xem trước để xác nhận.')
     sha = hashlib.sha256(raw).hexdigest()
     if CsvImportReceipt.objects.filter(user=user, sha256=sha).exists():
         raise ImportProblem('Tệp có cùng SHA-256 đã được nhập thành công trong tài khoản này; đã chặn nhập lại.')
-    return CsvImportBatch.objects.create(user=user, raw=raw, sha256=sha,
+    return CsvImportBatch.objects.create(user=user, wallet=wallet, raw=raw, sha256=sha,
         category_bindings=[row['category_id'] for row in inspection.rows], expires_at=timezone.now() + TTL)
 
 
@@ -187,7 +196,12 @@ def inspect_batch(batch, user):
     raw = bytes(batch.raw)
     if hashlib.sha256(raw).hexdigest() != batch.sha256:
         raise ImportProblem('Dữ liệu tạm không khớp hash; hãy tải lại tệp.')
-    result = inspect_csv(raw, user)
+    wallet = None
+    if batch.wallet_id:
+        wallet = Wallet.objects.filter(pk=batch.wallet_id, user=user, archived=False).first()
+        if wallet is None:
+            raise ImportProblem('Ví đích không còn hợp lệ; hãy tải lại tệp và chọn ví hoạt động của bạn.')
+    result = inspect_csv(raw, user, wallet)
     if result.valid and [r['category_id'] for r in result.rows] != batch.category_bindings:
         result.error(1, 'Danh mục đã thay đổi so với lúc tải tệp. Hãy tải lại để xem trước ánh xạ mới.')
     return result
@@ -202,6 +216,15 @@ def confirm_batch(batch_id, user):
         if not claimed:
             raise ImportProblem('Lô nhập đã xác nhận, đang được xử lý hoặc đã hết hạn. Không nhập thêm lần nữa.')
         batch = CsvImportBatch.objects.get(pk=batch_id, user=user)
+        if batch.wallet_id:
+            from .coverage_state import lock_coverage_writes
+            # Same order as Transaction.save/bulk_create: coverage, then wallet.
+            lock_coverage_writes([user.pk], 'default')
+            # Serialize against archive/start-date edits before validating every row.
+            wallet = Wallet.objects.select_for_update().filter(pk=batch.wallet_id,user=user).first()
+            if wallet is None:
+                raise ImportProblem('Ví đích không thuộc tài khoản của bạn.')
+            batch.wallet = wallet
         if CsvImportReceipt.objects.filter(user=user, sha256=batch.sha256).exists():
             raise ImportProblem('Tệp có cùng SHA-256 đã nhập thành công; đã chặn nhập lại.')
         inspection = inspect_batch(batch, user)
@@ -210,7 +233,7 @@ def confirm_batch(batch_id, user):
         CsvImportReceipt.objects.create(user=user, sha256=batch.sha256, batch=batch,
             transaction_count=len(inspection.rows))
         Transaction.objects.bulk_create([
-            Transaction(user=user, category_id=row['category_id'], kind=row['kind'], amount=row['amount'],
+            Transaction(user=user, wallet_id=batch.wallet_id, category_id=row['category_id'], kind=row['kind'], amount=row['amount'],
                         date=row['date'], description=row['description'])
             for row in inspection.rows
         ], batch_size=100)

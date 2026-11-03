@@ -25,6 +25,7 @@
 </div>
 {% if filters_valid %}
 <p class="active-filters"><strong>Đang áp dụng:</strong>
+{% if wallet_filter_display %}Ví: {{ wallet_filter_display }} · {% endif %}
 {% if filter_form.cleaned_data.period == 'month' %}Tháng {{ filter_form.cleaned_data.month_start|date:'m/Y' }}{% else %}Từ {{ filter_form.cleaned_data.start|date:'d/m/Y' }} đến {{ filter_form.cleaned_data.end|date:'d/m/Y' }}{% endif %}
 {% if filter_form.cleaned_data.kind %} · Loại: {% if filter_form.cleaned_data.kind == 'income' %}Thu nhập{% else %}Chi tiêu{% endif %}{% endif %}
 {% if filter_form.cleaned_data.category %} · Danh mục: {{ filter_form.cleaned_data.category.name }}{% endif %}{% if filter_form.cleaned_data.q %} · Mô tả chứa: “{{ filter_form.cleaned_data.q }}”{% endif %}.

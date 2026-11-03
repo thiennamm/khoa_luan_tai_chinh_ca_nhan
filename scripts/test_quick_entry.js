@@ -28,7 +28,7 @@ function setup(fetcher=async()=>response(parsed()),withML=false) {
     'quick-warnings','quick-summary','quick-needed','quick-attention','quick-default-date','quick-details','quick-detail-result',
     'quick-confirmation','quick-replace','quick-cancel','id_kind','id_amount','id_date','id_category','id_description',
     'category-kinds','classification-suggestion','suggestion-mode','suggest-category','suggestion-result','suggestion-actions',
-    'suggestion-category','apply-suggestion','suggestion-id'];
+    'suggestion-category','apply-suggestion','suggestion-id','id_wallet'];
   const n=Object.fromEntries(ids.map(id=>[id,new Element()]));
   n.id_date.value='2026-10-25';n['quick-text'].value='Chi: Ăn trưa 45k';
   n['quick-entry'].dataset.url='/quick/';n['classification-suggestion'].dataset={url:'/suggest/',actionUrl:'/action/'};
@@ -65,6 +65,16 @@ test('existing values require explicit replacement; cancel and later editing pre
   await n['quick-fill'].fire('click');n.id_amount.value='123000';await n.id_amount.fire('input');
   await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'123000');
   await n['quick-fill'].fire('click');await n['quick-replace'].fire('click');assert.equal(n.id_amount.value,'45.000');assert.equal(n.id_category.value,'');
+});
+test('wallet selection is preserved by quick entry and changing wallet cancels pending replacement',async()=>{
+  const {n}=setup();n.id_wallet.value='7';
+  await n['quick-fill'].fire('click');
+  assert.equal(n['quick-confirmation'].hidden,false);assert.equal(n.id_amount.value,'');
+  await n['quick-replace'].fire('click');
+  assert.equal(n.id_wallet.value,'7');assert.equal(n.id_amount.value,'45.000');
+  await n['quick-fill'].fire('click');n.id_wallet.value='8';await n.id_wallet.fire('change');
+  await n['quick-replace'].fire('click');
+  assert.equal(n.id_wallet.value,'8');assert.equal(n['quick-confirmation'].hidden,true);
 });
 test('parser errors, offline, expired session keep all manual values',async()=>{
   for(const fetcher of [async()=>response({status:'invalid',errors:['Có nhiều số tiền']},false),

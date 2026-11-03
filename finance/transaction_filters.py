@@ -7,10 +7,11 @@ from django.db import connection
 from django.db.models import CharField, F, Func, Value
 from django.db.models.functions import Collate
 from django.utils import timezone
-from .models import Category, Kind
+from .models import Category, Kind, Wallet
 
 
 class TransactionFilterForm(forms.Form):
+    wallet = forms.ChoiceField(label='Ví', required=False, choices=[])
     q = forms.CharField(label='Tìm trong mô tả', max_length=500, required=False)
     kind = forms.ChoiceField(label='Loại', required=False, choices=[('', 'Tất cả'), *Kind.choices])
     category = forms.ModelChoiceField(label='Danh mục', queryset=Category.objects.none(),
@@ -33,6 +34,8 @@ class TransactionFilterForm(forms.Form):
             data[name] = ''
         super().__init__(data)
         self.fields['category'].queryset = Category.objects.filter(user=user)
+        self.fields['wallet'].choices = [('', 'Tất cả ví'), ('unknown', 'Chưa xác định ví')] + [
+            (str(w.pk), str(w)) for w in Wallet.objects.filter(user=user)]
 
     def clean(self):
         cleaned = super().clean()
@@ -63,6 +66,8 @@ def apply_filters(rows, data):
         rows = rows.filter(kind=data['kind'])
     if data.get('category'):
         rows = rows.filter(category=data['category'])
+    if data.get('wallet'):
+        rows = rows.filter(wallet__isnull=True) if data['wallet'] == 'unknown' else rows.filter(wallet_id=data['wallet'])
     if data.get('q'):
         if connection.vendor == 'sqlite':
             # SQLite LIKE/LOWER mặc định không casefold chữ Việt có dấu.

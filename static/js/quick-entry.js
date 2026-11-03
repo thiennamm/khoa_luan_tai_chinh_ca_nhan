@@ -22,6 +22,7 @@
   const fields = Object.fromEntries(['kind', 'amount', 'date', 'category', 'description']
     .map(name => [name, document.getElementById('id_' + name)]));
   const initialDate = fields.date.value;
+  const walletField = document.getElementById('id_wallet');
   let generation = 0;
   let pending = null;
   let filling = false;
@@ -38,7 +39,7 @@
     discard(); preview.hidden = true; detailResult.hidden = true;
     message('Câu nhập đã thay đổi. Bấm Điền vào biểu mẫu để phân tích lại.');
   });
-  for (const field of Object.values(fields)) {
+  for (const field of [...Object.values(fields), ...(walletField ? [walletField] : [])]) {
     for (const name of ['input', 'change']) field.addEventListener(name, () => {
       if (filling || !pending) return;
       discard();
@@ -47,6 +48,7 @@
   }
   function hasData() {
     return fields.kind.value || fields.amount.value || fields.category.value
+      || Boolean(walletField && walletField.value)
       || fields.description.value.trim() || fields.date.value !== initialDate;
   }
   function fill(data) {

@@ -36,6 +36,7 @@ def window():
 def snapshot(rule):
     return {'name': rule.name, 'kind': rule.kind, 'amount': str(rule.amount),
         'category_id': rule.category_id, 'category_name': rule.category.name,
+        'wallet_id': rule.wallet_id,
         'due_day': rule.due_day, 'start_month': rule.start_month.isoformat(),
         'end_month': rule.end_month.isoformat() if rule.end_month else None}
 

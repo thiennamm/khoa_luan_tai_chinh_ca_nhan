@@ -248,6 +248,139 @@ class MonthlyCoverage(models.Model):
             return result
 
 
+class WalletQuerySet(models.QuerySet):
+    def delete(self):
+        with transaction.atomic(using=self.db):
+            # Lock the selected wallets before checking the permanent usage flag.
+            self.update(name=models.F('name'))
+            if self.filter(opening_locked=True).exists():
+                raise ValidationError('Ví đã có nghiệp vụ chỉ được lưu trữ, không xóa lịch sử.')
+            return super().delete()
+
+
+class Wallet(models.Model):
+    objects = WalletQuerySet.as_manager()
+    class Kind(models.TextChoices):
+        CASH = 'cash', 'Tiền mặt'
+        BANK = 'bank', 'Ngân hàng'
+        ELECTRONIC = 'electronic', 'Ví điện tử'
+        OTHER = 'other', 'Khác'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField('Tên ví', max_length=80)
+    name_key = models.CharField(max_length=240, editable=False, blank=True)
+    kind = models.CharField('Loại ví', max_length=12, choices=Kind.choices)
+    opening_balance = models.DecimalField('Số dư ban đầu (VND)', max_digits=15, decimal_places=0, default=0)
+    start_date = models.DateField('Ngày bắt đầu theo dõi')
+    archived = models.BooleanField('Đã lưu trữ', default=False)
+    opening_locked = models.BooleanField(default=False, editable=False)
+
+    class Meta:
+        ordering = ['archived', 'name', 'pk']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'name_key'], name='wallet_unique_user_name'),
+            models.CheckConstraint(condition=models.Q(kind__in=['cash','bank','electronic','other']), name='wallet_valid_kind'),
+            models.CheckConstraint(condition=models.Q(opening_balance__gte=-999999999999999, opening_balance__lte=999999999999999)
+                & models.Q(opening_balance=Round('opening_balance', precision=0)), name='wallet_integer_opening'),
+        ]
+
+    def __str__(self):
+        return self.name + (' · Đã lưu trữ' if self.archived else '')
+
+    def clean(self):
+        import unicodedata
+        super().clean()
+        self.name = ' '.join(unicodedata.normalize('NFC', self.name).split())
+        self.name_key = self.name.casefold()
+        if not self.name:
+            raise ValidationError({'name': 'Nhập tên ví.'})
+        if type(self).objects.filter(user_id=self.user_id, name_key=self.name_key).exclude(pk=self.pk).exists():
+            raise ValidationError({'name': 'Bạn đã có ví cùng tên sau chuẩn hóa.'})
+        if self.pk:
+            original = type(self).objects.get(pk=self.pk)
+            if original.user_id != self.user_id:
+                raise ValidationError('Không đổi chủ sở hữu ví.')
+            if original.opening_locked:
+                self.opening_locked = True
+            if (original.opening_balance != self.opening_balance or original.start_date != self.start_date) and (original.opening_locked or
+                    self.transactions.exists() or self.sent_transfers.exists() or self.received_transfers.exists()):
+                raise ValidationError('Ví đã có nghiệp vụ: không đổi số dư ban đầu hoặc ngày bắt đầu theo dõi.')
+
+    def save(self, *args, **kwargs):
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            lock_catalog(self.user_id, using)
+            if self.pk:
+                type(self).objects.using(using).select_for_update().get(pk=self.pk)
+            self.full_clean()
+            return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return type(self).objects.using(kwargs.get('using') or self._state.db or 'default').filter(pk=self.pk).delete()
+
+
+class ImmutableTransferQuerySet(models.QuerySet):
+    def bulk_create(self, *args, **kwargs):
+        raise ValidationError('Chuyển nội bộ phải đi qua dịch vụ kiểm quyền và khóa ví.')
+
+    def update(self, **kwargs):
+        raise ValidationError('Chuyển nội bộ đã ghi nhận không được sửa riêng.')
+
+    def delete(self):
+        raise ValidationError('Bản đầu chưa hỗ trợ hủy chuyển nội bộ.')
+
+
+class WalletTransfer(models.Model):
+    objects = ImmutableTransferQuerySet.as_manager()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    operation_id = models.UUIDField(unique=True, editable=False)
+    digest = models.CharField(max_length=64, editable=False)
+    source = models.ForeignKey(Wallet, on_delete=models.RESTRICT, related_name='sent_transfers', verbose_name='Ví nguồn')
+    destination = models.ForeignKey(Wallet, on_delete=models.RESTRICT, related_name='received_transfers', verbose_name='Ví đích')
+    amount = models.DecimalField('Số tiền (VND)', max_digits=15, decimal_places=0, validators=[MinValueValidator(Decimal('1'))])
+    date = models.DateField('Ngày chuyển')
+    note = models.CharField('Ghi chú', max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date', '-pk']
+        constraints = [
+            models.CheckConstraint(condition=~models.Q(source=models.F('destination')), name='transfer_different_wallets'),
+            models.CheckConstraint(condition=models.Q(amount__gt=0, amount__lte=999999999999999)
+                & models.Q(amount=Round('amount', precision=0)), name='transfer_positive_integer'),
+        ]
+        indexes = [models.Index(fields=['user','date'], name='transfer_user_date')]
+
+    def clean(self):
+        super().clean()
+        from .wallets import today
+        if self.date and self.date > today():
+            raise ValidationError({'date': 'Không hỗ trợ chuyển tiền có ngày tương lai.'})
+        for name in ('source', 'destination'):
+            if getattr(self, name + '_id'):
+                wallet = getattr(self, name)
+                if wallet.user_id != self.user_id or wallet.archived:
+                    raise ValidationError({name: 'Chọn ví hoạt động của chính bạn.'})
+                if self.date and self.date < wallet.start_date:
+                    raise ValidationError({'date': 'Ngày chuyển không được trước mốc theo dõi của một trong hai ví.'})
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError('Chuyển nội bộ đã ghi nhận không được sửa.')
+        with transaction.atomic():
+            current = {w.pk:w for w in Wallet.objects.select_for_update().filter(
+                pk__in=[self.source_id,self.destination_id]).order_by('pk')}
+            if self.source_id in current: self.source=current[self.source_id]
+            if self.destination_id in current: self.destination=current[self.destination_id]
+            self.full_clean()
+            result = super().save(*args, **kwargs)
+            Wallet.objects.filter(pk__in=current).update(opening_locked=True)
+            return result
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError('Bản đầu chưa hỗ trợ hủy chuyển nội bộ.')
+
+
 class CsvImportBatch(models.Model):
     """Payload tạm ở SQLite phía máy chủ, không đặt trong session/cookie."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -255,6 +388,7 @@ class CsvImportBatch(models.Model):
     sha256 = models.CharField(max_length=64)
     raw = models.BinaryField()
     category_bindings = models.JSONField(default=list)
+    wallet = models.ForeignKey(Wallet, null=True, blank=True, on_delete=models.RESTRICT)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
     status = models.CharField(max_length=12, default='pending', choices=[
@@ -371,6 +505,7 @@ class RecurringRule(models.Model):
     amount = models.DecimalField('Số tiền dự kiến (VND)', max_digits=15, decimal_places=0,
         validators=[MinValueValidator(Decimal('1'))])
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='recurring_rules', verbose_name='Danh mục')
+    wallet = models.ForeignKey(Wallet, null=True, blank=True, on_delete=models.RESTRICT, verbose_name='Ví mặc định')
     due_day = models.PositiveSmallIntegerField('Ngày đến hạn')
     start_month = models.DateField('Tháng bắt đầu')
     end_month = models.DateField('Tháng kết thúc', null=True, blank=True)
@@ -404,6 +539,10 @@ class RecurringRule(models.Model):
             errors['end_month'] = 'Tháng kết thúc không được trước tháng bắt đầu.'
         if self.category_id and (self.category.user_id != self.user_id or self.category.kind != self.kind):
             errors['category'] = 'Chọn danh mục của bạn, đúng loại thu/chi.'
+        if self.wallet_id and (self.wallet.user_id != self.user_id or self.wallet.archived):
+            original_wallet = type(self).objects.filter(pk=self.pk).values_list('wallet_id', flat=True).first() if self.pk else None
+            if self.wallet.user_id != self.user_id or original_wallet != self.wallet_id:
+                errors['wallet'] = 'Chọn ví hoạt động của chính bạn.'
         if errors:
             raise ValidationError(errors)
 
@@ -469,10 +608,13 @@ class Transaction(models.Model):
     date = models.DateField("Ngày giao dịch", default=timezone.localdate)
     category = models.ForeignKey(Category, verbose_name="Danh mục", related_name="transactions", on_delete=models.PROTECT)
     description = models.CharField("Mô tả", max_length=500, blank=True)
+    wallet = models.ForeignKey(Wallet, null=True, blank=True, on_delete=models.RESTRICT,
+        related_name='transactions', verbose_name='Ví', help_text='Chưa xác định ví không phải số dư được đối soát.')
 
     class Meta:
         ordering = ["-date", "-pk"]
-        indexes = [models.Index(fields=["user", "date"], name="transaction_user_date")]
+        indexes = [models.Index(fields=["user", "date"], name="transaction_user_date"),
+                   models.Index(fields=['wallet','date'], name='transaction_wallet_date')]
         constraints = [
             models.CheckConstraint(condition=models.Q(amount__gt=0), name="transaction_positive_amount"),
             models.CheckConstraint(condition=models.Q(kind__in=Kind.values), name="transaction_valid_kind"),
@@ -483,6 +625,12 @@ class Transaction(models.Model):
 
     def clean(self):
         super().clean()
+        if self.wallet_id:
+            previous_wallet = type(self).objects.filter(pk=self.pk).values_list('wallet_id', flat=True).first() if self.pk else None
+            if self.wallet.user_id != self.user_id or (self.wallet.archived and previous_wallet != self.wallet_id):
+                raise ValidationError({'wallet': 'Chọn ví hoạt động của chính bạn; chỉ giữ ví lưu trữ trên giao dịch cũ của ví đó.'})
+            if self.date and self.date < self.wallet.start_date:
+                raise ValidationError({'date': 'Ngày giao dịch không được trước ngày bắt đầu theo dõi ví.'})
         if self.category_id:
             try:
                 category = self.category
@@ -499,9 +647,13 @@ class Transaction(models.Model):
         using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
         with transaction.atomic(using=using):
             lock_coverage_writes([self.user_id], using)
+            if self.wallet_id:
+                self.wallet = Wallet.objects.using(using).select_for_update().get(pk=self.wallet_id)
             previous = type(self).objects.using(using).filter(pk=self.pk).values_list('user_id', 'date').first() if self.pk else None
             self.full_clean()
             result = super().save(*args, **kwargs)
+            if self.wallet_id:
+                Wallet.objects.using(using).filter(pk=self.wallet_id).update(opening_locked=True)
             current = type(self).objects.using(using).filter(pk=self.pk).values_list('user_id', 'date').get()
             reset_months(([previous] if previous else []) + [current], using)
             return result

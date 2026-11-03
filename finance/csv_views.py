@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from .csv_import import (HEADER, MAX_BYTES, ImportProblem, cleanup_batches, confirm_batch,
                          inspect_batch, inspect_csv, stage_csv)
 from .forms import CsvUploadForm
-from .models import CsvImportBatch, CsvImportReceipt
+from .models import CsvImportBatch, CsvImportReceipt, Wallet
 
 
 @login_required
@@ -28,7 +28,7 @@ def csv_template(request):
 @never_cache
 def csv_upload(request):
     form = CsvUploadForm(request.POST if request.method == 'POST' else None,
-                         request.FILES if request.method == 'POST' else None)
+                         request.FILES if request.method == 'POST' else None, user=request.user)
     inspection = None
     if request.method == 'POST':
         cleanup_batches(user=request.user)
@@ -41,10 +41,10 @@ def csv_upload(request):
             if CsvImportReceipt.objects.filter(user=request.user, sha256=hashlib.sha256(raw).hexdigest()).exists():
                 form.add_error(None, 'Tệp có cùng SHA-256 đã được nhập thành công trong tài khoản này; đã chặn nhập lại.')
             else:
-                inspection = inspect_csv(raw, request.user)
+                inspection = inspect_csv(raw, request.user, form.cleaned_data['wallet'])
                 if inspection.valid:
                     try:
-                        batch = stage_csv(raw, request.user, inspection)
+                        batch = stage_csv(raw, request.user, inspection, form.cleaned_data['wallet'])
                     except ImportProblem as exc:
                         form.add_error(None, str(exc))
                     else:
@@ -53,7 +53,8 @@ def csv_upload(request):
 
 
 def preview_context(batch, user):
-    context = {'batch': batch, 'can_confirm': False}
+    wallet = Wallet.objects.filter(pk=batch.wallet_id, user=user).first() if batch.wallet_id else None
+    context = {'batch': batch, 'can_confirm': False, 'wallet_display': str(wallet) if wallet else 'Chưa xác định ví (không đối soát số dư)'}
     if batch.status == 'completed':
         context['receipt'] = CsvImportReceipt.objects.filter(user=user, batch=batch).first()
         context['notice'] = 'Lô này đã nhập thành công. Bấm lại không tạo thêm giao dịch.'

@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">NHẬP GIAO DỊCH</p><h1>{% if receipt %}Đã nhập CSV{% else %}Xem trước CSV{% endif %}</h1><p class="muted">Xác nhận sẽ thêm toàn bộ lô hoặc không thêm giao dịch nào.</p></div></div>
 <section class="card csv-summary">
+  <p><strong>Ví của lô nhập:</strong> {{ wallet_display|default:'Chưa xác định ví (không đối soát số dư)' }}.</p>
   {% if notice %}{% if receipt %}<p role="status">{{ notice }}</p>{% else %}<section class="form-errors error-summary" tabindex="-1" data-error-summary aria-label="Kiểm tra trạng thái lô nhập"><h2>Kiểm tra trạng thái lô nhập</h2><p>{{ notice }}</p><p>Kiểm tra lại bản xem trước và danh sách giao dịch trước khi xác nhận lại.</p></section>{% endif %}{% endif %}
   {% if receipt %}<p>Đã thêm <strong>{{ receipt.transaction_count }}</strong> giao dịch. Nội dung tạm đã được xóa.</p>{% else %}<p class="help">Bản xem trước hết hạn lúc {{ batch.expires_at|date:'H:i d/m/Y' }} (30 phút từ khi tải).</p>{% endif %}
   <p class="help">Khoảng ngày trong tệp không được coi là lịch sử đầy đủ.</p>

@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from . import recurring
 from .forms import MonthForm
-from .models import Category, RecurringRule, RecurringOccurrence
+from .models import Category, RecurringRule, RecurringOccurrence, Wallet
 from .recurring_forms import RecurringActionForm, RecurringConfirmationForm, RecurringRuleForm
 
 STATES = [('all', 'Tất cả'), ('due', 'Đến hạn / quá hạn'), ('upcoming', 'Sắp đến hạn'),
@@ -108,13 +108,14 @@ def occurrence_action(request, pk, year, month, action):
         form = RecurringConfirmationForm(request.POST if request.method == 'POST' else None,
             user=request.user, expected_kind=row['snapshot']['kind'], initial={
                 'amount': row['amount'], 'category': cat,
+                'wallet': row['snapshot'].get('wallet_id'),
                 'description': row['snapshot']['name']})
     else:
         form = RecurringActionForm(request.POST if request.method == 'POST' else None)
     if request.method == 'POST' and form.is_valid():
         try:
             result = recurring.process(request.user, rule.pk, period, action, form if action == 'record' else None)
-        except (ValidationError, IntegrityError, OperationalError, Category.DoesNotExist, recurring.RecurringConflict):
+        except (ValidationError, IntegrityError, OperationalError, Category.DoesNotExist, Wallet.DoesNotExist, recurring.RecurringConflict):
             form.add_error(None, 'Kỳ đã thay đổi hoặc dữ liệu chưa hợp lệ. Hãy tải lại trang; không tự ghi nhận lại kỳ đã xử lý.')
         else:
             messages.success(request, {'record': 'Đã ghi nhận kỳ bằng giao dịch thực tế.', 'skip': 'Đã bỏ qua kỳ; không tạo giao dịch.', 'reopen': 'Đã mở lại kỳ. Chưa tạo giao dịch mới.'}[action])

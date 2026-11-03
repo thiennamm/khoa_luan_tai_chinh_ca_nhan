@@ -1,0 +1,10 @@
+{% extends 'finance/wallet_base.html' %}{% load money %}
+{% block title %}Ví của tôi{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Ví của tôi</h1><p>Số dư theo mốc và ghi chép, chưa đối soát với ngân hàng. Chỉ hỗ trợ VND.</p></div><a class="button" href="{% url 'finance:wallet_create' %}">Tạo ví</a></div>
+<section class="card"><h2>{{ wallet_total|vnd }}</h2><p>Tổng số dư đến {{ as_of|date:'d/m/Y' }} của ví hoạt động đã bắt đầu theo dõi. Loại ví lưu trữ, ví chưa đến ngày bắt đầu và Chưa xác định ví. Cho phép số dư âm.</p><a class="button secondary" href="{% url 'finance:wallet_transfer' %}">Chuyển tiền nội bộ</a></section>
+<section class="card"><h2>Chưa xác định ví</h2><p>Thu đã ghi đến hôm nay {{ unknown.income|vnd }} · Chi {{ unknown.expense|vnd }}. Đây là dòng tiền chưa gắn ví, không phải số dư thực tế.</p><a href="{% url 'finance:wallet_unknown' %}">Xem lịch sử chưa xác định ví</a></section>
+{% for item in page_obj %}<article class="card"><h2><a href="{% url 'finance:wallet_detail' item.wallet.pk %}">{{ item.wallet.name }}</a></h2><p>{{ item.wallet.get_kind_display }} · {% if item.wallet.archived %}Đã lưu trữ{% else %}Đang hoạt động{% endif %}</p><p>{% if item.balance is None %}Chưa đến ngày bắt đầu theo dõi{% else %}Số dư đến hôm nay: <strong>{{ item.balance|vnd }}</strong>{% endif %}</p><p>Giao dịch tương lai đã lưu, chưa tính số dư hôm nay: thu {{ item.future_income|vnd }} · chi {{ item.future_expense|vnd }}.</p></article>{% empty %}<section class="card"><h2>Chưa có ví</h2><p>Tạo ví với mốc ban đầu bạn tự khai báo. Lịch sử cũ vẫn ở Chưa xác định ví.</p><a href="{% url 'finance:wallet_create' %}">Tạo ví đầu tiên</a></section>{% endfor %}
+{% include 'finance/includes/wallet_pagination.html' %}
+<p class="help">Phân bổ mục tiêu tiết kiệm không tự trừ tiền ví. Chuyển nội bộ không phải thu/chi; chưa hỗ trợ phí hoặc kết nối ngân hàng.</p>
+{% endblock %}

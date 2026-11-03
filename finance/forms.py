@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
-from .models import Category, Transaction, Kind
+from .models import Category, Transaction, Kind, Wallet
 from .classification_modes import MODES
 from .money_fields import amount_field
 from .category_mapping_help import MAPPING_LABEL, MAPPING_HELP, SCOPES
@@ -49,6 +49,8 @@ class SuggestionForm(forms.Form):
 
 
 class CsvUploadForm(forms.Form):
+    wallet = forms.ModelChoiceField(label='Ví cho toàn bộ lô nhập', queryset=Wallet.objects.none(),
+        required=False, empty_label='Chưa xác định ví (không đối soát số dư)')
     file = forms.FileField(label='Tệp CSV UTF-8', allow_empty_file=False,
         error_messages={'required': 'Vui lòng chọn một tệp CSV.', 'empty': 'Tệp trống, chưa có header hoặc giao dịch.'})
 
@@ -57,6 +59,10 @@ class CsvUploadForm(forms.Form):
         if upload.size > 2 * 1024 * 1024:
             raise forms.ValidationError('Tệp vượt giới hạn 2 MiB (2.097.152 byte).')
         return upload
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['wallet'].queryset = Wallet.objects.filter(user=user, archived=False) if user else Wallet.objects.none()
 
 
 class CategoryForm(forms.ModelForm):
@@ -80,7 +86,7 @@ class TransactionForm(forms.ModelForm):
     amount = amount_field(Transaction)
     class Meta:
         model = Transaction
-        fields = ["kind", "amount", "date", "category", "description"]
+        fields = ["kind", "amount", "date", "category", "wallet", "description"]
         widgets = {
             "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "description": forms.Textarea(attrs={"rows": 3, "placeholder": "Ghi chú thêm về giao dịch (không bắt buộc)"}),
@@ -92,9 +98,15 @@ class TransactionForm(forms.ModelForm):
             self.instance.user = user
         self.fields["category"].queryset = Category.objects.filter(user=user)
         self.fields["category"].empty_label = "Chọn danh mục phù hợp"
+        from django.db.models import Q
+        self.fields['wallet'].queryset = Wallet.objects.filter(user=user).filter(
+            Q(archived=False) | Q(pk=self.instance.wallet_id if self.instance.pk else None))
+        self.fields['wallet'].empty_label = 'Chưa xác định ví (không đối soát số dư)'
 
 
 class SimilarTransactionForm(TransactionForm):
+    confirm_unknown_wallet = forms.BooleanField(required=False,
+        label='Nếu ví nguồn đã lưu trữ, tôi xác nhận ghi giao dịch mới là Chưa xác định ví.')
     similar_operation = forms.CharField(max_length=1000, widget=forms.HiddenInput,
         error_messages={'required': 'Hãy mở lại biểu mẫu tạo giao dịch tương tự.',
                         'max_length': 'Phiên biểu mẫu không hợp lệ. Hãy mở lại biểu mẫu.'})

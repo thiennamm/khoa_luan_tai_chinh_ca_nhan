@@ -106,7 +106,8 @@ class FinancialStatisticsTests(FinanceCase):
         self.assertEqual(result['chart_axis_ticks'][0]['value'], last['expense'])
         self.assertEqual(result['chart_axis_unit'], 'triệu tỷ VND')
 
-    def test_escaped_special_names_no_js_and_same_data_for_chart_table(self):
+    @patch('finance.statistics.current_month', return_value=date(2026,10,1))
+    def test_escaped_special_names_no_js_and_same_data_for_chart_table(self, _clock):
         self.food.name='<script>alert("x")</script> & Điện'
         self.food.save()
         response=self.client.get(reverse('finance:dashboard'),{'month':'2026-10','span':'12'})

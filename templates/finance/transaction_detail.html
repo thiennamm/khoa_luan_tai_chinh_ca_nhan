@@ -1,6 +1,7 @@
 {% extends 'base.html' %}{% load money %}
 {% block title %}Chi tiết giao dịch{% endblock %}
 {% block content %}
+<p>{% if transaction.wallet %}Ví: <a href="{% url 'finance:wallet_detail' transaction.wallet_id %}">{{ transaction.wallet }}</a>{% else %}<a href="{% url 'finance:wallet_unknown' %}">Chưa xác định ví</a> · Không phải số dư được đối soát.{% endif %}</p>
 <div class="page-heading"><div><p class="eyebrow">SỔ GHI CHÉP</p><h1>Chi tiết giao dịch</h1></div><a href="{% url 'finance:transaction_list' %}?month={{ transaction.date|date:'Y-m' }}">← Về danh sách</a></div>
 {% if future_date %}<p class="notice">Giao dịch ngày tương lai đã được lưu. Ngày này vẫn được dùng trong báo cáo đã ghi nhận; hệ thống không tự sửa hoặc loại bỏ.</p>{% endif %}
 {% if transaction.recurring_occurrence %}<p class="notice">Đã ghi nhận cho kỳ định kỳ {{ transaction.recurring_occurrence.month|date:'m/Y' }} · {{ transaction.recurring_occurrence.snapshot.name }}, đến hạn {{ transaction.recurring_occurrence.due_date|date:'d/m/Y' }}.{% if transaction.date != transaction.recurring_occurrence.due_date %} Ngày thực tế {{ transaction.date|date:'d/m/Y' }} khác ngày đến hạn; đây là cùng một khoản, chỉ tính một lần theo ngày thực tế.{% endif %} Ngày thực tế quyết định tháng báo cáo. Sửa giao dịch không mở lại kỳ. <a href="{% url 'finance:recurring_history' transaction.recurring_occurrence.rule_id %}">Xem lịch sử kỳ</a>.</p>{% endif %}

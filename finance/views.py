@@ -16,7 +16,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from .forms import CategoryForm, MonthForm, SignUpForm, TransactionForm
-from .models import Category, Transaction
+from .models import Category, Transaction, Wallet
 from .services import monthly_totals
 from .transaction_filters import TransactionFilterForm, apply_filters, filtered_totals
 from .statistics import StatisticsSpanForm, financial_statistics
@@ -184,6 +184,7 @@ def transaction_list(request):
             comparison_url = reverse('finance:monthly_report') + '?' + urlencode({
                 'base_month': params['comparison_a'], 'month': params['comparison_b']})
     context = {'filter_form': form, 'filters_valid': valid, 'filter_query': params.urlencode(),
+               'wallet_filter_display':dict(form.fields['wallet'].choices).get(form.cleaned_data.get('wallet')) if valid else '',
                'comparison_url': comparison_url, 'comparison_a': params.get('comparison_a', ''),
                'comparison_b': params.get('comparison_b', ''),
                'has_transactions': has_transactions,
@@ -220,7 +221,7 @@ def transaction_edit(request, pk=None, *, similar=False, initial=None, category_
         except feedback_service.InvalidSuggestion:
             suggestion_id = ''
             form.add_error(None, 'Gợi ý không còn hợp lệ. Hãy yêu cầu gợi ý lại, hoặc kiểm tra danh mục và bấm Lưu lần nữa để lưu thủ công không ghi phản hồi.')
-        except (ValidationError, IntegrityError, Category.DoesNotExist):
+        except (ValidationError, IntegrityError, Category.DoesNotExist, Wallet.DoesNotExist):
             form.add_error(None, 'Không thể lưu giao dịch. Hãy kiểm tra lại danh mục và dữ liệu rồi thử lại.')
         else:
             messages.success(request, 'Thao tác này đã được lưu trước đó; không tạo thêm giao dịch.' if repeated

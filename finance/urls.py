@@ -13,9 +13,18 @@ from . import savings_views
 from . import category_defaults_views
 from .monthly_report_views import monthly_report
 from .financial_calendar_views import calendar_month, calendar_day
+from . import wallet_views
 
 app_name = "finance"
 urlpatterns = [
+    path('vi/', wallet_views.wallet_list, name='wallet_list'),
+    path('vi/them/', wallet_views.wallet_edit, name='wallet_create'),
+    path('vi/chua-xac-dinh/', wallet_views.wallet_detail, name='wallet_unknown'),
+    path('vi/chuyen/', wallet_views.transfer_create, name='wallet_transfer'),
+    path('vi/chuyen/<int:pk>/', wallet_views.transfer_detail, name='wallet_transfer_detail'),
+    path('vi/<int:pk>/', wallet_views.wallet_detail, name='wallet_detail'),
+    path('vi/<int:pk>/sua/', wallet_views.wallet_edit, name='wallet_edit'),
+    path('vi/<int:pk>/trang-thai/', wallet_views.wallet_status, name='wallet_status'),
     path('lich-thu-chi/', calendar_month, name='financial_calendar'),
     path('lich-thu-chi/ngay/<str:day>/', calendar_day, name='financial_calendar_day'),
     path('bao-cao-thang/', monthly_report, name='monthly_report'),

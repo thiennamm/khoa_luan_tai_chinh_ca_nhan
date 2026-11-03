@@ -96,6 +96,12 @@ Trang **Tổng quan** có **Cơ cấu chi theo danh mục** của tháng đượ
 
 Tháng hiện tại ghi **Tháng chưa kết thúc**. Tháng không có giao dịch hiện tổng đã ghi là 0 và trạng thái lịch sử riêng; số 0 thống kê không làm tháng đó thành dữ liệu đầy đủ để dự báo. Không có chi thì không hiển thị tỷ trọng giả. Chi tiết: [docs/financial-statistics.md](docs/financial-statistics.md).
 
+## Ví VND và chuyển nội bộ — TASK 23A
+
+Vào **Ghi chép → Ví của tôi** để tạo ví tiền mặt/ngân hàng/ví điện tử/khác, khai báo mốc ban đầu (có thể âm). Chọn ví khi thêm/sửa giao dịch; dữ liệu cũ và lựa chọn để trống được ghi **Chưa xác định ví**, không tự biến thành số dư tiền mặt/ngân hàng. Ví có nghiệp vụ khóa mốc ban đầu; lưu trữ giữ lịch sử. Tổng số dư theo ghi chép chỉ gồm ví hoạt động đã bắt đầu, không phải đối soát ngân hàng.
+
+**Chuyển tiền nội bộ** là ghi chép giữa hai ví của chính bạn, không chuyển tiền tại ngân hàng, không tính vào thu–chi/coverage/ngân sách/dự báo. Có xác nhận POST/CSRF và chống gửi lặp; chưa hỗ trợ phí/ngoại tệ/ngày tương lai/hủy chuyển. CSV vẫn 5 cột, chọn một ví cho lô ngoài CSV; định kỳ có ví mặc định. Tiết kiệm chỉ phân bổ nên không tự trừ ví. Migration 0015 đã kiểm trên QA và áp dụng SQLite local ngày 03/11/2026 sau backup đã kiểm; dữ liệu nghiệp vụ cũ giữ nguyên. Chưa push/deploy hoặc áp dụng production. Quy tắc, giới hạn UI, backup và kế hoạch triển khai online: [docs/wallets.md](docs/wallets.md).
+
 ## So sánh hai tháng — TASK 22A
 
 Từ Tổng quan chọn **Báo cáo & so sánh tháng**. Tại trang Báo cáo tháng, chọn **Tháng gốc A** và **Tháng đối chiếu B**, rồi bấm **Xem báo cáo**; mặc định là tháng trước và tháng hiện tại theo giờ Việt Nam. Có thể chọn cùng tháng hoặc hai tháng không liền nhau. Tổng, biểu đồ và bảng danh mục dùng số liệu **đã ghi nhận**, giữ riêng coverage và cảnh báo tháng đang diễn ra/ngày tương lai.
