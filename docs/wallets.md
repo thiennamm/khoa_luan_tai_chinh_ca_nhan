@@ -263,3 +263,23 @@ Helper đối chiếu đã dừng hai lần: lần đầu do khác kiểu ngày/
 5. **Rollback mã khác rollback dữ liệu.** Nếu migration chưa commit và gặp lỗi, kiểm transaction/schema/record, không suy mọi tình huống crash đều tự khôi phục. Sau khi 0015 commit, ưu tiên giữ schema và dừng ghi khi điều tra. Chỉ quay mã cũ khi đã kiểm tương thích QA; UI cũ không trình bày được ví/chuyển mới, không có nghĩa dữ liệu biến mất. **Không reverse 0015 như cách rollback an toàn**: đã chứng minh mất ví/chuyển và liên kết mới. Nếu cần quay dữ liệu, restore backup sang đích mới, kiểm và lập kế hoạch phần ghi sau backup có thể mất trước khi xin phép chuyển đích; không âm thầm phục hồi đè production.
 
 Bước bàn giao này chỉ commit local đúng 37 tệp TASK 23A; không đưa backup, helper/cấu hình QA, credential hoặc tài liệu TASK 22C vào commit. SHA commit và đối chiếu remote được ghi ở biên nhận ngoài repository/tin nhắn bàn giao; remote chưa có commit mới là dự kiến vì **không push**.
+
+## Bổ sung kiểm thủ công demo ví — 03/11/2026
+
+**Nguồn bằng chứng:** người dùng xác nhận kết quả kiểm thủ công qua ảnh trên server QA `127.0.0.1:8023`, database mới hoàn toàn mô phỏng. Đây không phải kiểm thử tự động hoặc xác minh online. Các thao tác thực tế dưới đây thay cho kịch bản dự kiến đã hướng dẫn trước đó; không ghi kịch bản chưa thực hiện là đạt.
+
+| Bước thực tế | Ngân hàng | Tiền mặt | Tổng hai ví |
+|---|---:|---:|---:|
+| Mốc ban đầu | 2.000.000 VND | 1.000.000 VND | 3.000.000 VND |
+| Chuyển Ngân hàng → Tiền mặt 100.000 VND | 1.900.000 VND | 1.100.000 VND | 3.000.000 VND |
+| Chuyển Ngân hàng → Tiền mặt 10.000 VND | 1.890.000 VND | 1.110.000 VND | 3.000.000 VND |
+| Chuyển Ngân hàng → Tiền mặt 20.000 VND | 1.870.000 VND | 1.130.000 VND | 3.000.000 VND |
+| Chi từ Tiền mặt 30.000 VND | **1.870.000 VND** | **1.100.000 VND** | **2.970.000 VND** |
+
+Người dùng xác nhận qua ảnh số dư ban đầu/cuối và **Tổng quan tháng 11/2026: thu 0 VND, chi 30.000 VND**. Các dòng số dư trung gian trong bảng là đối chiếu số học từ chuỗi thao tác được cung cấp, không khẳng định có ảnh riêng của từng mốc. Tổng chuyển nội bộ 130.000 VND không làm tăng thu/chi; mốc ban đầu không tính thành thu nhập. Tổng tài sản theo ghi chép giảm đúng khoản chi 30.000 VND. Không coi đây là số dư ngân hàng được đối soát.
+
+Giữ nguyên các giới hạn UI đã công bố: **chưa xác minh đúng viewport 1280×900/390×844, trọn luồng tắt JavaScript, toàn bộ focus/Tab/phân trang, thiết bị vật lý hoặc trình duyệt khác**. Xác nhận qua ảnh/thao tác này chỉ bổ sung bằng chứng cho luồng ví/chuyển/chi và số liệu nêu trên; không nâng thành “toàn bộ UI đạt”. Không thêm ảnh, dữ liệu hoặc credential vào Git.
+
+Đã dừng đúng server demo 8023, kiểm socket xác nhận cổng đóng; hủy toàn bộ session trong database demo (còn 0), vô hiệu mật khẩu tài khoản QA và xóa tệp credential mã hóa/khóa server tạm. Database mô phỏng được giữ ngoài Git tại `D:\POSTGRESQL QA\wallet-manual-20261103-090726-806960\demo.sqlite3`; biên nhận dọn QA là `manual-check-shutdown.json` cùng thư mục, chỉ là tham chiếu local. Không mở SQLite thật hoặc truy cập production trong lần cập nhật này.
+
+Chỉ sửa tài liệu này; giữ nguyên mã và TASK 22C. Không chạy lại suite vì mã không đổi; chưa stage/commit/push/deploy bản bổ sung kiểm thủ công này.
