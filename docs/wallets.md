@@ -2,6 +2,8 @@
 
 **Mốc bàn giao mới nhất — 03/11/2026:** đã sao lưu SQLite local thật bằng backup API, kiểm bản sao và áp dụng 0015 vào đúng dự án chính; dữ liệu/liên kết cũ và tổng thu–chi giữ nguyên. Phần QA dưới đây giữ kết quả lịch sử; xem [biên bản local và kế hoạch online](#bàn-giao-migration-0015-trên-local--03112026) cuối tài liệu. Chưa push/deploy hoặc truy cập production. Các giới hạn UI chưa xác minh vẫn giữ nguyên.
 
+**Bổ sung 04/11/2026:** đã được phép kết nối production **chỉ đọc để backup**, kiểm archive mới và restore/diễn tập 0015 trên PostgreSQL QA riêng đạt; xem mục cuối. Không push/deploy hoặc migrate production. Các câu chưa truy cập production ở các mốc trước là lịch sử của lần đó.
+
 ## Thiết kế chốt trước khi sửa mã — 03/11/2026
 
 Nhánh main, nền `1da8898d7292c73a5f390d17304f4d8771c0dfb4`. Giữ nguyên thay đổi tài liệu TASK 22C trong `docs/thesis-demo-script.md`. Không đọc database thật/production. Các migration chỉ chạy trên QA. Chưa triển khai chia tiền nhóm, tài khoản ngân hàng, phí, ngoại tệ hoặc điều chỉnh số dư.
@@ -283,3 +285,68 @@ Giữ nguyên các giới hạn UI đã công bố: **chưa xác minh đúng vie
 Đã dừng đúng server demo 8023, kiểm socket xác nhận cổng đóng; hủy toàn bộ session trong database demo (còn 0), vô hiệu mật khẩu tài khoản QA và xóa tệp credential mã hóa/khóa server tạm. Database mô phỏng được giữ ngoài Git tại `D:\POSTGRESQL QA\wallet-manual-20261103-090726-806960\demo.sqlite3`; biên nhận dọn QA là `manual-check-shutdown.json` cùng thư mục, chỉ là tham chiếu local. Không mở SQLite thật hoặc truy cập production trong lần cập nhật này.
 
 Chỉ sửa tài liệu này; giữ nguyên mã và TASK 22C. Không chạy lại suite vì mã không đổi; chưa stage/commit/push/deploy bản bổ sung kiểm thủ công này.
+
+## Backup PostgreSQL và diễn tập 0015 từ snapshot thật — 04/11/2026
+
+### Xác minh đích và phạm vi quyền
+
+Người dùng xác nhận trực tiếp Dashboard: repository `thiennamm/khoa_luan_tai_chinh_ca_nhan`, branch main, **Auto-Deploy On Commit**, Build `bash deploy/render-build.sh`, Start `bash deploy/render-start.sh`, commit Live `1da8898` tại lúc kiểm. Database hiển thị `so-thu-chi-db`, PostgreSQL major 18, Available, Singapore, External Access `0.0.0.0/0`; không thay cấu hình/allowlist.
+
+Đối chiếu **riêng trên máy** bằng 3 lời nhắc ẩn: DATABASE_URL Web Service, Internal URL và External URL do người dùng sao chép từ cùng database trên Dashboard. Host/cổng/tên database của Web Service khớp URL **Internal**. Không in/lưu URL, username hoặc mật khẩu trong biên nhận; bản so sánh không kết nối database và không dùng việc giống tên hiển thị làm bằng chứng cùng đích. Sau đó người dùng nhập External URL lại tại prompt ẩn của script backup.
+
+Production chỉ được `SHOW server_version_num` và pg_dump qua process con với `PGOPTIONS=-c default_transaction_read_only=on`, TLS require, theo `scripts/backup_postgresql.ps1` hiện có. Không migrate/restore/SQL sửa schema hoặc dữ liệu production; không đọc `.env`, không dùng SQLite local làm nguồn hoặc đích. Không push/deploy. Không ghi lại bằng chứng có URL hoặc bản ghi tài chính vào Git.
+
+### Backup mới đã kiểm
+
+| Mục | Kết quả |
+|---|---|
+| Thư mục ngoài Git | `D:\SAO LUU KHOA LUAN\postgresql\postgres-20261104T030444734Z-2a5a0dd4` |
+| Archive | `postgres-20261104T030444734Z-2a5a0dd4.dump` — **109.126 byte**, PostgreSQL custom |
+| SHA-256 | `5f666910a5f94702927491851571d95aef4fafebd6832f25ebdb77a03f64d4a4` |
+| Runtime nguồn | server_version_num **180006** (18.6); client pg_dump/pg_restore/psql 18.6 |
+| Thời gian chạy pg_dump/kiểm archive theo manifest, giờ VN | **10:04:45,988 – 10:04:50,994 ngày 04/11/2026** |
+| Kiểm archive | exit 0, pg_restore --list và giải mã vào NUL đạt, kích thước/hash khớp manifest; không còn .partial/.pgpass.tmp |
+| Sau diễn tập | Archive/hash và manifest gốc được giữ nguyên; không sửa manifest backup để tự ghi restore đạt |
+
+### Restore và đối chiếu với nguồn tại mốc backup
+
+Cluster **mới**, không ghi đè bản TASK16: `D:\POSTGRESQL QA\wallet0015-restore-20261104-abc6454e\data`. PostgreSQL 18.6 portable, không Windows service, chỉ `127.0.0.1:55432`, database mới **qa_wallet0015_restore**. Trước restore đã kiểm data_directory, database, host/port, role, version, listen_addresses và không có bảng người dùng. Không nhận URL làm đích restore. Role restore là owner QA, không superuser/CREATEDB/CREATEROLE; có **pg_read_all_settings chỉ trong QA** để guard kiểm data_directory. Mật khẩu QA ngẫu nhiên, tách khỏi production.
+
+Restore dùng `--no-owner --no-privileges --exit-on-error --single-transaction`, **exit 0**. Không --clean, --create, bỏ constraint/trigger hoặc chọn lọc bỏ dữ liệu lỗi.
+
+Mốc nguồn đối chiếu là **snapshot pg_dump trong archive**, không phải phép đếm production ở thời điểm muộn hơn. Đọc COPY của archive trong bộ nhớ, đối chiếu **28/28 bảng public** với bản restore: số hàng và fingerprint mọi cột/giá trị khớp, gồm các ID/FK liên kết. Chuẩn hóa biểu diễn datetime về UTC, numeric bằng Decimal và JSON theo cấu trúc để tránh khác định dạng hiển thị. Tổng income/expense theo từng tài khoản/tháng có fingerprint khớp; không in số tiền/tên/mô tả cá nhân trong báo cáo Git. Không khẳng định website hiện tại vẫn bằng snapshot nếu có thao tác mới sau backup.
+
+### Migration trên QA vừa restore
+
+Plan QA chỉ còn đúng 0015; đã migrate, system check không vấn đề, `migrate --check` đạt và `makemigrations --check --dry-run` báo No changes detected. Sau migration:
+
+- Fingerprint mọi trường cũ ở **27 bảng ngoài django_migrations** giữ nguyên; với content type/permission chỉ so các dòng cũ và kiểm riêng phần thêm đúng **2 content type + 8 permission** cho hai model ví. Danh sách app/name trong django_migrations giữ bản cũ và thêm đúng 0015; không dùng hash toàn bảng để bỏ qua metadata thêm hợp lệ.
+- Tổng thu–chi Decimal theo tài khoản/tháng và các liên kết nghiệp vụ giữ nguyên. Transaction, CsvImportBatch, RecurringRule cũ đều có wallet_id NULL — **Chưa xác định ví**. Wallet = 0, WalletTransfer = 0; không tạo income, feedback, coverage, tài khoản hoặc giao dịch QA giả.
+- **0 migration còn chờ.** Không sửa application code, model ML, dependency hoặc migration để ép kết quả đạt.
+
+| Kiểm database | Trước 0015 | Sau 0015 |
+|---|---:|---:|
+| FK được quét | 40 | 47 |
+| Hàng mồ côi | 0 | 0 |
+| CHECK được đánh giá | 29 | 33 |
+| Index invalid / constraint chưa validated / trigger bị disable | 0 / 0 / 0 | 0 / 0 / 0 |
+| Sequence có ứng viên ID kế tiếp an toàn | 22 | 24 |
+| Sai chủ/loại ở các liên kết giao dịch–danh mục, ngân sách, định kỳ; tiền giao dịch lẻ VND | 0 | 0 |
+
+Sequence được kiểm bằng last_value/is_called/increment/MAX ID, **không gọi nextval hoặc sửa sequence**. Có kiểm dữ liệu thực đã restore; không suy thành kiểm toàn bộ hành vi ứng dụng, UI, concurrency hoặc tải lớn.
+
+### Lỗi helper, bằng chứng và dọn môi trường
+
+Lượt helper đầu dừng ở archive-parse, **trước initdb/restore**: pg_restore.exe xuất CRLF, bộ đọc COPY ngoài repository ban đầu chỉ xử lý LF. Đã giữ biên nhận thất bại, sửa helper để bỏ CR ở cuối dòng vật lý (không tách nhầm Unicode U+2028 hay sửa nội dung ô), chạy **11 assertion tổng hợp của helper** đạt, rồi restore/migrate QA đạt. Đây không phải lỗi dữ liệu/model/ứng dụng hoặc sự cố production. Không chạy lại suite 484/204/50 hay JavaScript; 11 assertion này không cộng vào số bài ứng dụng đã công bố.
+
+Thư mục bằng chứng riêng ngoài Git: `D:\SAO LUU KHOA LUAN\wallet0015-rehearsal-20261104-abc6454e`, gồm `database-target-comparison.json`, `dashboard-confirmation.json` (chỉ dữ kiện không bí mật/fingerprint đích), `backup-result.json`, `attempt1-rehearsal-result.json`, `rehearsal-result.json`, `migration-QA-check.log` và helper. Native log có thể chứa SQL/dữ liệu riêng chỉ ở vùng QA ACL riêng, **không đưa vào Git/chat**. Đây là tham chiếu local, không phải link artifact công khai trên GitHub.
+
+Đã đóng kết nối/process nguồn sau backup và cửa sổ nhập URL. Đã đóng mọi connection QA, dừng đúng cluster, xác nhận cổng 55432 đóng, xóa passfile/init-password QA; không lưu mật khẩu QA dài hạn. Clipboard hiện tại đã xóa; nếu người dùng bật Win+V/Cloud Clipboard, cần tự xóa các mục URL còn trong lịch sử đó. Cluster đã dừng và backup gốc được giữ nguyên, không phục hồi đè SQLite local/production. Model, requirements và tài liệu TASK 22C vẫn khớp hash bảo vệ.
+
+### Phương án khôi phục và giới hạn trước deploy
+
+Archive này khôi phục dữ liệu theo snapshot nội bộ của pg_dump trong khoảng chạy ở trên, **không phải trạng thái tại lúc kết thúc hoặc hiện tại**. Các giao dịch/sửa/xóa và thay đổi tài khoản sau snapshot có thể mất nếu quay về backup. Trước triển khai thực tế cần backup mới nếu đã có ghi thêm, chốt khoảng ngừng ghi và cách bảo toàn/đối chiếu các thay đổi sau mốc backup; không hứa khôi phục không mất dữ liệu.
+
+Nếu cần phục hồi, restore archive đã kiểm vào **database mới riêng**, xác minh hash/schema/count/FK/sequence và đối chiếu ứng dụng rồi mới lập bước chuyển đích được phép. Rollback mã không tự rollback database. **Không reverse 0015 để phục hồi dữ liệu ví/chuyển**: reverse sẽ bỏ bảng/cột mới và không khôi phục các khoản đã phát sinh. Không phục hồi đè production trong diễn tập.
+
+Đã đạt: backup thật chỉ đọc, archive/hash, restore QA và đối chiếu snapshot, migration 0015/checks QA, dừng/dọn credential. **Chưa thực hiện**: push/deploy/migrate production, smoke test online hoặc UI mới, thử tải lớn và diễn tập hỏng ổ/mất điện/PITR. Quyền DDL cụ thể của role DATABASE_URL production và thời gian khóa trên workload online chưa được kiểm bằng migration thật. QA Windows/locale C khác Linux/Render; kết quả không thay toàn bộ kiểm online. Các giới hạn viewport/tắt JavaScript đã công bố vẫn giữ “Chưa xác minh”. Lượt này chỉ cập nhật tài liệu, chưa stage/commit/push; giữ TASK 22C ngoài phạm vi.
