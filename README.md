@@ -102,6 +102,8 @@ Vào **Ghi chép → Ví của tôi** để tạo ví tiền mặt/ngân hàng/v
 
 **Chuyển tiền nội bộ** là ghi chép giữa hai ví của chính bạn, không chuyển tiền tại ngân hàng, không tính vào thu–chi/coverage/ngân sách/dự báo. Có xác nhận POST/CSRF và chống gửi lặp; chưa hỗ trợ phí/ngoại tệ/ngày tương lai/hủy chuyển. CSV vẫn 5 cột, chọn một ví cho lô ngoài CSV; định kỳ có ví mặc định. Tiết kiệm chỉ phân bổ nên không tự trừ ví. Migration 0015 đã kiểm trên QA và áp dụng SQLite local ngày 03/11/2026 sau backup đã kiểm; dữ liệu nghiệp vụ cũ giữ nguyên. Chưa push/deploy hoặc áp dụng production. Quy tắc, giới hạn UI, backup và kế hoạch triển khai online: [docs/wallets.md](docs/wallets.md).
 
+Vận hành Render Free có cổng bảo trì WSGI tùy chọn, mặc định tắt; không thay quy tắc thu–chi. Khi bật, chặn yêu cầu trước Django/database và chỉ cho kiểm tra bằng khóa tạm. Trình tự Suspend → backup → deploy trong bảo trì → kiểm tra → mở lại: [docs/render-maintenance.md](docs/render-maintenance.md).
+
 ## So sánh hai tháng — TASK 22A
 
 Từ Tổng quan chọn **Báo cáo & so sánh tháng**. Tại trang Báo cáo tháng, chọn **Tháng gốc A** và **Tháng đối chiếu B**, rồi bấm **Xem báo cáo**; mặc định là tháng trước và tháng hiện tại theo giờ Việt Nam. Có thể chọn cùng tháng hoặc hai tháng không liền nhau. Tổng, biểu đồ và bảng danh mục dùng số liệu **đã ghi nhận**, giữ riêng coverage và cảnh báo tháng đang diễn ra/ngày tương lai.

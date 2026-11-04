@@ -16,10 +16,11 @@ def main():
     except (KeyError, ValueError):
         raise SystemExit('PORT của Render thiếu hoặc không hợp lệ.') from None
     from config.render_wsgi import application
+    from scripts.maintenance_gate import wrap_application
     from waitress import serve
     # Render tự redirect HTTP ngoài Internet và kết thúc TLS, port này không public.
     # Không wildcard trusted_proxy, không dùng X-Forwarded-For/Host/Proto từ client.
-    serve(application, host='0.0.0.0', port=port, threads=2, connection_limit=32,
+    serve(wrap_application(application), host='0.0.0.0', port=port, threads=2, connection_limit=32,
           url_scheme='https', trusted_proxy=None, clear_untrusted_proxy_headers=True,
           max_request_body_size=3 * 1024 * 1024, ident='')
 
