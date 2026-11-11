@@ -18,6 +18,8 @@ def monthly_report(request):
     context = {'report_form': form}
     valid = form.is_valid()
     if valid:
+        from .groups import pending_count
+        context['group_pending_count'] = pending_count(request.user, form.cleaned_data['month'])
         context.update(report_data(request.user, form.cleaned_data['month'], form.cleaned_data['include_details'],
                                    form.cleaned_data['base_month']))
     return render(request, 'finance/monthly_report.html', context, status=200 if valid else 400)

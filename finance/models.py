@@ -303,7 +303,8 @@ class Wallet(models.Model):
             if original.opening_locked:
                 self.opening_locked = True
             if (original.opening_balance != self.opening_balance or original.start_date != self.start_date) and (original.opening_locked or
-                    self.transactions.exists() or self.sent_transfers.exists() or self.received_transfers.exists()):
+                    self.transactions.exists() or self.sent_transfers.exists() or self.received_transfers.exists()
+                    or self.group_postings.exists()):
                 raise ValidationError('Ví đã có nghiệp vụ: không đổi số dư ban đầu hoặc ngày bắt đầu theo dõi.')
 
     def save(self, *args, **kwargs):
@@ -640,6 +641,8 @@ class Transaction(models.Model):
                 raise ValidationError({"category": "Danh mục không thuộc tài khoản của bạn."})
             if category.kind != self.kind:
                 raise ValidationError({"category": "Danh mục phải phù hợp với loại thu hoặc chi."})
+        from .groups import guard_personal_transaction
+        guard_personal_transaction(self)
 
     def save(self, *args, **kwargs):
         if kwargs.get('update_fields') is not None and not kwargs['update_fields']:
@@ -667,3 +670,8 @@ class SimilarTransactionOperation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     saved_transaction = models.OneToOneField(Transaction, null=True, on_delete=models.SET_NULL,
         related_name='similar_creation_operation')
+
+
+# Shared ledger models are kept separate from personal-finance model definitions.
+from .group_models import (ExpenseGroup, GroupMember, GroupExpense, GroupShare,
+    GroupSettlement, GroupAllocation, GroupWalletPosting, GroupOperation)  # noqa: E402,F401

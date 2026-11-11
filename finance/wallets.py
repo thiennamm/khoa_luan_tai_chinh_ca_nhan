@@ -5,11 +5,11 @@ from uuid import UUID, uuid4
 from django.core import signing
 from django.core.exceptions import ValidationError
 from django.db import connections, transaction
-from django.db.models import Count, F, Value, CharField
+from django.db.models import Count, F, Value, CharField, Case, When, BooleanField
 from django.utils import timezone
 from django.utils.crypto import salted_hmac, constant_time_compare
 from .category_locks import lock_catalog
-from .models import Wallet, WalletTransfer, Transaction
+from .models import Wallet, WalletTransfer, Transaction, GroupWalletPosting
 from .services import _RecordedSum, _SQLiteDecimalSum
 
 SALT = 'finance.wallet-transfer.v1'
@@ -66,19 +66,16 @@ def balances(user, as_of=None):
     result = {w.pk:{'wallet':w, 'balance':w.opening_balance if w.start_date <= day else None,
                     'future_income':Decimal(0),'future_expense':Decimal(0)} for w in wallets}
     unknown = {'income':Decimal(0),'expense':Decimal(0)}
-    # At most two groups (past/future) per wallet/kind, never descriptions/history.
-    for future in (False, True):
-        rows = Transaction.objects.filter(user=user)
-        rows = rows.filter(date__gt=day) if future else rows.filter(date__lte=day)
-        for group in sums(rows, 'wallet_id', 'kind'):
-            amount = Decimal(group['total']); item = result.get(group['wallet_id'])
-            if item is not None:
-                if future:
-                    item['future_' + group['kind']] += amount
-                elif item['balance'] is not None:
-                    item['balance'] += amount if group['kind']=='income' else -amount
-            elif group['wallet_id'] is None and not future:
-                unknown[group['kind']] += amount
+    # One grouped query for past/future. Group shares have their own cash ledger.
+    rows = Transaction.objects.filter(user=user).exclude(wallet=None,group_share__isnull=False).annotate(
+        future=Case(When(date__gt=day,then=Value(True)),default=Value(False),output_field=BooleanField()))
+    for group in sums(rows,'wallet_id','kind','future'):
+        value = Decimal(group['total']); item = result.get(group['wallet_id'])
+        if item is not None:
+            if group['future']: item['future_' + group['kind']] += value
+            elif item['balance'] is not None: item['balance'] += value if group['kind']=='income' else -value
+        elif group['wallet_id'] is None and not group['future']:
+            unknown[group['kind']] += value
     # Read both effects from the same grouped row, not two independently timed
     # SELECTs that could show only one side of a concurrently committed transfer.
     rows = WalletTransfer.objects.filter(user=user, source__user=user, destination__user=user, date__lte=day)
@@ -87,13 +84,21 @@ def balances(user, as_of=None):
             item = result.get(group[field])
             if item and item['balance'] is not None:
                 item['balance'] += Decimal(sign) * Decimal(group['total'])
+    for group in sums(GroupWalletPosting.objects.filter(user=user,wallet__user=user,date__lte=day),'wallet_id','side'):
+        item = result.get(group['wallet_id'])
+        if item and item['balance'] is not None:
+            item['balance'] += Decimal(group['total']) * (1 if group['side']=='receive' else -1)
     items = list(result.values())
     total = sum((r['balance'] for r in items if not r['wallet'].archived and r['balance'] is not None), Decimal(0))
-    return {'wallet_rows':items, 'wallet_total':total, 'unknown':unknown, 'as_of':day}
+    from .groups import unassigned_cash
+    return {'wallet_rows':items, 'wallet_total':total, 'unknown':unknown, 'as_of':day,
+            'group_cash_unassigned':unassigned_cash(user,day)}
 
 
 def history(user, wallet, start=None, end=None):
     rows = Transaction.objects.filter(user=user, wallet=wallet)
+    if wallet is None:
+        rows = rows.filter(group_share__isnull=True)
     if start: rows = rows.filter(date__gte=start)
     if end: rows = rows.filter(date__lte=end)
     fields = ('id','date','amount','entry_type','note','link_id')
@@ -105,4 +110,11 @@ def history(user, wallet, start=None, end=None):
             if end: transfers = transfers.filter(date__lte=end)
             transfers = transfers.order_by().annotate(entry_type=Value(label, output_field=CharField()), link_id=F('pk')).values(*fields)
             rows = rows.union(transfers, all=True)
+        for sides, label in [(['bill','pay'],'group_out'),(['receive'],'group_in')]:
+            postings = GroupWalletPosting.objects.filter(user=user,wallet=wallet,wallet__user=user,side__in=sides)
+            if start: postings=postings.filter(date__gte=start)
+            if end: postings=postings.filter(date__lte=end)
+            postings=postings.order_by().annotate(entry_type=Value(label,output_field=CharField()),
+                note=Value('Dòng tiền nhóm; không phải thu/chi lần nữa',output_field=CharField()),link_id=F('pk')).values(*fields)
+            rows=rows.union(postings,all=True)
     return rows.order_by('-date','entry_type','-id')

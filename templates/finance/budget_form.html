@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'finance/business_base.html' %}
 {% block title %}{% if editing %}Sửa{% else %}Tạo{% endif %} ngân sách{% endblock %}
-{% block content %}
+{% block business_content %}
 <div class="page-heading"><div><p class="eyebrow">KẾ HOẠCH THÁNG</p><h1>{% if editing %}Sửa{% else %}Tạo{% endif %} ngân sách</h1><p class="muted">Đặt hạn mức cho tổng chi hoặc một danh mục chi.</p></div></div>
 <section class="card form-card"><form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}
 <p class="help">Hạn mức là số nguyên VND dương, tối đa 15 chữ số. Lưu ngân sách không sửa giao dịch hoặc xác nhận lịch sử.</p>

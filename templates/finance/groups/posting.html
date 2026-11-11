@@ -1,0 +1,3 @@
+{% extends 'finance/groups/base.html' %}{% load money %}
+{% block title %}Dòng tiền nhóm của tôi{% endblock %}{% block business_content %}
+<div class="page-heading"><h1>Dòng tiền nhóm của tôi</h1><a class="business-link" href="{% url 'finance:wallet_detail' posting.wallet_id %}">Về ví</a></div><section class="card"><p>{{ posting.get_side_display }} · {{ posting.amount|vnd }} · {{ posting.date|date:'d/m/Y' }}</p><p>Ví riêng: {{ posting.wallet.name }}</p><p>Đây là dòng tiền ví, không phải thu nhập/chi tiêu lần nữa. Chưa hỗ trợ đổi ví, sửa/xóa/đảo dòng tiền đã chốt.</p></section>{% endblock %}

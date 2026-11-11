@@ -14,9 +14,27 @@ from . import category_defaults_views
 from .monthly_report_views import monthly_report
 from .financial_calendar_views import calendar_month, calendar_day
 from . import wallet_views
+from . import group_views
 
 app_name = "finance"
 urlpatterns = [
+    path('chia-tien-nhom/', group_views.index, name='group_list'),
+    path('chia-tien-nhom/them/', group_views.create, name='group_create'),
+    path('chia-tien-nhom/dong-tien-chua-gan/', group_views.unassigned, name='group_unassigned'),
+    path('chia-tien-nhom/dong-tien/<int:posting_id>/', group_views.posting_detail, name='group_posting_detail'),
+    path('chia-tien-nhom/<int:pk>/', group_views.detail, name='group_detail'),
+    path('chia-tien-nhom/<int:pk>/moi/', group_views.invite, name='group_invite'),
+    path('chia-tien-nhom/<int:pk>/doi-ten/', group_views.rename, name='group_rename'),
+    path('chia-tien-nhom/<int:pk>/thanh-vien/<int:member_id>/<str:action>/', group_views.member_action, name='group_member_action'),
+    path('chia-tien-nhom/<int:pk>/luu-tru/', group_views.archive, name='group_archive'),
+    path('chia-tien-nhom/<int:pk>/khoan-chi/them/', group_views.expense_create, name='group_expense_create'),
+    path('chia-tien-nhom/<int:pk>/khoan-chi/<int:expense_id>/', group_views.expense_detail, name='group_expense'),
+    path('chia-tien-nhom/<int:pk>/khoan-chi/<int:expense_id>/huy/', group_views.expense_void, name='group_expense_void'),
+    path('chia-tien-nhom/<int:pk>/phan-chia/<int:share_id>/<str:action>/', group_views.share_action, name='group_share_action'),
+    path('chia-tien-nhom/<int:pk>/hoan-tra/them/', group_views.settlement_create, name='group_settlement_create'),
+    path('chia-tien-nhom/<int:pk>/hoan-tra/<int:settlement_id>/', group_views.settlement_detail, name='group_settlement'),
+    path('chia-tien-nhom/<int:pk>/hoan-tra/<int:settlement_id>/<str:action>/', group_views.settlement_detail, name='group_settlement_action'),
+    path('chia-tien-nhom/<int:pk>/gan-vi/<int:source_id>/<str:side>/', group_views.posting, name='group_posting'),
     path('vi/', wallet_views.wallet_list, name='wallet_list'),
     path('vi/them/', wallet_views.wallet_edit, name='wallet_create'),
     path('vi/chua-xac-dinh/', wallet_views.wallet_detail, name='wallet_unknown'),

@@ -102,6 +102,10 @@ class TransactionForm(forms.ModelForm):
         self.fields['wallet'].queryset = Wallet.objects.filter(user=user).filter(
             Q(archived=False) | Q(pk=self.instance.wallet_id if self.instance.pk else None))
         self.fields['wallet'].empty_label = 'Chưa xác định ví (không đối soát số dư)'
+        if self.instance.pk and hasattr(self.instance, 'group_share'):
+            for name in ('kind','amount','date','wallet'):
+                self.fields[name].disabled = True
+                self.fields[name].help_text = 'Phần chi nhóm đã chốt; dòng tiền ví được ghi riêng. Chỉ sửa danh mục/ghi chú.'
 
 
 class SimilarTransactionForm(TransactionForm):

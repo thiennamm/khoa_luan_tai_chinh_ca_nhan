@@ -141,6 +141,8 @@ def signup(request):
 @require_http_methods(["GET"])
 def dashboard(request):
     context = month_context(request)
+    from .groups import pending_count
+    context['group_pending_count'] = pending_count(request.user, context['start'])
     rows = Transaction.objects.filter(user=request.user, date__gte=context["start"], date__lt=context["end"])
     context['recent_transactions'] = rows.select_related('category')[:5]
     span_form = StatisticsSpanForm({'span': request.GET.get('span', '6')})
@@ -258,6 +260,8 @@ def transaction_duplicate_save(request):
 @require_http_methods(["GET", "POST"])
 def transaction_delete(request, pk):
     row = get_object_or_404(Transaction.objects.select_related("category"), pk=pk, user=request.user)
+    if hasattr(row, 'group_share'):
+        return render(request, 'finance/groups/blocked.html', {'transaction':row}, status=400 if request.method=='POST' else 200)
     if request.method == "POST":
         row.delete()
         messages.success(request, "Đã xóa giao dịch.")

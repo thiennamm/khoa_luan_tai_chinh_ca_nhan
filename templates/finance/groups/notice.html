@@ -1,0 +1,1 @@
+{% if group_pending_count %}<p class="notice">Có {{ group_pending_count }} phần chi nhóm chờ bạn xác nhận, chưa nằm trong chi đã ghi nhận hoặc công nợ đã chấp nhận. Trạng thái coverage không tự đổi từ lời đề nghị. <a href="{% url 'finance:group_list' %}">Kiểm tra nhóm trước khi kết luận đã ghi đủ</a>.</p>{% endif %}

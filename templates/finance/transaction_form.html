@@ -1,6 +1,6 @@
-{% extends 'base.html' %}{% load static %}
+{% extends 'finance/business_base.html' %}{% load static %}
 {% block title %}{% if similar %}Tạo giao dịch tương tự{% elif editing %}Sửa giao dịch{% else %}Thêm giao dịch{% endif %}{% endblock %}
-{% block content %}
+{% block business_content %}
 <div class="page-heading"><div><p class="eyebrow">GHI CHÉP THU CHI</p><h1>{% if similar %}Tạo giao dịch tương tự{% elif editing %}Sửa giao dịch{% else %}Thêm giao dịch{% endif %}</h1><p class="muted">Chọn loại giao dịch và danh mục tương ứng.</p></div></div>
 <p class="help">Ví là tùy chọn; Chưa xác định ví không phải số dư được đối soát. Nhập nhanh giữ ví đã chọn, không tự đoán ví. Ví lưu trữ trên giao dịch cũ chỉ được giữ để sửa lịch sử.</p>
 {% if similar %}<p class="notice">Đã điền từ giao dịch trước. Chưa tạo giao dịch mới. Kiểm tra ngày, số tiền và danh mục rồi tự bấm Lưu.</p>{% endif %}

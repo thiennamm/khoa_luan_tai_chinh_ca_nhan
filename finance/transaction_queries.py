@@ -29,6 +29,8 @@ class TransactionQuerySet(models.QuerySet):
             ids = [pk for pk, _, _ in previous]
             current = self.model.objects.using(using).filter(pk__in=ids).values_list('user_id', 'date')
             validate_wallet_rows(list(self.model.objects.using(using).filter(pk__in=ids)), using, previous_wallets)
+            from .groups import guard_personal_rows
+            guard_personal_rows(list(self.model.objects.using(using).filter(pk__in=ids)))
             from .models import Wallet
             wallet_ids = list(self.model.objects.using(using).filter(pk__in=ids).exclude(wallet=None).values_list('wallet_id',flat=True))
             Wallet.objects.using(using).filter(pk__in=wallet_ids).update(opening_locked=True)

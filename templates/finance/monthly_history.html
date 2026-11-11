@@ -1,6 +1,7 @@
 {% extends 'base.html' %}{% load money %}
 {% block title %}Lịch sử ghi chép{% endblock %}
 {% block content %}
+{% include 'finance/groups/notice.html' %}
 <div class="page-heading"><div><p class="eyebrow">LỊCH SỬ CỦA BẠN</p><h1>Lịch sử ghi chép</h1><p class="muted">Đánh dấu những tháng bạn đã ghi chép đầy đủ.</p></div></div>
 <form method="get" class="month-filter"><label for="id_year">Năm</label><div class="month-controls">{{ year_form.year }}<button class="button secondary" type="submit">Xem</button></div>{{ year_form.year.errors }}</form>
 <p class="help">Chỉ hiện các tháng đã kết thúc theo giờ Việt Nam. Đây là xác nhận của bạn, không phải hệ thống chứng minh dữ liệu đầy đủ. Thay đổi giao dịch sẽ đưa tháng liên quan về “Chưa xác nhận”.</p>

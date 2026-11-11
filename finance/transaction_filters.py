@@ -34,7 +34,7 @@ class TransactionFilterForm(forms.Form):
             data[name] = ''
         super().__init__(data)
         self.fields['category'].queryset = Category.objects.filter(user=user)
-        self.fields['wallet'].choices = [('', 'Tất cả ví'), ('unknown', 'Chưa xác định ví')] + [
+        self.fields['wallet'].choices = [('', 'Tất cả ví'), ('unknown', 'Chưa xác định ví'), ('group', 'Phần chi nhóm — dòng tiền riêng')] + [
             (str(w.pk), str(w)) for w in Wallet.objects.filter(user=user)]
 
     def clean(self):
@@ -67,7 +67,12 @@ def apply_filters(rows, data):
     if data.get('category'):
         rows = rows.filter(category=data['category'])
     if data.get('wallet'):
-        rows = rows.filter(wallet__isnull=True) if data['wallet'] == 'unknown' else rows.filter(wallet_id=data['wallet'])
+        if data['wallet'] == 'unknown':
+            rows = rows.filter(wallet__isnull=True,group_share__isnull=True)
+        elif data['wallet'] == 'group':
+            rows = rows.filter(group_share__isnull=False)
+        else:
+            rows = rows.filter(wallet_id=data['wallet'])
     if data.get('q'):
         if connection.vendor == 'sqlite':
             # SQLite LIKE/LOWER mặc định không casefold chữ Việt có dấu.

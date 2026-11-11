@@ -1,13 +1,19 @@
 {% extends 'base.html' %}{% load money %}
 {% block title %}Tổng quan{% endblock %}
 {% block content %}
-<div class="page-heading overview-heading"><div><p class="eyebrow">BỨC TRANH TÀI CHÍNH CỦA BẠN</p><h1>Tổng quan tháng {{ month_label }}</h1><p class="muted">Mọi khoản đã ghi, trong một góc nhìn.</p></div><a class="button" href="{% url 'finance:transaction_create' %}">{% include 'includes/icon.html' with name='plus' %}Thêm giao dịch</a></div>
-{% include 'finance/includes/getting_started.html' %}
-<div class="overview-toolbar">{% include 'includes/month_filter.html' %}<span class="recording-state">{% include 'includes/icon.html' with name='calendar' %}Lịch sử: <strong>{{ budget_coverage }}</strong></span><a class="button secondary" href="{% url 'finance:monthly_report' %}?month={{ month }}">Báo cáo &amp; so sánh tháng</a></div>
-<section class="summary-grid" aria-label="Tổng hợp thu chi trong tháng">
+<div class="dashboard-overview">
+{% include 'finance/groups/notice.html' %}
+<div class="page-heading overview-heading"><div><p class="eyebrow">GHI CHÉP RÕ RÀNG · CHỦ ĐỘNG MỖI NGÀY</p><h1>Tổng quan tháng {{ month_label }}</h1><p class="muted">Một góc nhìn cho những khoản bạn đã ghi nhận.</p></div><a class="button secondary" href="{% url 'finance:monthly_report' %}?month={{ month }}">{% include 'includes/icon.html' with name='transactions' %}Báo cáo &amp; so sánh tháng</a></div>
+<div class="overview-toolbar">{% include 'includes/month_filter.html' %}<span class="recording-state">{% include 'includes/icon.html' with name='calendar' %}Lịch sử: <strong>{{ budget_coverage }}</strong></span></div>
+<section class="overview-hero" aria-labelledby="overview-hero-title">
+  <div class="hero-main"><p class="hero-period">TỔNG HỢP ĐÃ GHI NHẬN · THÁNG {{ month_label }}</p><h2 id="overview-hero-title">Chênh lệch thu–chi</h2><p class="hero-amount">{{ balance|vnd }}</p><p class="hero-explanation">Tổng thu trừ tổng chi trong tháng. Không phải số dư ví, số dư ngân hàng hoặc tiền tiết kiệm.</p><div class="hero-actions"><a class="button" href="{% url 'finance:transaction_create' %}">{% include 'includes/icon.html' with name='plus' %}Thêm giao dịch</a><a class="button secondary" href="{% url 'finance:csv_upload' %}">{% include 'includes/icon.html' with name='upload' %}Nhập CSV</a></div></div>
+  <div class="hero-context"><span class="hero-context-icon">{% include 'includes/icon.html' with name='wallet' %}</span><h3>Nhìn đúng từng dòng tiền</h3><p>Số dư ví được theo dõi riêng. Chuyển nội bộ và hoàn trả nhóm không được cộng thành thu–chi lần nữa.</p><a href="{% url 'finance:wallet_list' %}">Quản lý ví {% include 'includes/icon.html' with name='arrow' %}</a><div class="hero-coverage"><span>Lịch sử tháng {{ month_label }}</span><strong>{{ budget_coverage }}</strong><small>Số đã ghi nhận có thể chưa đầy đủ.</small></div></div>
+</section>
+<section class="summary-grid overview-kpis" aria-label="Tổng hợp thu chi trong tháng">
   <article class="summary-card"><div class="summary-label"><span>Tổng thu</span><span class="metric-icon income">{% include 'includes/icon.html' with name='income' %}</span></div><p class="metric income">{{ income|vnd }}</p><span class="muted">Thu đã ghi nhận trong tháng</span></article>
   <article class="summary-card"><div class="summary-label"><span>Tổng chi</span><span class="metric-icon expense">{% include 'includes/icon.html' with name='expense' %}</span></div><p class="metric expense">{{ expense|vnd }}</p><span class="muted">Chi đã ghi nhận trong tháng</span></article>
-  <article class="summary-card balance-card"><div class="summary-label"><span>Chênh lệch thu–chi</span><span class="metric-icon">{% include 'includes/icon.html' with name='balance' %}</span></div><p class="metric">{{ balance|vnd }}</p><span>Tổng thu trừ tổng chi trong tháng</span></article>
+  <article class="summary-card difference-card"><div class="summary-label"><span>Chênh lệch thu–chi</span><span class="metric-icon">{% include 'includes/icon.html' with name='balance' %}</span></div><p class="metric">{{ balance|vnd }}</p><span>Tổng thu trừ tổng chi trong tháng</span></article>
+  <article class="summary-card count-card"><div class="summary-label"><span>Số giao dịch</span><span class="metric-icon">{% include 'includes/icon.html' with name='transactions' %}</span></div><p class="metric">{{ transaction_count }}</p><span>Giao dịch đã ghi trong tháng</span></article>
 </section>
 {% include 'finance/includes/financial_statistics.html' %}
 <div class="overview-planning">
@@ -24,4 +30,6 @@
 <div class="empty-state"><span class="empty-icon">{% include 'includes/icon.html' with name='transactions' %}</span><h3>Tháng này chưa ghi nhận giao dịch</h3><p>Thêm khoản thu hoặc chi đầu tiên để bắt đầu theo dõi.</p><a class="button" href="{% url 'finance:transaction_create' %}">Thêm giao dịch đầu tiên</a><a class="sub-link" href="{% url 'finance:category_list' %}">Quản lý danh mục trước {% include 'includes/icon.html' with name='arrow' %}</a></div>
 {% endif %}</section>
 <aside class="tip">{% include 'includes/icon.html' with name='shield' %}<p>Tổng hợp từ giao dịch bạn đã ghi. Tháng chưa có bản ghi không có nghĩa là không chi tiền; chênh lệch thu–chi không phải số dư tài khoản ngân hàng.</p></aside>
+{% include 'finance/includes/getting_started.html' %}
+</div>
 {% endblock %}

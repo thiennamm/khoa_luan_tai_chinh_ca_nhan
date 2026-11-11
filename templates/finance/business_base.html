@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% load static %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/business.css' %}?v=ui02">{% endblock %}
+{% block content %}
+<div class="business-view">
+  {% block business_content %}{% endblock %}
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@
 {% block title %}Báo cáo tháng{% if report_month %} {{ report_month|date:'m/Y' }}{% endif %}{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/monthly-report.css' %}">{% endblock %}
 {% block content %}
+{% include 'finance/groups/notice.html' %}
 <div class="page-heading report-tools"><div><p class="eyebrow">NHÌN LẠI THÁNG</p><h1>Báo cáo tháng</h1><p class="muted">Xem báo cáo B và so sánh với tháng gốc A theo số liệu đã ghi nhận.</p></div><a class="button secondary" href="{% url 'finance:dashboard' %}{% if report_month %}?month={{ report_month|date:'Y-m' }}{% endif %}">Về Tổng quan</a></div>
 <form method="get" class="card report-tools report-filter">
   <div class="field"><label for="id_base_month">Tháng gốc A</label>{{ report_form.base_month }}{{ report_form.base_month.errors }}</div>

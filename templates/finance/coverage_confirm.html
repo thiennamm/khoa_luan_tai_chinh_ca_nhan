@@ -1,6 +1,7 @@
 {% extends 'base.html' %}{% load money %}
 {% block title %}Xác nhận tháng {{ month|date:'m/Y' }}{% endblock %}
 {% block content %}
+{% include 'finance/groups/notice.html' %}
 <div class="page-heading"><div><p class="eyebrow">LỊCH SỬ GHI CHÉP</p><h1>Xác nhận tháng {{ month|date:'m/Y' }}</h1></div></div>
 <section class="card form-card">
   {% if notice %}<p role="alert">{{ notice }}</p>{% endif %}

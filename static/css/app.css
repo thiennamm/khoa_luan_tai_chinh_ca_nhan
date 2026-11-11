@@ -1,10 +1,10 @@
 /* Sổ Thu Chi — hệ giao diện local, không framework/CDN. */
 :root{
-  --paper:#f3f6f5;--white:#fff;--ink:#213d36;--muted:#566b64;
-  --green:#123f36;--green-hover:#1a5b4b;--green-light:#e7f3ed;
-  --border:#dce5e0;--red:#ad3f36;--red-light:#fff0ec;
+  --paper:#f3f5f9;--white:#fff;--ink:#203342;--muted:#596b7d;
+  --green:#087d70;--green-hover:#06675c;--green-light:#e8f6f2;
+  --border:#e0e6ee;--red:#b74830;--red-light:#fff1eb;
   --amber:#855600;--amber-light:#fff6df;--radius:18px;
-  --shadow:0 4px 24px #153f3010;--space:24px;
+  --shadow:0 4px 20px #1836500a;--space:24px;
 }
 *{box-sizing:border-box}
 html{color-scheme:light;scroll-behavior:smooth}

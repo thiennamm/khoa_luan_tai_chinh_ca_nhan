@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
+from .groups import pending_count
 from .coverage import change_month_status, monthly_history, review_month
 from .coverage_calendar import current_month
 from .forms import CoverageConfirmationForm, CoverageStatusForm, CoverageYearForm
@@ -32,7 +33,7 @@ def history(request):
     valid = form.is_valid()
     year = form.cleaned_data['year'] if valid else default_year
     rows = monthly_history(request.user, date(year, 1, 1), date(year, 12, 1))
-    return render(request, 'finance/monthly_history.html', {'year_form': form, 'year': year, 'rows': rows})
+    return render(request, 'finance/monthly_history.html', {'year_form': form, 'year': year, 'rows': rows, 'group_pending_count':pending_count(request.user)})
 
 
 @login_required
@@ -58,7 +59,7 @@ def confirm(request, year, month):
         else:
             messages.success(request, 'Đã ghi nhận xác nhận đầy đủ của bạn.')
             return redirect(f"{reverse('finance:monthly_history')}?year={year}")
-    return render(request, 'finance/coverage_confirm.html', {'month': target, 'snapshot': snapshot, 'form': form})
+    return render(request, 'finance/coverage_confirm.html', {'month': target, 'snapshot': snapshot, 'form': form, 'group_pending_count':pending_count(request.user,target)})
 
 
 @login_required

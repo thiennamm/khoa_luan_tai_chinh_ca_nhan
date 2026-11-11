@@ -96,6 +96,16 @@ Trang **Tổng quan** có **Cơ cấu chi theo danh mục** của tháng đượ
 
 Tháng hiện tại ghi **Tháng chưa kết thúc**. Tháng không có giao dịch hiện tổng đã ghi là 0 và trạng thái lịch sử riêng; số 0 thống kê không làm tháng đó thành dữ liệu đầy đủ để dự báo. Không có chi thì không hiển thị tỷ trọng giả. Chi tiết: [docs/financial-statistics.md](docs/financial-statistics.md).
 
+## Chia tiền nhóm
+
+Vào **Chia tiền nhóm**, tạo nhóm và mời tài khoản bằng tên đăng nhập chính xác. Người được mời phải tự chấp nhận. Một khoản có một người trả, chia đều nguyên VND hoặc nhập phần tiền cụ thể; xem trước rồi chốt. Mỗi thành viên tự xác nhận phần chi và chọn danh mục riêng: phần chờ/từ chối chưa vào công nợ hoặc báo cáo. Chủ nhóm không ghi thay chi tiêu hoặc chọn ví của thành viên khác.
+
+Hoàn trả chờ xác nhận giữ chỗ số nợ tối đa 7 ngày; tổng chờ và đã hoàn không vượt nghĩa vụ. Chỉ người nhận xác nhận mới giảm nợ. Sau đó mỗi bên tự gắn dòng tiền với ví của mình; không tạo thu nhập/chi tiêu lần nữa. Phần chi cá nhân dùng dòng tiền nhóm riêng, không bị cộng lại vào “Chưa xác định ví”. Ví có khu vực **Dòng tiền nhóm chưa gắn ví**, gồm cả nguồn lịch sử của chính bạn sau khi rời/lưu trữ nhóm.
+
+Khoản đã có xác nhận/ghi ví và hoàn trả đã chốt chưa hỗ trợ sửa sai/đảo; không được xóa giao dịch liên kết để cân số. Chỉ sửa danh mục/ghi chú cá nhân của phần chi. Chưa bù trừ nợ vòng, nhiều người cùng trả hóa đơn hoặc phí/ngoại tệ. CSV không giữ liên kết công nợ/dòng tiền nhóm khi nhập lại.
+
+Bản phát hành Chia tiền nhóm cần migration `finance.0016_group_ledger`. Sao lưu PostgreSQL và xác minh khả năng khôi phục trước khi triển khai. Render áp dụng migration khi khởi động theo quy trình trong [Hướng dẫn bảo trì](docs/render-maintenance.md).
+
 ## Ví VND và chuyển nội bộ — TASK 23A
 
 Vào **Ghi chép → Ví của tôi** để tạo ví tiền mặt/ngân hàng/ví điện tử/khác, khai báo mốc ban đầu (có thể âm). Chọn ví khi thêm/sửa giao dịch; dữ liệu cũ và lựa chọn để trống được ghi **Chưa xác định ví**, không tự biến thành số dư tiền mặt/ngân hàng. Ví có nghiệp vụ khóa mốc ban đầu; lưu trữ giữ lịch sử. Tổng số dư theo ghi chép chỉ gồm ví hoạt động đã bắt đầu, không phải đối soát ngân hàng.

@@ -1,0 +1,5 @@
+{% load group_pages %}{% if page.has_other_pages %}<nav class="pagination" aria-label="Phân trang {{ label }}">
+{% if page.has_previous %}<a href="{% group_page_url key page.previous_page_number %}">Trước</a>{% endif %}
+<span>Trang {{ page.number }} / {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a href="{% group_page_url key page.next_page_number %}">Sau</a>{% endif %}
+</nav>{% endif %}

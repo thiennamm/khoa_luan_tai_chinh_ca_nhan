@@ -1,0 +1,10 @@
+{% extends 'finance/groups/base.html' %}{% load money %}
+{% block title %}{{ title }}{% endblock %}{% block business_content %}
+<div class="page-heading"><div><h1>{{ title }}</h1>{% if group %}<p>{{ group.name }}</p>{% endif %}</div><a class="business-link" href="{% if group %}{% url 'finance:group_detail' group.pk %}{% else %}{% url 'finance:group_list' %}{% endif %}">Quay lại</a></div>
+<p class="notice">{{ notice }}</p>
+<section class="card form-card"><form method="post">{% csrf_token %}
+{% include 'includes/form_error_summary.html' %}{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% for field in form.visible_fields %}<div class="field{% if field.errors %} field-invalid{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}{% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
+{% if preview %}<section class="notice"><h2>Xem trước — chưa tạo khoản chi</h2>{% for part in preview %}<p>{{ part.member }}: <strong>{{ part.amount|vnd }}</strong></p>{% endfor %}<p>Phần chia nguyên đồng, đồng dư theo ID thành viên; mọi phần đều chờ người đó xác nhận.</p></section>{% endif %}
+<div class="form-actions">{% if expense_form %}<button class="button secondary" type="submit" name="phase" value="preview">Xem trước phần chia</button>{% if preview %}<button class="button" type="submit" name="phase" value="confirm">Chốt khoản chi nhóm</button>{% endif %}{% else %}<button class="button" type="submit">Xác nhận</button>{% endif %}</div>
+</form></section>{% endblock %}

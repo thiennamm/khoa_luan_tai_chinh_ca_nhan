@@ -1,0 +1,10 @@
+{% extends 'finance/groups/base.html' %}
+{% block title %}Chia tiền nhóm{% endblock %}{% block business_content %}
+<div class="page-heading"><div><h1>Chia tiền nhóm</h1><p>Chia khoản đã trả, xác nhận phần chi và theo dõi hoàn trả. Không chuyển tiền tại ngân hàng.</p></div><a class="button" href="{% url 'finance:group_create' %}">Tạo nhóm</a></div>
+<p><a class="business-link" href="{% url 'finance:group_unassigned' %}">Dòng tiền nhóm của tôi chưa gắn ví (gồm nguồn lịch sử)</a></p>
+<div class="business-grid">{% for member in page_obj %}<article class="card"><h2>{{ member.group.name }}</h2><p><span class="business-status{% if member.status == 'invited' %} business-status-pending{% endif %}">{{ member.get_status_display }}{% if member.group.archived %} · Đã lưu trữ{% endif %}</span></p>
+{% if member.status == 'invited' %}<p>Lời mời chưa cho phép xem sổ nhóm; bạn tự quyết định tham gia.</p><div class="form-actions"><a class="button" href="{% url 'finance:group_member_action' member.group_id member.pk 'join' %}">Chấp nhận lời mời</a><a class="button secondary" href="{% url 'finance:group_member_action' member.group_id member.pk 'decline' %}">Từ chối</a></div>
+{% else %}<a class="business-link" href="{% url 'finance:group_detail' member.group_id %}">Mở sổ nhóm</a>{% endif %}</article>
+{% empty %}<section class="card empty-state"><h2>Chưa có nhóm hoặc lời mời</h2><p>Tạo nhóm và mời bằng tên đăng nhập; không tự thêm chi tiêu cho người khác.</p></section>{% endfor %}</div>
+{% include 'finance/groups/pagination.html' with page=page_obj key='page' label='nhóm' %}
+{% endblock %}

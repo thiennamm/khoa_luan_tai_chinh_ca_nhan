@@ -1,5 +1,5 @@
 {% load money %}
-<div class="table-wrap"><table class="transaction-table">
+<div class="table-wrap"{% if scroll_label %} tabindex="0" role="region" aria-label="{{ scroll_label }}"{% endif %}><table class="transaction-table">
   <thead><tr><th>Ngày</th><th>Giao dịch</th><th>Danh mục</th><th>Loại</th><th class="numeric">Số tiền</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
   <tbody>{% for item in transactions %}<tr>
     <td data-label="Ngày" class="transaction-date">{{ item.date|date:"d/m/Y" }}</td>

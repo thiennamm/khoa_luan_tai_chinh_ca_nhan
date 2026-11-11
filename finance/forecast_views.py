@@ -22,7 +22,8 @@ def forecast(request):
         source = snapshot(request.user)
     except Exception:
         return render(request, 'finance/forecast.html', {'error': 'Chưa kiểm tra được lịch sử. Vui lòng thử lại; chưa hiển thị kết quả cũ.'}, status=503)
-    context = {'source': source}
+    from .groups import pending_count
+    context = {'source': source, 'group_pending_count':pending_count(request.user)}
     saved = ForecastResult.objects.filter(user=request.user).first()
     valid = saved is not None and saved.target_month == source['target'] and saved.fingerprint == source['fingerprint']
     context['stale'] = saved is not None and not valid
