@@ -15,9 +15,12 @@ from .monthly_report_views import monthly_report
 from .financial_calendar_views import calendar_month, calendar_day
 from . import wallet_views
 from . import group_views
+from . import notification_views
 
 app_name = "finance"
 urlpatterns = [
+    path('thong-bao/', notification_views.inbox, name='notification_inbox'),
+    path('thong-bao/<int:pk>/mo/', notification_views.open_notification, name='notification_open'),
     path('chia-tien-nhom/', group_views.index, name='group_list'),
     path('chia-tien-nhom/them/', group_views.create, name='group_create'),
     path('chia-tien-nhom/dong-tien-chua-gan/', group_views.unassigned, name='group_unassigned'),

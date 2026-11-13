@@ -98,6 +98,8 @@ Tháng hiện tại ghi **Tháng chưa kết thúc**. Tháng không có giao d�
 
 ## Chia tiền nhóm
 
+Chuông **Thông báo** mở danh sách lời mời, phần chia và đề nghị hoàn trả của tài khoản. Mở một mục đánh dấu đã đọc; việc chấp nhận hoặc xác nhận vẫn thực hiện trên trang nghiệp vụ. Xem [thông báo Chia tiền nhóm](docs/group-notifications.md) để chạy thử trên QA.
+
 Vào **Chia tiền nhóm**, tạo nhóm và mời tài khoản bằng tên đăng nhập chính xác. Người được mời phải tự chấp nhận. Một khoản có một người trả, chia đều nguyên VND hoặc nhập phần tiền cụ thể; xem trước rồi chốt. Mỗi thành viên tự xác nhận phần chi và chọn danh mục riêng: phần chờ/từ chối chưa vào công nợ hoặc báo cáo. Chủ nhóm không ghi thay chi tiêu hoặc chọn ví của thành viên khác.
 
 Hoàn trả chờ xác nhận giữ chỗ số nợ tối đa 7 ngày; tổng chờ và đã hoàn không vượt nghĩa vụ. Chỉ người nhận xác nhận mới giảm nợ. Sau đó mỗi bên tự gắn dòng tiền với ví của mình; không tạo thu nhập/chi tiêu lần nữa. Phần chi cá nhân dùng dòng tiền nhóm riêng, không bị cộng lại vào “Chưa xác định ví”. Ví có khu vực **Dòng tiền nhóm chưa gắn ví**, gồm cả nguồn lịch sử của chính bạn sau khi rời/lưu trữ nhóm.

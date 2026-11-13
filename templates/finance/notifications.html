@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Thông báo{% endblock %}
+{% block page_name %}Thông báo{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Thông báo</h1><p>Thông báo mới nhất từ Chia tiền nhóm.</p></div></div>
+{% if page_obj %}
+<ul class="card notification-list">
+  {% for notice in page_obj %}
+  <li>
+    <form method="post" action="{% url 'finance:notification_open' notice.pk %}">
+      {% csrf_token %}
+      <button class="notification-row" type="submit">
+        <span class="notification-copy">
+          <strong>{{ notice.title }}</strong>
+          <time class="muted" datetime="{{ notice.created_at|date:'c' }}">{{ notice.created_at|date:'H:i · d/m/Y' }}</time>
+        </span>
+        <span class="notification-status{% if not notice.read_at %} notification-unread{% endif %}">{% if notice.read_at %}Đã đọc{% else %}Chưa đọc{% endif %}</span>
+        {% include 'includes/icon.html' with name='arrow' %}
+      </button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% include 'finance/groups/pagination.html' with page=page_obj key='page' label='thông báo' %}
+{% else %}
+<section class="card empty-state"><p>Bạn chưa có thông báo</p></section>
+{% endif %}
+{% endblock %}

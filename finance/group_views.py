@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from . import groups
 from .group_models import ExpenseGroup, GroupMember, GroupExpense, GroupShare, GroupSettlement, GroupWalletPosting
 from .group_forms import OperationForm, GroupForm, InvitationForm, ExpenseForm, ShareForm, SettlementForm, PostingForm
+from .notification_views import invitation_unavailable
 
 
 def membership(request,pk,invited=False):
@@ -29,8 +30,9 @@ def submit(request, form, callback):
         form.add_error(None,'Chưa xác nhận được kết quả. Hãy kiểm tra sổ nhóm trước khi gửi lại; không tự gửi lại thao tác tài chính.')
 
 
-def action_page(request,form,title,notice,group=None):
-    return render(request,'finance/groups/form.html',{'form':form,'title':title,'notice':notice,'group':group})
+def action_page(request,form,title,notice,group=None,*,invitation=None):
+    return render(request,'finance/groups/form.html',{'form':form,'title':title,'notice':notice,'group':group,
+        'invitation':invitation})
 
 
 @login_required
@@ -91,6 +93,16 @@ def invite(request,pk):
 @require_http_methods(['GET','POST'])
 @never_cache
 def member_action(request,pk,member_id,action):
+    version=request.GET.get('lan')
+    if action in ['join','decline'] and version is not None and request.method=='GET':
+        invitation=get_object_or_404(GroupMember.objects.select_related('group'),pk=member_id,group_id=pk,user=request.user)
+        if str(invitation.invitation_version)!=version or invitation.status not in ['invited','active'] or (
+            invitation.status=='invited' and invitation.group.archived
+        ):
+            return invitation_unavailable(request,invitation,version)
+        if invitation.status=='active':
+            messages.info(request,'Lời mời này đã được chấp nhận.')
+            return redirect('finance:group_detail',pk=pk)
     actor=membership(request,pk,invited=action in ['join','decline'])
     row=get_object_or_404(GroupMember,pk=member_id,group_id=pk)
     if (action in ['join','decline','leave'] and row.user_id!=request.user.pk) or (action=='revoke' and actor.group.owner_id!=request.user.pk):
@@ -100,12 +112,14 @@ def member_action(request,pk,member_id,action):
     if action not in titles:
         from django.http import Http404
         raise Http404
-    form=OperationForm(request.POST if request.method=='POST' else None,initial={'operation_token':groups.issue(request.user,action,pk,member_id)})
+    form=OperationForm(request.POST if request.method=='POST' else None,initial={'operation_token':groups.issue(
+        request.user,action,pk,member_id,invitation_version=int(version) if action in ['join','decline'] and version is not None and request.method=='GET' else row.invitation_version)})
     result=submit(request,form,lambda:groups.membership_action(request.user,form.cleaned_data['operation_token'],pk,member_id,action))
     if result: return redirect('finance:group_detail',pk=pk) if action in ['join','revoke'] else redirect('finance:group_list')
     return action_page(request,form,titles[action]+' — '+actor.group.name,
         'Không xóa lịch sử tài chính. Người rời nhóm mất quyền truy cập sổ nhóm; chủ nhóm không rời trong bản này.',
-        actor.group if actor.status=='active' else None)
+        actor.group if actor.status=='active' else None,
+        invitation=row if action=='join' and row.status=='invited' else None)
 
 
 @login_required

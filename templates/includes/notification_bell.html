@@ -1,0 +1,7 @@
+{% load notifications %}
+{% unread_notifications user as unread %}
+<a href="{% url 'finance:notification_inbox' %}" class="notification-bell"
+   aria-label="Thông báo: {{ unread }} chưa đọc" title="Thông báo"{% if request.resolver_match.url_name == 'notification_inbox' %} aria-current="page"{% endif %}>
+  {% include 'includes/icon.html' with name='bell' %}
+  {% if unread %}<span class="notification-badge" aria-hidden="true">{{ unread }}</span>{% endif %}
+</a>

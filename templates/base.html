@@ -7,6 +7,7 @@
   <link rel="icon" href="{% static 'img/brand.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/app.css' %}?v=18b.1">
   <link rel="stylesheet" href="{% static 'css/workspace.css' %}?v=ui01.1">
+  {% if user.is_authenticated %}<link rel="stylesheet" href="{% static 'css/notifications.css' %}">{% endif %}
   {% block styles %}{% endblock %}
 </head>
 <body>
@@ -20,7 +21,7 @@
     <div class="sidebar-foot">{% include 'includes/icon.html' with name='shield' %}<span>Không gian của riêng bạn<small>Đơn vị tiền: VND</small></span></div>
   </aside>
   <div class="workspace">
-    <header class="topbar"><div class="topbar-heading"><span class="workspace-label">KHÔNG GIAN CÁ NHÂN</span><span class="topbar-title">{% block page_name %}{% include 'includes/page_name.html' %}{% endblock %}</span></div><div class="topbar-actions"><a class="button topbar-create" href="{% url 'finance:transaction_create' %}">{% include 'includes/icon.html' with name='plus' %}<span>Thêm giao dịch</span></a><div class="account"><a href="{% url 'account' %}" class="account-link" title="{{ user.username }}">{% include 'includes/icon.html' with name='user' %}<span class="username">{{ user.username }}</span></a><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit" aria-label="Đăng xuất">{% include 'includes/icon.html' with name='logout' %}<span>Đăng xuất</span></button></form></div></div></header>
+    <header class="topbar"><div class="topbar-heading"><span class="workspace-label">KHÔNG GIAN CÁ NHÂN</span><span class="topbar-title">{% block page_name %}{% include 'includes/page_name.html' %}{% endblock %}</span></div><div class="topbar-actions"><a class="button topbar-create" href="{% url 'finance:transaction_create' %}">{% include 'includes/icon.html' with name='plus' %}<span>Thêm giao dịch</span></a><div class="account">{% include 'includes/notification_bell.html' %}<a href="{% url 'account' %}" class="account-link" title="{{ user.username }}">{% include 'includes/icon.html' with name='user' %}<span class="username">{{ user.username }}</span></a><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit" aria-label="Đăng xuất">{% include 'includes/icon.html' with name='logout' %}<span>Đăng xuất</span></button></form></div></div></header>
 {% else %}
 <div class="auth-shell"><header class="auth-header"><a class="brand" href="{% url 'login' %}"><span class="brand-icon">{% include 'includes/icon.html' with name='wallet' %}</span><span>Sổ Thu Chi<small>TÀI CHÍNH CÁ NHÂN</small></span></a><span class="muted">Ghi chép rõ ràng. Chủ động mỗi ngày.</span></header>
 {% endif %}

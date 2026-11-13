@@ -14,13 +14,16 @@ from .category_locks import lock_catalog
 from .group_models import (MAX, ExpenseGroup, GroupMember, GroupExpense, GroupShare,
     GroupSettlement, GroupAllocation, GroupWalletPosting, GroupOperation)
 from .models import Category, Transaction, Wallet
+from .notification_models import GroupNotification
 from .wallets import today
 
 SALT = 'finance.group-ledger.v1'
 
 
-def issue(user, action, group_id=0, target=0):
-    version = GroupMember.objects.filter(pk=target,group_id=group_id).values_list('invitation_version',flat=True).first() if action in ['join','decline','revoke'] else None
+def issue(user, action, group_id=0, target=0, *, invitation_version=None):
+    version = invitation_version if action in ['join','decline','revoke'] else None
+    if version is None and action in ['join','decline','revoke']:
+        version = GroupMember.objects.filter(pk=target,group_id=group_id).values_list('invitation_version',flat=True).first()
     return signing.dumps({'user': user.pk, 'action': action, 'group': group_id,
         'target': target, 'key': str(uuid4()),'version':version}, salt=SALT)
 
@@ -113,8 +116,12 @@ def invite(user, token, group_id, username):
             if old.status in ['active','invited']:
                 raise ValidationError('Tài khoản đã tham gia hoặc đang có lời mời.')
             _update(GroupMember,old.pk,status='invited',invitation_version=F('invitation_version')+1)
-            return old.pk
-        return GroupMember.objects.create(group_id=group_id,user=target).pk
+            invitation_id, version = old.pk, old.invitation_version + 1
+        else:
+            invitation = GroupMember.objects.create(group_id=group_id,user=target)
+            invitation_id, version = invitation.pk, invitation.invitation_version
+        GroupNotification.objects.create(recipient=target, invitation_id=invitation_id, invitation_version=version)
+        return invitation_id
     return _run(user,token,'invite',group_id,0,{'username':username},send)
 
 
@@ -199,12 +206,17 @@ def create_expense(user, token, group_id, data):
         actor = _member(user,group_id)
         check_date(data['date'])
         parts = split(data['amount'],data['members'],data['method'],data.get('exact'))
-        if GroupMember.objects.filter(group_id=group_id,status='active',pk__in=parts).count() != len(parts):
+        recipients = dict(GroupMember.objects.filter(group_id=group_id,status='active',pk__in=parts)
+            .values_list('pk', 'user_id'))
+        if len(recipients) != len(parts):
             raise ValidationError('Người chịu chi không còn tham gia đúng nhóm.')
         expense = GroupExpense.objects.create(group_id=group_id,payer=actor,amount=amount(data['amount']),
             date=data['date'],description=data['description'],method=data['method'])
+        notices = []
         for pk,value in parts.items():
-            GroupShare.objects.create(expense=expense,member_id=pk,amount=value)
+            share = GroupShare.objects.create(expense=expense,member_id=pk,amount=value)
+            notices.append(GroupNotification(recipient_id=recipients[pk], share=share))
+        GroupNotification.objects.bulk_create(notices)
         return expense.pk
     return _run(user,token,'expense',group_id,0,data,create)
 
@@ -277,7 +289,8 @@ def propose_settlement(user,token,group_id,data):
         if len(payers) != 1 or any(row['share'].expense.date > data['date'] for row in chosen):
             raise ValidationError('Chỉ chọn một người nhận và ngày không trước khoản đang hoàn.')
         creditor_id = payers.pop()
-        if not GroupMember.objects.filter(pk=creditor_id,group_id=group_id,status='active').exists():
+        recipient_id = GroupMember.objects.filter(pk=creditor_id,group_id=group_id,status='active').values_list('user_id',flat=True).first()
+        if recipient_id is None:
             raise ValidationError('Người nhận không còn hoạt động trong nhóm.')
         if value > sum((row['available'] for row in chosen),Decimal(0)):
             raise ValidationError('Tiền vượt phần còn có thể hoàn; yêu cầu chờ khác đang giữ chỗ số nợ.')
@@ -289,6 +302,7 @@ def propose_settlement(user,token,group_id,data):
             if allocated > 0:
                 GroupAllocation.objects.create(settlement=record,share=row['share'],amount=allocated)
                 remaining-=allocated
+        GroupNotification.objects.create(recipient_id=recipient_id, settlement=record)
         return record.pk
     return _run(user,token,'settlement',group_id,0,data,create)
 

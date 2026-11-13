@@ -262,7 +262,8 @@ class FinancialCalendarTests(TestCase):
         self.assertEqual(len(show_all),len(large))
         # Empty vs nonempty actual day may add one paginated SELECT, never N+1.
         self.assertLessEqual(len(day_large),len(day_small)+1)
-        self.assertLessEqual(len(large),8);self.assertLessEqual(len(day_large),9)
+        # The shared topbar reads the authenticated user's unread count once.
+        self.assertLessEqual(len(large),9);self.assertLessEqual(len(day_large),10)
 
     def cell_html(self, cell, **extra):
         return render_to_string('finance/includes/calendar_cell.html',

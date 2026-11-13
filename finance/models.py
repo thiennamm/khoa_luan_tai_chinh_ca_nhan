@@ -675,3 +675,4 @@ class SimilarTransactionOperation(models.Model):
 # Shared ledger models are kept separate from personal-finance model definitions.
 from .group_models import (ExpenseGroup, GroupMember, GroupExpense, GroupShare,
     GroupSettlement, GroupAllocation, GroupWalletPosting, GroupOperation)  # noqa: E402,F401
+from .notification_models import GroupNotification  # noqa: E402,F401
