@@ -13,7 +13,7 @@ from .csv_import import confirm_batch, inspect_csv, stage_csv
 from .test_csv_import import csv_bytes
 from .forecast_math import ForecastFailure, calculate, choose_method, features, ridge_predict
 from .forecasting import StaleForecast, compute_and_store, shift_month, snapshot
-from .models import ForecastDataVersion, ForecastResult, MonthlyCoverage, Transaction
+from .models import Budget, ForecastDataVersion, ForecastResult, MonthlyCoverage, Transaction
 from .tests import FinanceCase
 
 
@@ -172,6 +172,74 @@ class ForecastIntegrationTests(FinanceCase):
         self.assertEqual(saved.method,'mean3')
         self.assertEqual(saved.history_end,date(2026,9,1))
         self.assertFalse(ForecastResult.objects.filter(user=self.bob).exists())
+
+    def test_forecast_compares_whole_month_estimate_to_total_budget(self):
+        self.seed(3, values=['7800000'] * 3)
+        compute_and_store(self.alice, snapshot(self.alice))
+        budget = Budget.objects.create(user=self.alice, month=self.target, amount=Decimal('7000000'))
+        for limit, expected in [
+            ('7000000', 'Có thể vượt 800.000 VND'),
+            ('8600000', 'Thấp hơn ngân sách 800.000 VND'),
+            ('7800000', 'Dự báo bằng ngân sách'),
+        ]:
+            with self.subTest(limit=limit):
+                budget.amount = Decimal(limit)
+                budget.save()
+                page = self.client.get(self.url)
+                self.assertContains(page, 'Tổng chi dự báo')
+                self.assertContains(page, 'Ngân sách tháng')
+                self.assertContains(page, expected)
+
+    def test_comparison_requires_total_budget_of_same_month_and_owner(self):
+        self.seed(3)
+        compute_and_store(self.alice, snapshot(self.alice))
+        Budget.objects.create(user=self.alice, month=self.target, category=self.food, amount=Decimal('100'))
+        Budget.objects.create(user=self.alice, month=shift_month(self.target, -1), amount=Decimal('222222'))
+        Budget.objects.create(user=self.bob, month=self.target, amount=Decimal('333333'))
+        page = self.client.get(self.url, {'user_id': self.bob.pk, 'month': '2026-09'})
+        self.assertContains(page, 'Chưa đặt ngân sách tổng cho tháng này')
+        self.assertContains(page, f'href="{reverse("finance:budget_list")}?month=2026-10"')
+        self.assertNotContains(page, '222.222 VND')
+        self.assertNotContains(page, '333.333 VND')
+        self.assertNotContains(page, 'Dự báo bằng ngân sách')
+
+    def test_comparison_hidden_without_current_valid_forecast(self):
+        Budget.objects.create(user=self.alice, month=self.target, amount=Decimal('90'))
+        insufficient = self.client.get(self.url)
+        self.assertContains(insufficient, 'Chưa đủ lịch sử')
+        self.assertNotContains(insufficient, 'So sánh với ngân sách tháng')
+        self.seed(3)
+        self.assertNotContains(self.client.get(self.url), 'So sánh với ngân sách tháng')
+        compute_and_store(self.alice, snapshot(self.alice))
+        self.assertContains(self.client.get(self.url), 'Có thể vượt 10 VND')
+        self.alice_row.amount = Decimal('200000')
+        self.alice_row.save()
+        stale = self.client.get(self.url)
+        self.assertContains(stale, 'Kết quả trước không còn hiệu lực')
+        self.assertNotContains(stale, 'So sánh với ngân sách tháng')
+
+    def test_budget_edit_refreshes_comparison_without_recalculating(self):
+        self.seed(3, values=['6200000'] * 3)
+        forecast = compute_and_store(self.alice, snapshot(self.alice))
+        budget = Budget.objects.create(user=self.alice, month=self.target, amount=Decimal('7000000'))
+        self.assertContains(self.client.get(self.url), 'Thấp hơn ngân sách 800.000 VND')
+        self.assertRedirects(
+            self.client.post(reverse('finance:budget_edit', args=[budget.pk]),
+                             {'month': '2026-10', 'category': '', 'amount': '6.000.000'}),
+            reverse('finance:budget_list') + '?month=2026-10',
+        )
+        self.assertContains(self.client.get(self.url), 'Có thể vượt 200.000 VND')
+        forecast.refresh_from_db()
+        self.assertEqual(forecast.estimate_decimal, Decimal('6200000'))
+        self.assertEqual(forecast.fingerprint, snapshot(self.alice)['fingerprint'])
+
+    def test_budget_difference_preserves_large_exact_vnd_amount(self):
+        self.seed(3)
+        forecast = compute_and_store(self.alice, snapshot(self.alice))
+        ForecastResult.objects.filter(pk=forecast.pk).update(estimate='100000000000000000000000000000')
+        Budget.objects.create(user=self.alice, month=self.target, amount=Decimal('1'))
+        page = self.client.get(self.url)
+        self.assertContains(page, 'Có thể vượt 99.999.999.999.999.999.999.999.999.999 VND')
 
     def test_gap_stops_tail_no_join_and_zero_confirmed_remains_valid(self):
         months=self.seed(6,values=['1','2','3','0','0','0'])

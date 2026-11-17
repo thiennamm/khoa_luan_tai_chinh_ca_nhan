@@ -29,6 +29,28 @@
   <p>Ước tính tổng khoản chi ghi trong website của tháng {{ result.target_month|date:'m/Y' }}.</p>
   <p class="help">Lịch sử hợp lệ: {{ result.history_start|date:'m/Y' }}–{{ result.history_end|date:'m/Y' }} ({{ result.history_count }} tháng). Tính lúc {{ result.calculated_at|date:'H:i d/m/Y' }}.</p>
 </section>
+<section class="card forecast-card" aria-labelledby="forecast-budget-title">
+  <h2 id="forecast-budget-title">So sánh với ngân sách tháng {{ result.target_month|date:'m/Y' }}</h2>
+  {% if budget_amount is not None %}
+    <dl>
+      <div><dt>Tổng chi dự báo</dt><dd><strong>{{ result.estimate_decimal|vnd }}</strong></dd></div>
+      <div><dt>Ngân sách tháng</dt><dd><strong>{{ budget_amount|vnd }}</strong></dd></div>
+      <div><dt>Chênh lệch dự báo</dt><dd>
+        {% if budget_difference > 0 %}
+          <strong class="expense">Có thể vượt {{ budget_difference_amount|vnd }}</strong>
+        {% elif budget_difference < 0 %}
+          <strong>Thấp hơn ngân sách {{ budget_difference_amount|vnd }}</strong>
+        {% else %}
+          <strong>Dự báo bằng ngân sách</strong> · {{ budget_difference_amount|vnd }}
+        {% endif %}
+      </dd></div>
+    </dl>
+    <p class="help">So sánh ước tính tổng chi ghi trong website với hạn mức tổng, cùng tháng. Số chi đã ghi nhận trong tháng không được cộng thêm vào dự báo.</p>
+  {% else %}
+    <p>Chưa đặt ngân sách tổng cho tháng này</p>
+    <a class="button secondary" href="{% url 'finance:budget_list' %}?month={{ result.target_month|date:'Y-m' }}">Mở Ngân sách tháng {{ result.target_month|date:'m/Y' }}</a>
+  {% endif %}
+</section>
 {% if comparisons %}<section class="card activity"><div class="section-heading"><div><h2>So sánh trên 6 tháng validation</h2><p class="help">{{ validation_start|date:'m/Y' }}–{{ validation_end|date:'m/Y' }}. MAE là lỗi tuyệt đối trung bình trên lịch sử dùng để chọn phương pháp. Không phải sai số test độc lập hay cam kết sai số tháng này.</p></div></div>
 <div class="coverage-table"><table><thead><tr><th>Phương pháp</th><th>MAE validation</th><th>Lựa chọn</th></tr></thead><tbody>
 {% for row in comparisons %}<tr><td data-label="Phương pháp">{{ row.label }}</td><td data-label="MAE validation">{{ row.mae|vnd }}</td><td data-label="Lựa chọn">{% if row.selected %}Được chọn{% else %}—{% endif %}</td></tr>{% endfor %}

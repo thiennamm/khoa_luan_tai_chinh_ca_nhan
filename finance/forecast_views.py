@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from .forecast_config import CONFIG, METHOD_LABELS
 from .forecast_math import ForecastFailure
 from .forecasting import compute_and_store, snapshot
-from .models import ForecastResult
+from .models import Budget, ForecastResult
 
 
 @login_required
@@ -40,6 +40,17 @@ def forecast(request):
         return redirect(reverse('finance:forecast'))
     if valid and source['history_count'] >= CONFIG['minimum_months']:
         context['result'] = saved
+        budget_amount = Budget.objects.filter(
+            user=request.user, month=saved.target_month, category__isnull=True,
+        ).values_list('amount', flat=True).first()
+        context['budget_amount'] = budget_amount
+        if budget_amount is not None:
+            # ForecastResult lưu chính xác đến 30 chữ số, vượt mặc định của Decimal.
+            with localcontext() as precision:
+                precision.prec = max(precision.prec, len(saved.estimate))
+                difference = saved.estimate_decimal - budget_amount
+            context['budget_difference'] = difference
+            context['budget_difference_amount'] = difference.copy_abs()
         context['method_label'] = METHOD_LABELS[saved.method]
         context['selected_is_ml'] = saved.method.startswith('ridge_')
         context['comparisons'] = [
